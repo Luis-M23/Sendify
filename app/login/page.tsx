@@ -1,26 +1,73 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Package } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { supabaseErrorMap } from "@/lib/supabase/errorMap";
+import { toast } from "react-toastify";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Package } from "lucide-react"
+// Esquema Zod para validar el formulario
+const loginSchema = z.object({
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const supabase = createClient();
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simulate login - in production, this would call an API
-    router.push("/dashboard")
-  }
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validación con Zod
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      setError(parsed.error.errors[0]?.message);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error: supaError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (supaError) {
+        const translated =
+          supabaseErrorMap[supaError?.code] ||
+          "Ocurrió un error, intenta de nuevo";
+        setError(translated);
+        toast.error(translated);
+      } else {
+        router.push("/dashboard");
+        toast("Bienvenido!");
+      }
+    } catch {
+      setError("Ocurrió un error, intenta de nuevo");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -33,7 +80,9 @@ export default function LoginPage() {
         <Card>
           <CardHeader>
             <CardTitle>Iniciar Sesión</CardTitle>
-            <CardDescription>Ingresa tus credenciales para acceder al sistema</CardDescription>
+            <CardDescription>
+              Ingresa tus credenciales para acceder al sistema
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -42,7 +91,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="usuario@ejemplo.com"
+                  placeholder="usuario@shipglobal.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -53,14 +102,16 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Iniciar Sesión
+
+              {error && <p className="text-red-500">{error}</p>}
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
             </form>
 
@@ -84,5 +135,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

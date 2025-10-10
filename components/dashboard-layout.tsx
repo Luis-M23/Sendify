@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { type ReactNode, useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { type ReactNode, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Package,
   Calculator,
@@ -28,12 +28,15 @@ import {
   LogOut,
   User,
   Bell,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/client";
 
 interface DashboardLayoutProps {
-  children: ReactNode
-  userRole?: "cliente" | "vip" | "operador" | "admin"
+  children: ReactNode;
+  userRole?: "cliente" | "vip" | "operador" | "admin";
 }
 
 const navigation = [
@@ -43,16 +46,28 @@ const navigation = [
   { name: "Promociones", href: "/promotions", icon: TrendingUp },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Reportes", href: "/reports", icon: FileText },
-]
+];
 
-const adminNavigation = [{ name: "Panel Admin", href: "/admin", icon: Settings }]
+const adminNavigation = [
+  { name: "Panel Admin", href: "/admin", icon: Settings },
+];
 
-export function DashboardLayout({ children, userRole = "cliente" }: DashboardLayoutProps) {
-  const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+export function DashboardLayout({
+  children,
+  userRole = "cliente",
+}: DashboardLayoutProps) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
-  const isAdmin = userRole === "admin" || userRole === "operador"
-  const isVIP = userRole === "vip"
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
+  const isAdmin = userRole === "admin" || userRole === "operador";
+  const isVIP = userRole === "vip";
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,7 +83,7 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border transition-transform duration-300 lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex flex-col h-full">
@@ -78,7 +93,12 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
               <Package className="h-8 w-8 text-primary" />
               <span className="text-xl font-bold">ShipGlobal</span>
             </Link>
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -86,21 +106,22 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <Link key={item.name} href={item.href}>
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     className={cn(
                       "w-full justify-start gap-3",
-                      isActive && "bg-primary/10 text-primary hover:bg-primary/20",
+                      isActive &&
+                        "bg-primary/10 text-primary hover:bg-primary/20"
                     )}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.name}
                   </Button>
                 </Link>
-              )
+              );
             })}
 
             {isAdmin && (
@@ -111,21 +132,22 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
                   </p>
                 </div>
                 {adminNavigation.map((item) => {
-                  const isActive = pathname === item.href
+                  const isActive = pathname === item.href;
                   return (
                     <Link key={item.name} href={item.href}>
                       <Button
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn(
                           "w-full justify-start gap-3",
-                          isActive && "bg-primary/10 text-primary hover:bg-primary/20",
+                          isActive &&
+                            "bg-primary/10 text-primary hover:bg-primary/20"
                         )}
                       >
                         <item.icon className="h-5 w-5" />
                         {item.name}
                       </Button>
                     </Link>
-                  )
+                  );
                 })}
               </>
             )}
@@ -139,7 +161,9 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">Juan Pérez</p>
-                <p className="text-xs text-muted-foreground truncate">juan@ejemplo.com</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  juan@ejemplo.com
+                </p>
               </div>
             </div>
             {isVIP && (
@@ -156,7 +180,12 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-card border-b border-border">
           <div className="flex items-center justify-between px-4 py-3">
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
               <Menu className="h-5 w-5" />
             </Button>
 
@@ -194,7 +223,10 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Cerrar Sesión
                   </DropdownMenuItem>
@@ -208,5 +240,5 @@ export function DashboardLayout({ children, userRole = "cliente" }: DashboardLay
         <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
