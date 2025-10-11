@@ -31,23 +31,28 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setErrors({});
 
     // Validación con Zod
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.errors[0]?.message);
+      // Convertimos los errores en un objeto más fácil de usar
+      const fieldErrors = parsed.error.formErrors.fieldErrors;
+      setErrors({
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const { data, error: supaError } = await supabase.auth.signInWithPassword({
+      const { error: supaError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -56,14 +61,13 @@ export default function LoginPage() {
         const translated =
           supabaseErrorMap[supaError?.code] ||
           "Ocurrió un error, intenta de nuevo";
-        setError(translated);
         toast.error(translated);
       } else {
+        toast.success("¡Bienvenido!");
         router.push("/dashboard");
-        toast("Bienvenido!");
       }
     } catch {
-      setError("Ocurrió un error, intenta de nuevo");
+      toast.error("Ocurrió un error, intenta de nuevo");
     } finally {
       setLoading(false);
     }
@@ -86,6 +90,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
+              {/* Campo Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
                 <Input
@@ -94,9 +99,13 @@ export default function LoginPage() {
                   placeholder="usuario@shipglobal.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email}</p>
+                )}
               </div>
+
+              {/* Campo Contraseña */}
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
@@ -104,11 +113,11 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password}</p>
+                )}
               </div>
-
-              {error && <p className="text-red-500">{error}</p>}
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Iniciando sesión..." : "Iniciar Sesión"}

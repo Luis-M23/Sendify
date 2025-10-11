@@ -157,10 +157,10 @@ export function DashboardLayout({
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
               <Avatar>
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>JC</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">Juan Pérez</p>
+                <p className="text-sm font-medium truncate">Juan Pérezs</p>
                 <p className="text-xs text-muted-foreground truncate">
                   juan@ejemplo.com
                 </p>
