@@ -31,7 +31,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { CountryModal } from "@/components/admin-modals-extended";
+import { PaisModal } from "@/components/admin/pais-modal";
 import { PaisService } from "@/lib/supabase/services/paisService";
 import {
   PaisData,
@@ -272,7 +272,7 @@ export default function CountriesAdminPage() {
           </CardContent>
         </Card>
 
-        <CountryModal
+        <PaisModal
           open={modalOpen}
           onOpenChange={setModalOpen}
           mode={modalMode}
