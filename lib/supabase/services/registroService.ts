@@ -1,6 +1,6 @@
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
-import { RegisterData } from "@/lib/validation/register";
+import { RegistroData } from "@/lib/validation/registro";
 import type { AuthError } from "@supabase/supabase-js";
 
 const supabase = createClient();
@@ -9,7 +9,7 @@ export async function registerService({
   nombre,
   email,
   password,
-}: RegisterData) {
+}: RegistroData) {
   const { error }: { error: AuthError | null } = await supabase.auth.signUp({
     email,
     password,

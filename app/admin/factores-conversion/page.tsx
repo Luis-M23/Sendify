@@ -17,11 +17,11 @@ import {
 } from "@/lib/supabase/services/factorConversionService";
 import { factorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
-import { FactorConversion } from "@/lib/validation/factorConversion";
+import { FactorConversionData } from "@/lib/validation/factorConversion";
 
 
 export default function ModosTransportePage() {
-  const [modos, setModos] = useState<(FactorConversion & { error?: string })[]>([]);
+  const [modos, setModos] = useState<(FactorConversionData & { error?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);

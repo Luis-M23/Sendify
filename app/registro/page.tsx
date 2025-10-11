@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Package } from "lucide-react";
 import { toast } from "react-toastify";
-import { registerSchema } from "@/lib/validation/register";
-import { registerService } from "@/lib/supabase/services/registerService";
+import { RegistroSchema } from "@/lib/validation/registro";
+import { registerService } from "@/lib/supabase/services/registroService";
 
 type FormErrors = {
   nombre?: string;
@@ -40,7 +40,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrors({});
 
-    const parsed = registerSchema.safeParse(formData);
+    const parsed = RegistroSchema.safeParse(formData);
     if (!parsed.success) {
       const fieldErrors: FormErrors = {};
       parsed.error.errors.forEach((err) => {

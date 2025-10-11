@@ -17,7 +17,7 @@ export default function HomePage() {
             <Link href="/login">
               <Button variant="ghost">Iniciar Sesión</Button>
             </Link>
-            <Link href="/register">
+            <Link href="/registro">
               <Button>Registrarse</Button>
             </Link>
           </nav>
