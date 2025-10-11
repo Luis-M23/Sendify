@@ -135,7 +135,7 @@ export default function CountriesAdminPage() {
       try {
         await PaisService.delete(countryToDelete.id!);
         toast.success(
-          `País ${countryToDelete.nombre_completo} restaurado correctamente`
+          `País ${countryToDelete.nombre_completo} eliminado correctamente`
         );
         await loadCountries();
       } catch (error: any) {
@@ -201,7 +201,7 @@ export default function CountriesAdminPage() {
                       Costo Marítimo (USD)
                     </TableHead>
                     <TableHead className="text-center">Estado</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -236,7 +236,7 @@ export default function CountriesAdminPage() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right flex gap-2 justify-end">
+                      <TableCell className="text-right flex gap-2 justify-center">
                         {!country.activo ? (
                           <Button
                             variant="ghost"
@@ -286,8 +286,7 @@ export default function CountriesAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Eliminar País</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Estás seguro de que deseas eliminar el país "
-                {countryToDelete?.nombre_completo}"?
+                ¿Estás seguro de que deseas eliminar el país {countryToDelete?.nombre_completo}?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -311,8 +310,7 @@ export default function CountriesAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Restaurar País</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Estás seguro de que deseas restaurar el país "
-                {countryToRestore?.nombre_completo}"?
+                ¿Estás seguro de que deseas restaurar el país {countryToRestore?.nombre_completo}?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

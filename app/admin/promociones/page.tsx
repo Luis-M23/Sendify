@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Plus, Edit, Trash2, Search, Calendar, Percent, Users, Copy } from "lucide-react"
-import { PromotionModalExtended } from "@/components/admin-modals-extended"
 import { PromotionsService } from "@/lib/services/promotionsService"
 import { Promotion, CreatePromotion, UpdatePromotion } from "@/lib/validation/promotions"
 import { useToast } from "@/hooks/use-toast"
@@ -355,13 +354,13 @@ export default function PromotionsAdminPage() {
       </div>
 
       {/* Modal */}
-      <PromotionModalExtended
+      {/* <PromotionModalExtended
         open={modalOpen}
         onOpenChange={setModalOpen}
         mode={modalMode}
         initialData={selectedPromotion || undefined}
         onSubmit={handleModalSubmit}
-      />
+      /> */}
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
