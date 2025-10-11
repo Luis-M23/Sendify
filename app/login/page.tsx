@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,18 +14,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Package } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { supabaseErrorMap } from "@/lib/supabase/errorMap";
 import { toast } from "react-toastify";
-
-// Esquema Zod para validar el formulario
-const loginSchema = z.object({
-  email: z.string().email("Correo inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
+import { loginSchema } from "@/lib/validation/login";
+import { loginService } from "@/lib/supabase/services/loginService";
 
 export default function LoginPage() {
-  const supabase = createClient();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -38,10 +30,8 @@ export default function LoginPage() {
     e.preventDefault();
     setErrors({});
 
-    // Validación con Zod
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      // Convertimos los errores en un objeto más fácil de usar
       const fieldErrors = parsed.error.formErrors.fieldErrors;
       setErrors({
         email: fieldErrors.email?.[0],
@@ -52,22 +42,11 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const { error: supaError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (supaError) {
-        const translated =
-          supabaseErrorMap[supaError?.code] ||
-          "Ocurrió un error, intenta de nuevo";
-        toast.error(translated);
-      } else {
-        toast.success("¡Bienvenido!");
-        router.push("/dashboard");
-      }
-    } catch {
-      toast.error("Ocurrió un error, intenta de nuevo");
+      await loginService({ email, password });
+      toast.success("¡Bienvenido!");
+      router.push("/dashboard");
+    } catch (err: any) {
+      toast.error(err.message || "Ocurrió un error, intenta de nuevo");
     } finally {
       setLoading(false);
     }
@@ -90,7 +69,6 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              {/* Campo Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
                 <Input
@@ -104,8 +82,6 @@ export default function LoginPage() {
                   <p className="text-red-500 text-sm">{errors.email}</p>
                 )}
               </div>
-
-              {/* Campo Contraseña */}
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña</Label>
                 <Input

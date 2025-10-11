@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,26 +14,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Package } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "react-toastify";
-import { supabaseErrorMap } from "@/lib/supabase/errorMap";
+import { registerSchema } from "@/lib/validation/register";
+import { registerService } from "@/lib/supabase/services/registerService";
 
-// Esquema Zod para validar el formulario
-const registerSchema = z
-  .object({
-    nombre: z.string().min(1, "El nombre es obligatorio"),
-    email: z.string().email("Correo inválido"),
-    password: z
-      .string()
-      .min(6, "La contraseña debe tener al menos 6 caracteres"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
-
-// Tipo de errores por campo
 type FormErrors = {
   nombre?: string;
   email?: string;
@@ -44,15 +27,12 @@ type FormErrors = {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const supabase = createClient();
-
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +40,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrors({});
 
-    // Validación Zod
     const parsed = registerSchema.safeParse(formData);
     if (!parsed.success) {
       const fieldErrors: FormErrors = {};
@@ -74,30 +53,12 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-
     try {
-      const { data, error: supaError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            nombre: formData.nombre,
-          },
-        },
-      });
-
-      if (supaError) {
-        const translated =
-          supabaseErrorMap[supaError?.code] ||
-          "Ocurrió un error, intenta de nuevo";
-        toast.error(translated);
-      } else {
-        toast.success("¡Usuario registrado correctamente!");
-        router.push("/dashboard");
-      }
+      await registerService(formData);
+      toast.success("¡Usuario registrado correctamente!");
+      router.push("/dashboard");
     } catch (err: any) {
-      console.error(err);
-      toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
+      toast.error(err.message || "Ocurrió un error inesperado. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -124,7 +85,6 @@ export default function RegisterPage() {
                 <Label htmlFor="nombre">Nombre Completo</Label>
                 <Input
                   id="nombre"
-                  placeholder=""
                   value={formData.nombre}
                   onChange={(e) =>
                     setFormData({ ...formData, nombre: e.target.value })
