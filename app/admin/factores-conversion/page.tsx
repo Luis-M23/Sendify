@@ -11,17 +11,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plane, Truck, Ship } from "lucide-react";
-import {
-  ModosTransporteService,
-} from "@/lib/supabase/services/factorConversionService";
+import { Plane, Truck, Ship, Save, Search, Plus } from "lucide-react";
+import { ModosTransporteService } from "@/lib/supabase/services/factorConversionService";
 import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
 import { FactorConversionData } from "@/lib/validation/factorConversion";
 
-
 export default function ModosTransportePage() {
-  const [modos, setModos] = useState<(FactorConversionData & { error?: string })[]>([]);
+  const [modos, setModos] = useState<
+    (FactorConversionData & { error?: string })[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);
@@ -94,64 +93,74 @@ export default function ModosTransportePage() {
   return (
     <DashboardLayout userRole="admin">
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">Factores de conversión</h1>
-            <p className="text-muted-foreground">
-              Gestiona los factores de conversión (peso volumétrico)
-            </p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Input
-              placeholder="Buscar modo de transporte..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-64"
-            />
-            <Button
-              onClick={handleSaveChanges}
-              disabled={saving || modos.some((m) => m.error)}
-            >
-              {saving ? "Guardando..." : "Guardar Cambios"}
-            </Button>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Factores de Conversión</CardTitle>
+              <CardDescription>
+                Gestiona los factores de conversión (peso volumétrico)
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar medio transporte"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 w-64"
+                />
+              </div>
+              <Button
+                onClick={handleSaveChanges}
+                disabled={saving || modos.some((m) => m.error)}
+              >
+                <Save className="h-4 w-4 mr-2" />{" "}
+                {saving ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </CardHeader>
 
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground mt-2">
-              Cargando modos de transporte...
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredModos.map((modo) => (
-              <Card key={modo.id} className="flex flex-col justify-between">
-                <CardHeader className="flex items-center gap-3">
-                  {getIcon(modo.id)}
-                  <CardTitle className="text-lg">{modo.nombre}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-2">
-                  <CardDescription>Divisor Volumétrico</CardDescription>
-                  <Input
-                    type="number"
-                    value={modo.divisor_vol}
-                    onChange={(e) =>
-                      handleDivisorChange(modo.id, e.target.value)
-                    }
-                    className={`text-center ${
-                      modo.error ? "border-red-500" : ""
-                    }`}
-                  />
-                  {modo.error && (
-                    <span className="text-xs text-red-500">{modo.error}</span>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-muted-foreground mt-2">
+                  Cargando modos de transporte...
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredModos.map((modo) => (
+                  <Card key={modo.id} className="flex flex-col justify-between">
+                    <CardHeader className="flex items-center gap-3">
+                      {getIcon(modo.id)}
+                      <CardTitle className="text-lg">{modo.nombre}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center gap-2">
+                      <CardDescription>Divisor Volumétrico</CardDescription>
+                      <Input
+                        type="number"
+                        value={modo.divisor_vol}
+                        onChange={(e) =>
+                          handleDivisorChange(modo.id, e.target.value)
+                        }
+                        className={`text-center ${
+                          modo.error ? "border-red-500" : ""
+                        }`}
+                      />
+                      {modo.error && (
+                        <span className="text-xs text-red-500">
+                          {modo.error}
+                        </span>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

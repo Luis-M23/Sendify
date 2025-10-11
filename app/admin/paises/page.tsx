@@ -1,185 +1,181 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Plus, Edit, Trash2, Search, MapPin, DollarSign, FileText } from "lucide-react"
-import { CountryModal } from "@/components/admin-modals-extended"
-import { CountriesService } from "@/lib/services/countriesService"
-import { Country, CreateCountry, UpdateCountry } from "@/lib/validation/countries"
+import { useState, useEffect } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Edit, Trash2, Search, RotateCcw } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { CountryModal } from "@/components/admin-modals-extended";
+import { PaisService } from "@/lib/supabase/services/paisService";
+import {
+  PaisData,
+  CrearPaisSchema,
+  CrearPaisData,
+  PaisSchema,
+} from "@/lib/validation/pais";
+import { z } from "zod";
+import { toast } from "react-toastify";
 
 export default function CountriesAdminPage() {
-  const [countries, setCountries] = useState<Country[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add")
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [countryToDelete, setCountryToDelete] = useState<Country | null>(null)
+  const [countries, setCountries] = useState<PaisData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [selectedCountry, setSelectedCountry] = useState<PaisData | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
+  const [countryToDelete, setCountryToDelete] = useState<PaisData | null>(null);
+  const [countryToRestore, setCountryToRestore] = useState<PaisData | null>(
+    null
+  );
 
   const loadCountries = async () => {
     try {
-      setLoading(true)
-      const data = await CountriesService.getAll()
-      setCountries(data)
-    } catch (error) {
-      console.error("Error loading countries:", error)
+      setLoading(true);
+      const data = await PaisService.getAll();
+      setCountries(data);
+    } catch (error: any) {
+      toast.error(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    loadCountries()
-  }, [])
+    loadCountries();
+  }, []);
 
-  const filteredCountries = countries.filter(country =>
-    country.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.region.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const handleAdd = () => {
+    setModalMode("add");
+    setSelectedCountry(null);
+    setModalOpen(true);
+  };
 
-  const handleAddCountry = () => {
-    setModalMode("add")
-    setSelectedCountry(null)
-    setModalOpen(true)
-  }
+  const handleEdit = (country: PaisData) => {
+    setModalMode("edit");
+    setSelectedCountry(country);
+    setModalOpen(true);
+  };
 
-  const handleEditCountry = (country: Country) => {
-    setModalMode("edit")
-    setSelectedCountry(country)
-    setModalOpen(true)
-  }
+  const handleDelete = (country: PaisData) => {
+    setCountryToDelete(country);
+    setDeleteDialogOpen(true);
+  };
 
-  const handleDeleteCountry = (country: Country) => {
-    setCountryToDelete(country)
-    setDeleteDialogOpen(true)
-  }
+  const handleRestoreDialog = (country: PaisData) => {
+    setCountryToRestore(country);
+    setRestoreDialogOpen(true);
+  };
 
-  const handleModalSubmit = async (data: CreateCountry | UpdateCountry) => {
+  const handleRestoreConfirm = async () => {
+    if (countryToRestore) {
+      try {
+        await PaisService.restore(countryToRestore.id!);
+        toast.success(
+          `País ${countryToRestore.nombre_completo} restaurado correctamente`
+        );
+        await loadCountries();
+      } catch (error: any) {
+        toast.error(error.message || "Ocurrió un error al restaurar el país");
+      }
+    }
+    setRestoreDialogOpen(false);
+    setCountryToRestore(null);
+  };
+
+  const handleModalSubmit = async (data: CrearPaisData | PaisData) => {
     try {
       if (modalMode === "add") {
-        await CountriesService.create(data as CreateCountry)
+        CrearPaisSchema.parse(data);
+        await PaisService.create(data as CrearPaisData);
       } else {
-        await CountriesService.update(selectedCountry!.id!, data as UpdateCountry)
+        PaisSchema.parse(data);
+        await PaisService.update(data as PaisData);
       }
-      await loadCountries()
-    } catch (error) {
-      console.error("Error saving country:", error)
+      await loadCountries();
+      setModalOpen(false);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error(error.message || "Ocurrió un error");
+      }
     }
-  }
+  };
 
   const handleDeleteConfirm = async () => {
     if (countryToDelete) {
       try {
-        await CountriesService.delete(countryToDelete.id!)
-        await loadCountries()
-      } catch (error) {
-        console.error("Error deleting country:", error)
+        await PaisService.delete(countryToDelete.id!);
+        toast.success(
+          `País ${countryToDelete.nombre_completo} restaurado correctamente`
+        );
+        await loadCountries();
+      } catch (error: any) {
+        toast.error(error.message);
       }
     }
-    setDeleteDialogOpen(false)
-    setCountryToDelete(null)
-  }
+    setDeleteDialogOpen(false);
+    setCountryToDelete(null);
+  };
 
-  const getRegionColor = (region: string) => {
-    const colors: Record<string, string> = {
-      "América del Norte": "bg-blue-100 text-blue-800 border-blue-200",
-      "América Central": "bg-green-100 text-green-800 border-green-200",
-      "América del Sur": "bg-yellow-100 text-yellow-800 border-yellow-200",
-      "Europa": "bg-purple-100 text-purple-800 border-purple-200",
-      "Asia": "bg-red-100 text-red-800 border-red-200",
-      "África": "bg-orange-100 text-orange-800 border-orange-200",
-      "Oceanía": "bg-teal-100 text-teal-800 border-teal-200",
-    }
-    return colors[region] || "bg-gray-100 text-gray-800 border-gray-200"
-  }
+  const filteredCountries = countries.filter(
+    (c) =>
+      c.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <DashboardLayout userRole="admin">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Gestión de Países</h1>
-          <p className="text-muted-foreground">Administra los países disponibles para envíos</p>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Países</CardTitle>
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{countries.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Con Aduana</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {countries.filter(c => c.restricciones?.aduana).length}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Regiones</CardTitle>
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {new Set(countries.map(c => c.region)).size}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Monedas</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {new Set(countries.map(c => c.moneda)).size}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Países Disponibles</CardTitle>
-                <CardDescription>Gestiona los países y sus configuraciones de aduana</CardDescription>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Gestión de Países</CardTitle>
+              <CardDescription>
+                Administra los países y costos de envío
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar países..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 w-64"
+                />
               </div>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar países..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 w-64"
-                  />
-                </div>
-                <Button onClick={handleAddCountry}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo País
-                </Button>
-              </div>
+              <Button onClick={handleAdd}>
+                <Plus className="h-4 w-4 mr-2" /> Nuevo País
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -192,69 +188,81 @@ export default function CountriesAdminPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Código</TableHead>
-                    <TableHead>País</TableHead>
-                    <TableHead>Región</TableHead>
-                    <TableHead>Moneda</TableHead>
-                    <TableHead>Aduana</TableHead>
-                    <TableHead>Impuestos</TableHead>
+                    <TableHead className="text-left">Código</TableHead>
+                    <TableHead className="text-left">País</TableHead>
+                    <TableHead className="text-center">Moneda</TableHead>
+                    <TableHead className="text-center">
+                      Costo Aéreo (USD)
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Costo Terrestre (USD)
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Costo Marítimo (USD)
+                    </TableHead>
+                    <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCountries.map((country) => (
                     <TableRow key={country.id}>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono">
-                          {country.codigo}
-                        </Badge>
+                      <TableCell className="text-left">
+                        <Badge variant="outline">{country.codigo}</Badge>
                       </TableCell>
-                      <TableCell className="font-medium">{country.nombre}</TableCell>
-                      <TableCell>
-                        <Badge className={getRegionColor(country.region)}>
-                          {country.region}
-                        </Badge>
+                      <TableCell className="text-left">
+                        {country.nombre_completo}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono">
-                          {country.moneda}
-                        </Badge>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">{country.moneda}</Badge>
                       </TableCell>
-                      <TableCell>
-                        {country.restricciones?.aduana ? (
-                          <Badge className="bg-destructive/20 text-destructive border-destructive/30">
-                            Requerida
+                      <TableCell className="text-center">
+                        $ {country.costo_aereo.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        $ {country.costo_terrestre.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        $ {country.costo_maritimo.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {country.activo ? (
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            Activo
                           </Badge>
                         ) : (
-                          <Badge className="bg-chart-3/20 text-chart-3 border-chart-3/30">
-                            No Requerida
+                          <Badge className="bg-red-100 text-red-800 border-red-200">
+                            Inactivo
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {country.restricciones?.impuestos ? (
-                          <span className="font-medium">{country.restricciones.impuestos}%</span>
+                      <TableCell className="text-right flex gap-2 justify-end">
+                        {!country.activo ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRestoreDialog(country)}
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
                         ) : (
-                          <span className="text-muted-foreground">-</span>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(country)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(country)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
                         )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditCountry(country)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteCountry(country)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -263,35 +271,62 @@ export default function CountriesAdminPage() {
             )}
           </CardContent>
         </Card>
+
+        <CountryModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          mode={modalMode}
+          initialData={selectedCountry}
+          onSubmit={handleModalSubmit}
+        />
+
+        {/* Delete Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Eliminar País</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Estás seguro de que deseas eliminar el país "
+                {countryToDelete?.nombre_completo}"?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground"
+              >
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Restore Dialog */}
+        <AlertDialog
+          open={restoreDialogOpen}
+          onOpenChange={setRestoreDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Restaurar País</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Estás seguro de que deseas restaurar el país "
+                {countryToRestore?.nombre_completo}"?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRestoreConfirm}
+                className="bg-success text-success-foreground"
+              >
+                Restaurar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-
-      {/* Modal */}
-      <CountryModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        initialData={selectedCountry || undefined}
-        onSubmit={handleModalSubmit}
-      />
-
-      {/* Delete Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar País</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Estás seguro de que deseas eliminar el país "{countryToDelete?.nombre}"? 
-              Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </DashboardLayout>
-  )
+  );
 }
