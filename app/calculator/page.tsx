@@ -183,7 +183,7 @@ export default function CalculatorPage() {
                     >
                       <Plane className="h-6 w-6" />
                       <span className="text-sm">Aéreo</span>
-                      <span className="text-xs text-muted-foreground">3-5 días</span>
+                      <span className="text-xs">3-5 días</span>
                     </Button>
                     <Button
                       type="button"
@@ -193,7 +193,7 @@ export default function CalculatorPage() {
                     >
                       <Truck className="h-6 w-6" />
                       <span className="text-sm">Terrestre</span>
-                      <span className="text-xs text-muted-foreground">7-10 días</span>
+                      <span className="text-xs">7-10 días</span>
                     </Button>
                     <Button
                       type="button"
@@ -203,7 +203,7 @@ export default function CalculatorPage() {
                     >
                       <Ship className="h-6 w-6" />
                       <span className="text-sm">Marítimo</span>
-                      <span className="text-xs text-muted-foreground">20-30 días</span>
+                      <span className="text-xs">20-30 días</span>
                     </Button>
                   </div>
                 </div>

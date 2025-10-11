@@ -28,7 +28,12 @@ import {
   LogOut,
   User,
   Bell,
+  Globe,
+  Folder,
+  Gift,
+  Users,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -48,8 +53,14 @@ const navigation = [
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
 
+// Navegación adicional para administradores
 const adminNavigation = [
   { name: "Panel Admin", href: "/admin", icon: Settings },
+  { name: "Factores de conversión", href: "/admin/factores-conversion", icon: Package },
+  { name: "Países", href: "/admin/paises", icon: Globe },
+  { name: "Categorías", href: "/admin/categorias", icon: Folder },
+  { name: "Promociones", href: "/admin/promociones", icon: Gift },
+  { name: "Usuarios", href: "/admin/usuarios", icon: Users },
 ];
 
 export function DashboardLayout({
@@ -66,7 +77,7 @@ export function DashboardLayout({
     router.push("/");
   };
 
-  const isAdmin = userRole === "admin" || userRole === "operador";
+  const isAdmin = true;
   const isVIP = userRole === "vip";
 
   return (

@@ -256,6 +256,57 @@ export default function AdminPage() {
           </Card>
         </div>
 
+        {/* Quick Navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => window.location.href = '/admin/categorias'}>
+            <CardHeader>
+              <div className="h-12 w-12 rounded-lg bg-chart-1/10 flex items-center justify-center mb-3">
+                <Package className="h-6 w-6 text-chart-1" />
+              </div>
+              <CardTitle className="text-lg">Categorías</CardTitle>
+              <CardDescription>Gestiona categorías de productos y restricciones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full bg-transparent">
+                <Package className="h-4 w-4 mr-2" />
+                Administrar Categorías
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => window.location.href = '/admin/paises'}>
+            <CardHeader>
+              <div className="h-12 w-12 rounded-lg bg-chart-2/10 flex items-center justify-center mb-3">
+                <Users className="h-6 w-6 text-chart-2" />
+              </div>
+              <CardTitle className="text-lg">Países</CardTitle>
+              <CardDescription>Administra países y configuraciones de aduana</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full bg-transparent">
+                <Users className="h-4 w-4 mr-2" />
+                Administrar Países
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => window.location.href = '/admin/promociones'}>
+            <CardHeader>
+              <div className="h-12 w-12 rounded-lg bg-chart-4/10 flex items-center justify-center mb-3">
+                <TrendingUp className="h-6 w-6 text-chart-4" />
+              </div>
+              <CardTitle className="text-lg">Promociones</CardTitle>
+              <CardDescription>Gestiona promociones y descuentos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full bg-transparent">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Administrar Promociones
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Management Tabs */}
         <Tabs defaultValue="tarifas" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
@@ -441,16 +492,17 @@ export default function AdminPage() {
                     <CardTitle>Gestión de Promociones</CardTitle>
                     <CardDescription>Administra promociones y descuentos</CardDescription>
                   </div>
-                  <Button onClick={handleAddPromotion}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Promoción
+                  <Button onClick={() => window.location.href = '/admin/promociones'}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Ir a Gestión de Promociones
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
                   <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>Haz clic en "Nueva Promoción" para crear una promoción</p>
+                  <p>La gestión completa de promociones se ha movido a una sección dedicada</p>
+                  <p className="text-sm mt-2">Haz clic en el botón de arriba para acceder a todas las funcionalidades</p>
                 </div>
               </CardContent>
             </Card>
