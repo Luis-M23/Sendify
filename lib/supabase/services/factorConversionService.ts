@@ -1,6 +1,6 @@
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
-import { factorConversionSchema } from "@/lib/validation/factorConversion";
+import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { FactorConversionData } from "@/lib/validation/factorConversion";
 
 
@@ -24,7 +24,7 @@ export const ModosTransporteService = {
   },
 
   async updateAll(modos: FactorConversionData[]): Promise<void> {
-    modos.forEach((modo) => factorConversionSchema.parse(modo));
+    modos.forEach((modo) => FactorConversionSchema.parse(modo));
 
     for (const modo of modos) {
       const { error } = await supabase

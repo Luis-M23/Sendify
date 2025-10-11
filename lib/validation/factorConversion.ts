@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const factorConversionSchema = z.object({
+export const FactorConversionSchema = z.object({
   id: z.number(),
   nombre: z.string(),
   divisor_vol: z
@@ -9,4 +9,4 @@ export const factorConversionSchema = z.object({
     .max(20000, { message: "El divisor no puede ser mayor a 20000" }),
 });
 
-export type FactorConversionData = z.infer<typeof factorConversionSchema>;
+export type FactorConversionData = z.infer<typeof FactorConversionSchema>;

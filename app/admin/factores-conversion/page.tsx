@@ -15,7 +15,7 @@ import { Plane, Truck, Ship } from "lucide-react";
 import {
   ModosTransporteService,
 } from "@/lib/supabase/services/factorConversionService";
-import { factorConversionSchema } from "@/lib/validation/factorConversion";
+import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
 import { FactorConversionData } from "@/lib/validation/factorConversion";
 
@@ -49,7 +49,7 @@ export default function ModosTransportePage() {
           const num = Number(value);
           let error;
           try {
-            factorConversionSchema.parse({ ...m, divisor_vol: num });
+            FactorConversionSchema.parse({ ...m, divisor_vol: num });
           } catch (e: any) {
             error = e.errors[0]?.message;
           }
