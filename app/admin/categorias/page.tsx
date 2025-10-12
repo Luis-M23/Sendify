@@ -44,6 +44,7 @@ import { CategoriaModal } from "@/components/admin/categorias-modal";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { CategoriaData, CrearCategoriaData } from "@/lib/validation/categoria";
 import { toast } from "react-toastify";
+import { permisoMap } from "@/lib/map";
 
 export default function CategoriesAdminPage() {
   const [categories, setCategories] = useState<CategoriaData[]>([]);
@@ -151,39 +152,33 @@ export default function CategoriesAdminPage() {
     setCategoryToRestore(null);
   };
 
-  type Status = 1 | 2 | 3;
-
   interface StatusMapItem {
-    label: string;
     icon: ReactNode;
     badge: ReactNode;
   }
 
   const statusMap: Record<number, StatusMapItem> = {
     1: {
-      label: "Prohibido",
       icon: <XCircle className="h-4 w-4 text-destructive" />,
       badge: (
         <Badge className="bg-destructive/20 text-destructive hover:bg-destructive/30 border-destructive/30">
-          Prohibido
+          {permisoMap[1]}
         </Badge>
       ),
     },
     2: {
-      label: "Permitido",
       icon: <CheckCircle2 className="h-4 w-4 text-chart-3" />,
       badge: (
         <Badge className="bg-chart-3/20 text-chart-3 hover:bg-chart-3/30 border-chart-3/30">
-          Permitido
+          {permisoMap[2]}
         </Badge>
       ),
     },
     3: {
-      label: "Requiere Permiso",
       icon: <AlertTriangle className="h-4 w-4 text-chart-4" />,
       badge: (
         <Badge className="bg-chart-4/20 text-chart-4 hover:bg-chart-4/30 border-chart-4/30">
-          Requiere Permiso
+          {permisoMap[3]}
         </Badge>
       ),
     },
@@ -373,7 +368,8 @@ export default function CategoriesAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar Categoría</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro de que deseas eliminar la categoría {categoryToDelete?.nombre}?
+              ¿Estás seguro de que deseas eliminar la categoría{" "}
+              {categoryToDelete?.nombre}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -394,7 +390,8 @@ export default function CategoriesAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Restaurar Categoría</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro de que deseas restaurar la categoría {categoryToRestore?.nombre}?
+              ¿Estás seguro de que deseas restaurar la categoría{" "}
+              {categoryToRestore?.nombre}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
