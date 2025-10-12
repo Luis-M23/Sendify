@@ -269,7 +269,7 @@ export default function CategoriesAdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Categoría</TableHead>
-                    <TableHead>Descripción</TableHead>
+                    <TableHead>Descripción & Notas</TableHead>
                     <TableHead className="text-center">Aéreo</TableHead>
                     <TableHead className="text-center">Terrestre</TableHead>
                     <TableHead className="text-center">Marítimo</TableHead>
@@ -283,8 +283,17 @@ export default function CategoriesAdminPage() {
                       <TableCell className="font-medium">
                         {category.nombre}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {category.descripcion}
+                      <TableCell className="max-w-xs">
+                        <div className="truncate">
+                          <div className="font-medium">
+                            {category.descripcion}
+                          </div>
+                          {category.notas && (
+                            <div className="text-sm text-muted-foreground truncate">
+                              {category.notas}
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
