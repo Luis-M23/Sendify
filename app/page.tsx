@@ -1,9 +1,43 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, Calculator, Shield, MapPin, TrendingUp, FileText, Settings } from "lucide-react"
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Package,
+  Calculator,
+  Shield,
+  MapPin,
+  TrendingUp,
+  FileText,
+  Settings,
+} from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/components/auth-provider";
+import { logoutService } from "@/lib/supabase/services/logoutService";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logoutService();
+      toast.success("Sesión cerrada correctamente");
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err.message || "Ocurrió un error al cerrar sesión");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -14,22 +48,38 @@ export default function HomePage() {
             <h1 className="text-2xl font-bold">ShipGlobal</h1>
           </div>
           <nav className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Iniciar Sesión</Button>
-            </Link>
-            <Link href="/registro">
-              <Button>Registrarse</Button>
-            </Link>
+            <ThemeToggle />
+
+            {!isAuthenticated && (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost">Iniciar Sesión</Button>
+                </Link>
+                <Link href="/registro">
+                  <Button>Registrarse</Button>
+                </Link>
+              </>
+            )}
+
+            {isAuthenticated && (
+              <>
+                <Button variant="secondary" onClick={handleLogout}>
+                  Cerrar sesión
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-5xl font-bold mb-6 text-balance">Gestión Profesional de Envíos Internacionales</h2>
+        <h2 className="text-5xl font-bold mb-6 text-balance">
+          Gestión Profesional de Envíos Internacionales
+        </h2>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-          Plataforma completa para cotizar, rastrear y gestionar tus envíos internacionales con total transparencia y
-          control.
+          Plataforma completa para cotizar, rastrear y gestionar tus envíos
+          internacionales con total transparencia y control.
         </p>
         <div className="flex gap-4 justify-center">
           <Link href="/calculator">
@@ -39,7 +89,11 @@ export default function HomePage() {
             </Button>
           </Link>
           <Link href="/tracking">
-            <Button size="lg" variant="outline" className="gap-2 bg-transparent">
+            <Button
+              size="lg"
+              variant="outline"
+              className="gap-2 bg-transparent"
+            >
               <MapPin className="h-5 w-5" />
               Rastrear Pedido
             </Button>
@@ -49,7 +103,9 @@ export default function HomePage() {
 
       {/* Features Grid */}
       <section className="container mx-auto px-4 py-16">
-        <h3 className="text-3xl font-bold text-center mb-12">Módulos del Sistema</h3>
+        <h3 className="text-3xl font-bold text-center mb-12">
+          Módulos del Sistema
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href="/calculator">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
@@ -59,8 +115,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Cálculo de Envío</CardTitle>
                 <CardDescription>
-                  Cotiza envíos según peso, dimensiones y tipo de transporte. Calcula tarifas e impuestos
-                  automáticamente.
+                  Cotiza envíos según peso, dimensiones y tipo de transporte.
+                  Calcula tarifas e impuestos automáticamente.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -74,7 +130,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Restricciones</CardTitle>
                 <CardDescription>
-                  Valida productos prohibidos según el tipo de transporte elegido y normativas internacionales.
+                  Valida productos prohibidos según el tipo de transporte
+                  elegido y normativas internacionales.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -88,7 +145,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Entrega y Casilleros</CardTitle>
                 <CardDescription>
-                  Elige entre entrega a domicilio, retiro en oficina o casillero virtual para consolidar compras.
+                  Elige entre entrega a domicilio, retiro en oficina o casillero
+                  virtual para consolidar compras.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -102,7 +160,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Promociones y VIP</CardTitle>
                 <CardDescription>
-                  Accede a descuentos especiales y beneficios exclusivos según tu nivel de membresía.
+                  Accede a descuentos especiales y beneficios exclusivos según
+                  tu nivel de membresía.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -116,7 +175,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Seguimiento</CardTitle>
                 <CardDescription>
-                  Rastrea tus envíos en tiempo real con actualizaciones automáticas y notificaciones.
+                  Rastrea tus envíos en tiempo real con actualizaciones
+                  automáticas y notificaciones.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -130,7 +190,8 @@ export default function HomePage() {
                 </div>
                 <CardTitle>Reportes Aduanales</CardTitle>
                 <CardDescription>
-                  Genera declaraciones de productos, reportes de costos y cartas compromiso automáticamente.
+                  Genera declaraciones de productos, reportes de costos y cartas
+                  compromiso automáticamente.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -147,7 +208,8 @@ export default function HomePage() {
             </div>
             <CardTitle className="text-2xl">Panel Administrativo</CardTitle>
             <CardDescription className="text-base">
-              Gestiona tarifas, usuarios, impuestos y genera reportes gerenciales completos.
+              Gestiona tarifas, usuarios, impuestos y genera reportes
+              gerenciales completos.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
@@ -163,9 +225,12 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>&copy; 2025 ShipGlobal. Sistema de Gestión de Envíos Internacionales.</p>
+          <p>
+            &copy; 2025 ShipGlobal. Sistema de Gestión de Envíos
+            Internacionales.
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }

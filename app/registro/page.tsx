@@ -17,6 +17,7 @@ import { Package } from "lucide-react";
 import { toast } from "react-toastify";
 import { RegistroSchema } from "@/lib/validation/registro";
 import { registerService } from "@/lib/supabase/services/registroService";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type FormErrors = {
   nombre?: string;
@@ -58,7 +59,9 @@ export default function RegisterPage() {
       toast.success("¡Usuario registrado correctamente!");
       router.push("/dashboard");
     } catch (err: any) {
-      toast.error(err.message || "Ocurrió un error inesperado. Intenta de nuevo.");
+      toast.error(
+        err.message || "Ocurrió un error inesperado. Intenta de nuevo."
+      );
     } finally {
       setLoading(false);
     }
@@ -70,6 +73,7 @@ export default function RegisterPage() {
         <div className="flex items-center justify-center gap-2 mb-8">
           <Package className="h-10 w-10 text-primary" />
           <h1 className="text-3xl font-bold">ShipGlobal</h1>
+          <ThemeToggle />
         </div>
 
         <Card>

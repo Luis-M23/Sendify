@@ -5,9 +5,9 @@ import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { ThemedToastContainer } from "@/components/themed-toast-container";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
-import { ThemedToastContainer } from "@/components/themed-toast-container"
 
 export const metadata: Metadata = {
   title: "ShipGlobal - Sistema de Gestión de Envíos",
@@ -26,12 +26,14 @@ export default function RootLayout({
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
         <ThemeProvider defaultTheme="light">
-          <Suspense fallback={null}>{children}</Suspense>
-          <Toaster />
-          <ThemedToastContainer />
+          <AuthProvider>
+            <ThemedToastContainer />
+            <Suspense fallback={null}>{children}</Suspense>
+          </AuthProvider>
         </ThemeProvider>
         <Analytics />
       </body>
     </html>
   );
 }
+

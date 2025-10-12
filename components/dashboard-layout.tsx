@@ -36,8 +36,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-
-import { createClient } from "@/lib/supabase/client";
+import { logoutService } from "@/lib/supabase/services/logoutService";
+import { toast } from "react-toastify";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -70,11 +70,15 @@ export function DashboardLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
+    try {
+      await logoutService();
+      toast.success("Sesión cerrada correctamente");
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err.message || "Ocurrió un error al cerrar sesión");
+    }
   };
 
   const isAdmin = true;

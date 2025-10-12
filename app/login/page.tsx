@@ -17,13 +17,16 @@ import { Package } from "lucide-react";
 import { toast } from "react-toastify";
 import { loginSchema } from "@/lib/validation/login";
 import { loginService } from "@/lib/supabase/services/loginService";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -58,8 +61,8 @@ export default function LoginPage() {
         <div className="flex items-center justify-center gap-2 mb-8">
           <Package className="h-10 w-10 text-primary" />
           <h1 className="text-3xl font-bold">ShipGlobal</h1>
+          <ThemeToggle />
         </div>
-
         <Card>
           <CardHeader>
             <CardTitle>Iniciar Sesión</CardTitle>
@@ -103,7 +106,7 @@ export default function LoginPage() {
             <div className="mt-6 text-center text-sm">
               <p className="text-muted-foreground">
                 ¿No tienes cuenta?{" "}
-                <Link href="/register" className="text-primary hover:underline">
+                <Link href="/registro" className="text-primary hover:underline">
                   Regístrate aquí
                 </Link>
               </p>
