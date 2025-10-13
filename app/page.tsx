@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
+
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -49,8 +50,11 @@ export default function HomePage() {
           </div>
           <nav className="flex items-center gap-4">
             <ThemeToggle />
-
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <Button variant="secondary" onClick={handleLogout}>
+                Cerrar sesión
+              </Button>
+            ) : (
               <>
                 <Link href="/login">
                   <Button variant="ghost">Iniciar Sesión</Button>
@@ -58,14 +62,6 @@ export default function HomePage() {
                 <Link href="/registro">
                   <Button>Registrarse</Button>
                 </Link>
-              </>
-            )}
-
-            {isAuthenticated && (
-              <>
-                <Button variant="secondary" onClick={handleLogout}>
-                  Cerrar sesión
-                </Button>
               </>
             )}
           </nav>

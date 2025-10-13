@@ -38,10 +38,12 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { logoutService } from "@/lib/supabase/services/logoutService";
 import { toast } from "react-toastify";
+import { useAuth } from "./auth-provider";
+import { RolesSistema } from "@/lib/enum";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  userRole?: "cliente" | "vip" | "operador" | "admin";
+  userRole?: RolesSistema;
 }
 
 const navigation = [
@@ -56,7 +58,11 @@ const navigation = [
 // Navegación adicional para administradores
 const adminNavigation = [
   { name: "Panel Admin", href: "/admin", icon: Settings },
-  { name: "Factores de conversión", href: "/admin/factores-conversion", icon: Package },
+  {
+    name: "Factores de conversión",
+    href: "/admin/factores-conversion",
+    icon: Package,
+  },
   { name: "Países", href: "/admin/paises", icon: Globe },
   { name: "Categorías", href: "/admin/categorias", icon: Folder },
   { name: "Promociones", href: "/admin/promociones", icon: Gift },
@@ -65,11 +71,14 @@ const adminNavigation = [
 
 export function DashboardLayout({
   children,
-  userRole = "cliente",
+  userRole = RolesSistema.CLIENTE,
 }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
+  const { rol, user } = useAuth();
+
+  console.log({ user });
 
   const handleLogout = async () => {
     try {
@@ -81,8 +90,8 @@ export function DashboardLayout({
     }
   };
 
-  const isAdmin = true;
-  const isVIP = userRole === "vip";
+  const isAdmin = rol === RolesSistema.ADMINISTRADOR;
+  const isVIP = true;
 
   return (
     <div className="min-h-screen bg-background">
@@ -175,17 +184,11 @@ export function DashboardLayout({
                 <AvatarFallback>JC</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">Juan Pérezs</p>
                 <p className="text-xs text-muted-foreground truncate">
-                  juan@ejemplo.com
+                  {user?.email}
                 </p>
               </div>
             </div>
-            {isVIP && (
-              <Badge className="w-full justify-center bg-chart-4/20 text-chart-4 hover:bg-chart-4/30">
-                Cliente VIP - Oro
-              </Badge>
-            )}
           </div>
         </div>
       </aside>
@@ -223,8 +226,13 @@ export function DashboardLayout({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>{" "}
                   <DropdownMenuSeparator />
+                  <DropdownMenuLabel>
+                    <Badge className="w-full justify-center bg-chart-4/20 text-chart-4">
+                      Cliente VIP - Oro
+                    </Badge>
+                  </DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
