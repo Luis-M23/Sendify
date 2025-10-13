@@ -1,1 +1,0 @@
-export { PromotionsService } from './promotionsService'

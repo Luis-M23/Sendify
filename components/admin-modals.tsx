@@ -26,7 +26,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { DatePicker } from "@/components/ui/date-picker"
 import { useToast } from "@/hooks/use-toast"
+import { CategoriaData } from "@/lib/validation/categoria"
+import { useEffect } from "react"
 
 // Tariff Modal Schema
 const tariffSchema = z.object({
@@ -295,26 +298,42 @@ export function UserModal({ open, onOpenChange, mode, initialData, onSubmit }: U
 
 // Promotion Modal Schema
 const promotionSchema = z.object({
-  nombre: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-  tipo: z.enum(["temporada", "producto", "volumen"]),
-  descuento: z.number().min(1, "El descuento debe ser mayor a 0").max(100, "El descuento no puede ser mayor a 100"),
-  fechaInicio: z.string().min(1, "La fecha de inicio es requerida"),
-  fechaFin: z.string().min(1, "La fecha de fin es requerida"),
-  descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-  condiciones: z.string().optional(),
+  titulo: z.string().min(3, "El título debe tener al menos 3 caracteres"),
+  descripcion: z.string().optional(),
+  fecha_inicio: z.date({
+    required_error: "La fecha de inicio es requerida",
+  }),
+  fecha_fin: z.date({
+    required_error: "La fecha de fin es requerida",
+  }),
+  activo: z.boolean().default(true),
+  uso_max: z.number().min(0, "El uso máximo debe ser mayor o igual a 0"),
+  restricciones: z.array(z.number()).optional().nullable(),
 })
 
 type PromotionFormData = z.infer<typeof promotionSchema>
+
+// API data type (with string dates)
+type PromotionAPIData = {
+  titulo: string
+  descripcion?: string | null
+  fecha_inicio: string
+  fecha_fin: string
+  activo: boolean
+  uso_max: number
+  restricciones?: number[] | null
+}
 
 interface PromotionModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   mode: "add" | "edit"
-  initialData?: Partial<PromotionFormData>
-  onSubmit: (data: PromotionFormData) => void
+  initialData?: Partial<PromotionAPIData>
+  onSubmit: (data: PromotionAPIData) => void
+  categories?: CategoriaData[]
 }
 
-export function PromotionModal({ open, onOpenChange, mode, initialData, onSubmit }: PromotionModalProps) {
+export function PromotionModal({ open, onOpenChange, mode, initialData, onSubmit, categories = [] }: PromotionModalProps) {
   const { toast } = useToast()
   const {
     register,
@@ -322,25 +341,106 @@ export function PromotionModal({ open, onOpenChange, mode, initialData, onSubmit
     formState: { errors },
     setValue,
     watch,
+    reset,
+    clearErrors,
   } = useForm<PromotionFormData>({
     resolver: zodResolver(promotionSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      activo: true,
+      uso_max: 0,
+      restricciones: [],
+      fecha_inicio: initialData?.fecha_inicio ? new Date(initialData.fecha_inicio) : undefined,
+      fecha_fin: initialData?.fecha_fin ? new Date(initialData.fecha_fin) : undefined,
+      ...initialData,
+    },
   })
 
-  const tipo = watch("tipo")
+  const restricciones = watch("restricciones") || []
+  const activo = watch("activo")
+  const fechaInicio = watch("fecha_inicio")
+  const fechaFin = watch("fecha_fin")
+
+  // Reset form when modal opens with new data or mode changes
+  useEffect(() => {
+    if (open) {
+      const defaultValues = {
+        titulo: initialData?.titulo || "",
+        descripcion: initialData?.descripcion || "",
+        fecha_inicio: initialData?.fecha_inicio ? new Date(initialData.fecha_inicio) : undefined,
+        fecha_fin: initialData?.fecha_fin ? new Date(initialData.fecha_fin) : undefined,
+        activo: initialData?.activo ?? true,
+        uso_max: initialData?.uso_max || 0,
+        restricciones: initialData?.restricciones || [],
+      }
+      reset(defaultValues)
+      clearErrors()
+    }
+  }, [open, mode, initialData, reset, clearErrors])
 
   const handleFormSubmit = (data: PromotionFormData) => {
-    onSubmit(data)
+    // Convert dates to ISO string format for the API
+    const formattedData: PromotionAPIData = {
+      titulo: data.titulo,
+      descripcion: data.descripcion || null,
+      fecha_inicio: data.fecha_inicio.toISOString().split('T')[0], // YYYY-MM-DD format
+      fecha_fin: data.fecha_fin.toISOString().split('T')[0], // YYYY-MM-DD format
+      activo: data.activo,
+      uso_max: data.uso_max,
+      // Set restricciones to null if empty array, otherwise keep the array of IDs
+      restricciones: data.restricciones && data.restricciones.length > 0 ? data.restricciones : null,
+    }
+    onSubmit(formattedData)
     toast({
       title: mode === "add" ? "Promoción agregada" : "Promoción actualizada",
       description: "Los cambios se han guardado correctamente.",
     })
+    handleSuccessfulSubmit()
+  }
+
+  const toggleCategory = (categoryId: number) => {
+    const currentRestrictions = restricciones || []
+    if (currentRestrictions.includes(categoryId)) {
+      setValue("restricciones", currentRestrictions.filter(id => id !== categoryId))
+    } else {
+      setValue("restricciones", [...currentRestrictions, categoryId])
+    }
+  }
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      // Reset form and clear errors when closing modal
+      reset({
+        titulo: "",
+        descripcion: "",
+        fecha_inicio: undefined,
+        fecha_fin: undefined,
+        activo: true,
+        uso_max: 0,
+        restricciones: [],
+      })
+      clearErrors()
+    }
+    onOpenChange(open)
+  }
+
+  // Also reset when successfully submitting
+  const handleSuccessfulSubmit = () => {
+    reset({
+      titulo: "",
+      descripcion: "",
+      fecha_inicio: undefined,
+      fecha_fin: undefined,
+      activo: true,
+      uso_max: 0,
+      restricciones: [],
+    })
+    clearErrors()
     onOpenChange(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={open} onOpenChange={handleModalClose}>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{mode === "add" ? "Agregar Nueva Promoción" : "Editar Promoción"}</DialogTitle>
           <DialogDescription>
@@ -350,74 +450,86 @@ export function PromotionModal({ open, onOpenChange, mode, initialData, onSubmit
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nombre">Nombre de la Promoción *</Label>
-            <Input id="nombre" placeholder="Ej: Black Friday 2025" {...register("nombre")} />
-            {errors.nombre && <p className="text-sm text-destructive">{errors.nombre.message}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo *</Label>
-              <Select
-                value={tipo}
-                onValueChange={(value) => setValue("tipo", value as "temporada" | "producto" | "volumen")}
-              >
-                <SelectTrigger id="tipo">
-                  <SelectValue placeholder="Seleccionar tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="temporada">Temporada</SelectItem>
-                  <SelectItem value="producto">Producto</SelectItem>
-                  <SelectItem value="volumen">Volumen</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.tipo && <p className="text-sm text-destructive">{errors.tipo.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="descuento">Descuento (%) *</Label>
-              <Input
-                id="descuento"
-                type="number"
-                placeholder="20"
-                {...register("descuento", { valueAsNumber: true })}
-              />
-              {errors.descuento && <p className="text-sm text-destructive">{errors.descuento.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="fechaInicio">Fecha Inicio *</Label>
-              <Input id="fechaInicio" type="date" {...register("fechaInicio")} />
-              {errors.fechaInicio && <p className="text-sm text-destructive">{errors.fechaInicio.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fechaFin">Fecha Fin *</Label>
-              <Input id="fechaFin" type="date" {...register("fechaFin")} />
-              {errors.fechaFin && <p className="text-sm text-destructive">{errors.fechaFin.message}</p>}
-            </div>
+            <Label htmlFor="titulo">Título de la Promoción *</Label>
+            <Input id="titulo" placeholder="Ej: Black Friday 2025" {...register("titulo")} />
+            {errors.titulo && <p className="text-sm text-destructive">{errors.titulo.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descripcion">Descripción *</Label>
+            <Label htmlFor="descripcion">Descripción</Label>
             <Textarea id="descripcion" placeholder="Describe la promoción..." rows={3} {...register("descripcion")} />
             {errors.descripcion && <p className="text-sm text-destructive">{errors.descripcion.message}</p>}
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Fecha Inicio *</Label>
+              <DatePicker
+                value={fechaInicio}
+                onChange={(date) => setValue("fecha_inicio", date)}
+                placeholder="Seleccionar fecha inicio"
+              />
+              {errors.fecha_inicio && <p className="text-sm text-destructive">{errors.fecha_inicio.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fecha Fin *</Label>
+              <DatePicker
+                value={fechaFin}
+                onChange={(date) => setValue("fecha_fin", date)}
+                placeholder="Seleccionar fecha fin"
+              />
+              {errors.fecha_fin && <p className="text-sm text-destructive">{errors.fecha_fin.message}</p>}
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="condiciones">Condiciones (opcional)</Label>
-            <Textarea
-              id="condiciones"
-              placeholder="Términos y condiciones de la promoción..."
-              rows={2}
-              {...register("condiciones")}
+            <Label htmlFor="uso_max">Uso Máximo</Label>
+            <Input
+              id="uso_max"
+              type="number"
+              placeholder="0 (sin límite)"
+              {...register("uso_max", { valueAsNumber: true })}
             />
+            {errors.uso_max && <p className="text-sm text-destructive">{errors.uso_max.message}</p>}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="activo"
+              checked={activo}
+              onChange={(e) => setValue("activo", e.target.checked)}
+              className="rounded"
+            />
+            <Label htmlFor="activo">Promoción activa</Label>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Restricciones por Categorías</Label>
+            <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-md p-2">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id={`category-${category.id}`}
+                    checked={restricciones.includes(category.id)}
+                    onChange={() => toggleCategory(category.id)}
+                    className="rounded"
+                  />
+                  <Label htmlFor={`category-${category.id}`} className="text-sm">
+                    {category.nombre}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Selecciona las categorías que aplican para esta promoción. Si no se selecciona ninguna, la promoción aplicará a todas las categorías.
+            </p>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleModalClose(false)}>
               Cancelar
             </Button>
             <Button type="submit">{mode === "add" ? "Agregar Promoción" : "Guardar Cambios"}</Button>
