@@ -39,7 +39,7 @@ import { useRouter } from "next/navigation";
 import { logoutService } from "@/lib/supabase/services/logoutService";
 import { toast } from "react-toastify";
 import { RolesSistema } from "@/lib/enum";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "./auth-provider";
 
 interface DashboardLayoutProps {
   children: ReactNode;

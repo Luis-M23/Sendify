@@ -22,7 +22,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { logoutService } from "@/lib/supabase/services/logoutService";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/components/auth-provider";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();

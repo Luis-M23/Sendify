@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemedToastContainer } from "@/components/themed-toast-container";
+import { AuthProvider } from "@/components/auth-provider"; // <-- Asegúrate de importar esto
 import "./globals.css";
 import { AppLoader } from "@/components/app-loader";
 
@@ -26,10 +27,12 @@ export default function RootLayout({
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
         <ThemeProvider defaultTheme="light">
-          <ThemedToastContainer />
-          <AppLoader>
-            <Suspense fallback={null}>{children}</Suspense>
-          </AppLoader>
+          <AuthProvider>
+            <ThemedToastContainer />
+            <AppLoader>
+              <Suspense fallback={null}>{children}</Suspense>
+            </AppLoader>
+          </AuthProvider>
         </ThemeProvider>
         <Analytics />
       </body>
