@@ -1,11 +1,12 @@
 // lib/supabase/services/usuarioService.ts
+import { RolesSistema } from "@/lib/enum";
 import { createAdminClient } from "../admin";
 import { supabaseErrorMap } from "../errorMap";
 
 export type UserRow = {
   id: string;
   email: string;
-  role: "administrador" | "ventas" | "cliente";
+  rol: RolesSistema;
   activo: boolean;
 };
 
@@ -35,7 +36,7 @@ export const UsuarioService = {
     return {
       id: data.id,
       email: data.email ?? "",
-      role: (data.user_metadata?.role as UserRow["role"]) || "cliente",
+      rol: (data.user_metadata?.role as UserRow["role"]) || "cliente",
       activo: !(data.disabled ?? false),
     };
   },

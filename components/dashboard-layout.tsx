@@ -38,8 +38,8 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { logoutService } from "@/lib/supabase/services/logoutService";
 import { toast } from "react-toastify";
-import { useAuth } from "./auth-provider";
 import { RolesSistema } from "@/lib/enum";
+import { useAuth } from "@/hooks/use-auth";
 
 interface DashboardLayoutProps {
   children: ReactNode;

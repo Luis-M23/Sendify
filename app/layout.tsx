@@ -6,8 +6,8 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemedToastContainer } from "@/components/themed-toast-container";
-import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
+import { AppLoader } from "@/components/app-loader";
 
 export const metadata: Metadata = {
   title: "ShipGlobal - Sistema de Gestión de Envíos",
@@ -26,14 +26,13 @@ export default function RootLayout({
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
         <ThemeProvider defaultTheme="light">
-          <AuthProvider>
-            <ThemedToastContainer />
+          <ThemedToastContainer />
+          <AppLoader>
             <Suspense fallback={null}>{children}</Suspense>
-          </AuthProvider>
+          </AppLoader>
         </ThemeProvider>
         <Analytics />
       </body>
     </html>
   );
 }
-

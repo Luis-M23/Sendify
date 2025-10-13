@@ -19,10 +19,10 @@ import {
   Settings,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useAuth } from "@/components/auth-provider";
 import { logoutService } from "@/lib/supabase/services/logoutService";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
