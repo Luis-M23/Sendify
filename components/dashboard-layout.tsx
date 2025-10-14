@@ -63,7 +63,7 @@ const adminNavigation = [
     href: "/admin/factores-conversion",
     icon: Package,
   },
-  { name: "Países", href: "/admin/paises", icon: Globe },
+  { name: "Direcciones", href: "/admin/direcciones", icon: Globe },
   { name: "Categorías", href: "/admin/categorias", icon: Folder },
   { name: "Promociones", href: "/admin/promociones", icon: Gift },
   { name: "Usuarios", href: "/admin/usuarios", icon: Users },

@@ -158,7 +158,7 @@ export default function CountriesAdminPage() {
         <Card>
           <CardHeader className="flex justify-between items-center">
             <div>
-              <CardTitle>Gestión de Países</CardTitle>
+              <CardTitle>Gestión de Direcciones</CardTitle>
               <CardDescription>
                 Administra los países y costos de envío
               </CardDescription>
@@ -189,8 +189,8 @@ export default function CountriesAdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-left">Código</TableHead>
-                    <TableHead className="text-left">País</TableHead>
-                    <TableHead className="text-center">Moneda</TableHead>
+                    <TableHead className="text-left">Dirección</TableHead>
+                    {/* <TableHead className="text-center">Moneda</TableHead> */}
                     <TableHead className="text-center">
                       Costo Aéreo (USD)
                     </TableHead>
@@ -213,9 +213,9 @@ export default function CountriesAdminPage() {
                       <TableCell className="text-left">
                         {country.nombre_completo}
                       </TableCell>
-                      <TableCell className="text-center">
+                      {/* <TableCell className="text-center">
                         <Badge variant="outline">{country.moneda}</Badge>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell className="text-center">
                         $ {country.costo_aereo.toFixed(2)}
                       </TableCell>
