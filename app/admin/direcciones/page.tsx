@@ -274,7 +274,7 @@ export default function DireccionesAdminPage() {
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="flex justify-center gap-2 text-right">
+                        <TableCell className="flex items-center justify-center gap-2 pt-7">
                           {!direccion.activo ? (
                             <Button
                               variant="ghost"
