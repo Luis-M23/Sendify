@@ -32,6 +32,7 @@ import {
   Folder,
   Gift,
   Users,
+  Crown,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ const navigation = [
   { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Entrega", href: "/delivery", icon: MapPin },
   { name: "Promociones", href: "/promociones", icon: TrendingUp },
+  { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
