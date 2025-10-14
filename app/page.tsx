@@ -118,7 +118,7 @@ export default function HomePage() {
             </Card>
           </Link>
 
-          <Link href="/restrictions">
+          <Link href="/restricciones">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">

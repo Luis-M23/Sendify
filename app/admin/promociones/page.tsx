@@ -1,199 +1,256 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { RolesSistema } from "@/lib/enum"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Plus, Edit, Trash2, Search, Calendar, Percent, Users, RotateCcw } from "lucide-react"
-import { PromocionService } from "@/lib/supabase/services/promocionService"
-import { Promotion, CreatePromotion, UpdatePromotion } from "@/lib/validation/promotions"
-import { PromotionModal } from "@/components/admin-modals"
-import { CategoriaService } from "@/lib/supabase/services/categoriaService"
-import { CategoriaData } from "@/lib/validation/categoria"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { RolesSistema } from "@/lib/enum";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  Calendar,
+  Percent,
+  Users,
+  RotateCcw,
+} from "lucide-react";
+import { PromocionService } from "@/lib/supabase/services/promocionService";
+import { Promocion } from "@/lib/validation/promociones";
+import { CategoriaService } from "@/lib/supabase/services/categoriaService";
+import { CategoriaData } from "@/lib/validation/categoria";
+import { useToast } from "@/hooks/use-toast";
+import { PromocionModal } from "@/components/admin/promocion-modal";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default function PromotionsAdminPage() {
-  const [promotions, setPromotions] = useState<Promotion[]>([])
-  const [categories, setCategories] = useState<CategoriaData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add")
-  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false)
-  const [promotionToDelete, setPromotionToDelete] = useState<Promotion | null>(null)
-  const [promotionToRestore, setPromotionToRestore] = useState<Promotion | null>(null)
-  const [showInactive, setShowInactive] = useState(false)
-  const { toast } = useToast()
+  const [promotions, setPromotions] = useState<Promocion[]>([]);
+  const [categories, setCategories] = useState<CategoriaData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [selectedPromotion, setSelectedPromotion] = useState<Promocion | null>(
+    null
+  );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
+  const [promotionToDelete, setPromotionToDelete] = useState<Promocion | null>(
+    null
+  );
+  const [promotionToRestore, setPromotionToRestore] =
+    useState<Promocion | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
+  const { toast } = useToast();
 
   const loadPromotions = async () => {
     try {
-      setLoading(true)
-      const data = showInactive 
+      setLoading(true);
+      const data = showInactive
         ? await PromocionService.getAllIncludingInactive()
-        : await PromocionService.getAll()
-      setPromotions(data)
+        : await PromocionService.getAll();
+      setPromotions(data);
     } catch (error) {
-      console.error("Error loading promotions:", error)
+      console.error("Error loading promotions:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const loadCategories = async () => {
     try {
-      const data = await CategoriaService.getAll()
-      setCategories(data)
+      const data = await CategoriaService.getAll();
+      setCategories(data);
     } catch (error) {
-      console.error("Error loading categories:", error)
+      console.error("Error loading categories:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    loadPromotions()
-    loadCategories()
-  }, [showInactive])
+    loadPromotions();
+    loadCategories();
+  }, [showInactive]);
 
-  const filteredPromotions = promotions.filter(promotion =>
-    promotion.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (promotion.descripcion && promotion.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const filteredPromotions = promotions.filter(
+    (promotion) =>
+      promotion.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (promotion.descripcion &&
+        promotion.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const handleAddPromotion = () => {
-    setModalMode("add")
-    setSelectedPromotion(null)
-    setModalOpen(true)
-  }
+    setModalMode("add");
+    setSelectedPromotion(null);
+    setModalOpen(true);
+  };
 
-  const handleEditPromotion = (promotion: Promotion) => {
-    setModalMode("edit")
-    setSelectedPromotion(promotion)
-    setModalOpen(true)
-  }
+  const handleEditPromotion = (promotion: Promocion) => {
+    setModalMode("edit");
+    setSelectedPromotion(promotion);
+    setModalOpen(true);
+  };
 
-  const handleDeletePromotion = (promotion: Promotion) => {
-    setPromotionToDelete(promotion)
-    setDeleteDialogOpen(true)
-  }
+  const handleDeletePromotion = (promotion: Promocion) => {
+    setPromotionToDelete(promotion);
+    setDeleteDialogOpen(true);
+  };
 
-  const handleRestorePromotion = (promotion: Promotion) => {
-    setPromotionToRestore(promotion)
-    setRestoreDialogOpen(true)
-  }
-
+  const handleRestorePromotion = (promotion: Promocion) => {
+    setPromotionToRestore(promotion);
+    setRestoreDialogOpen(true);
+  };
 
   const handleModalSubmit = async (data: any) => {
     try {
       if (modalMode === "add") {
-        await PromocionService.create(data)
+        await PromocionService.create(data);
       } else {
-        await PromocionService.update(selectedPromotion!.id!, data)
+        console.log({ data });
+        await PromocionService.update(data);
       }
-      await loadPromotions()
+
+      await loadPromotions();
       toast({
-        title: modalMode === "add" ? "Promoción creada" : "Promoción actualizada",
+        title:
+          modalMode === "add" ? "Promoción creada" : "Promoción actualizada",
         description: "Los cambios se han guardado correctamente.",
-      })
+      });
     } catch (error) {
-      console.error("Error saving promotion:", error)
+      console.error("Error al guardar la promoción:", error);
       toast({
         title: "Error",
         description: "No se pudo guardar la promoción. Inténtalo de nuevo.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleDeleteConfirm = async () => {
     if (promotionToDelete) {
       try {
-        await PromocionService.delete(promotionToDelete.id!)
-        await loadPromotions()
+        await PromocionService.delete(promotionToDelete.id!);
+        await loadPromotions();
         toast({
           title: "Promoción eliminada",
           description: "La promoción ha sido eliminada correctamente.",
-        })
+        });
       } catch (error) {
-        console.error("Error deleting promotion:", error)
+        console.error("Error deleting promotion:", error);
         toast({
           title: "Error",
           description: "No se pudo eliminar la promoción. Inténtalo de nuevo.",
           variant: "destructive",
-        })
+        });
       }
     }
-    setDeleteDialogOpen(false)
-    setPromotionToDelete(null)
-  }
+    setDeleteDialogOpen(false);
+    setPromotionToDelete(null);
+  };
 
   const handleRestoreConfirm = async () => {
     if (promotionToRestore) {
       try {
-        await PromocionService.restore(promotionToRestore.id!)
-        await loadPromotions()
+        await PromocionService.restore(promotionToRestore.id!);
+        await loadPromotions();
         toast({
           title: "Promoción restaurada",
           description: "La promoción ha sido restaurada correctamente.",
-        })
+        });
       } catch (error) {
-        console.error("Error restoring promotion:", error)
+        console.error("Error restoring promotion:", error);
         toast({
           title: "Error",
           description: "No se pudo restaurar la promoción. Inténtalo de nuevo.",
           variant: "destructive",
-        })
+        });
       }
     }
-    setRestoreDialogOpen(false)
-    setPromotionToRestore(null)
+    setRestoreDialogOpen(false);
+    setPromotionToRestore(null);
+  };
+
+  const isActive = (promotion: Promocion) => {
+    const now = new Date();
+    const startDate = new Date(promotion.fecha_inicio);
+    const endDate = new Date(promotion.fecha_fin);
+    return promotion.activo && startDate <= now && endDate >= now;
+  };
+
+  const isExpired = (promotion: Promocion) => {
+    const now = new Date();
+    const endDate = new Date(promotion.fecha_fin);
+    return endDate < now;
+  };
+
+  const getUsagePercentage = (promotion: Promocion) => {
+    if (!promotion.uso_max || promotion.uso_max === 0) return 0;
+    return (promotion.uso_actual / promotion.uso_max) * 100;
+  };
+
+  function parseLocalDate(dateString: string) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day);
   }
 
-  const isActive = (promotion: Promotion) => {
-    const now = new Date()
-    const startDate = new Date(promotion.fecha_inicio)
-    const endDate = new Date(promotion.fecha_fin)
-    return promotion.activo && startDate <= now && endDate >= now
-  }
+  const getCategoryNamesList = (
+    restrictionIds: number[] | null | undefined
+  ) => {
+    if (!restrictionIds || restrictionIds.length === 0)
+      return <span>Todas las categorías</span>;
 
-  const isExpired = (promotion: Promotion) => {
-    const now = new Date()
-    const endDate = new Date(promotion.fecha_fin)
-    return endDate < now
-  }
-
-  const getUsagePercentage = (promotion: Promotion) => {
-    if (!promotion.uso_max || promotion.uso_max === 0) return 0
-    return (promotion.uso_actual / promotion.uso_max) * 100
-  }
-
-  const getCategoryNames = (restrictionIds: number[] | null | undefined) => {
-    if (!restrictionIds || restrictionIds.length === 0) return "Todas las categorías"
-    const names = restrictionIds.map(id => {
-      const category = categories.find(c => c.id === id)
-      return category?.nombre || `ID ${id}`
-    })
-    return names.join(", ")
-  }
-
+    return (
+      <ul className="list-disc list-inside">
+        {restrictionIds.map((id) => {
+          const category = categories.find((c) => c.id === id);
+          return <li key={id}>{category?.nombre || `ID ${id}`}</li>;
+        })}
+      </ul>
+    );
+  };
   return (
     <DashboardLayout userRole={RolesSistema.ADMINISTRADOR}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestión de Promociones</h1>
-          <p className="text-muted-foreground">Administra promociones y descuentos para clientes</p>
+          <p className="text-muted-foreground">
+            Administra promociones y descuentos para clientes
+          </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Promociones Activas</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Promociones Activas
+              </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -205,7 +262,9 @@ export default function PromotionsAdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Promociones</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Promociones
+              </CardTitle>
               <Percent className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -215,7 +274,9 @@ export default function PromotionsAdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Uso Total</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Uso Total
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -227,7 +288,9 @@ export default function PromotionsAdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Expiradas</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Expiradas
+              </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -243,7 +306,9 @@ export default function PromotionsAdminPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Promociones</CardTitle>
-                <CardDescription>Gestiona todas las promociones y descuentos disponibles</CardDescription>
+                <CardDescription>
+                  Gestiona todas las promociones y descuentos disponibles
+                </CardDescription>
               </div>
               <div className="flex gap-2">
                 <div className="flex items-center gap-2">
@@ -254,7 +319,9 @@ export default function PromotionsAdminPage() {
                     onChange={(e) => setShowInactive(e.target.checked)}
                     className="rounded"
                   />
-                  <label htmlFor="showInactive" className="text-sm">Mostrar inactivas</label>
+                  <label htmlFor="showInactive" className="text-sm">
+                    Mostrar inactivas
+                  </label>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -276,7 +343,9 @@ export default function PromotionsAdminPage() {
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="text-muted-foreground mt-2">Cargando promociones...</p>
+                <p className="text-muted-foreground mt-2">
+                  Cargando promociones...
+                </p>
               </div>
             ) : (
               <Table>
@@ -295,7 +364,13 @@ export default function PromotionsAdminPage() {
                     <TableRow key={promotion.id}>
                       <TableCell className="text-left">
                         <div>
-                          <div className="font-medium">{promotion.titulo}</div>
+                          <div className="font-medium">
+                            {promotion.codigo} -{" "}
+                            {promotion.porcentaje_descuento}%{" "}
+                          </div>
+                          <div className="font-medium text-muted-foreground">
+                            {promotion.titulo}
+                          </div>
                           <div className="text-sm text-muted-foreground max-w-xs truncate">
                             {promotion.descripcion || "Sin descripción"}
                           </div>
@@ -303,43 +378,63 @@ export default function PromotionsAdminPage() {
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="text-sm">
-                          <div>{new Date(promotion.fecha_inicio).toLocaleDateString()}</div>
+                          <div>
+                            {format(parseISO(promotion.fecha_inicio), "PPP", {
+                              locale: es,
+                            })}
+                          </div>
                           <div className="text-muted-foreground">
-                            {new Date(promotion.fecha_fin).toLocaleDateString()}
+                            {format(parseISO(promotion.fecha_fin), "PPP", { locale: es })}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-left">
                         <div className="text-sm max-w-xs">
                           <div className="truncate">
-                            {getCategoryNames(promotion.restricciones)}
+                            {getCategoryNamesList(
+                              promotion.restricciones_categorias
+                            )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
                         {promotion.uso_max && promotion.uso_max > 0 ? (
                           <div className="text-sm">
-                            <div>{promotion.uso_actual}/{promotion.uso_max}</div>
+                            <div>
+                              {promotion.uso_actual}/{promotion.uso_max}
+                            </div>
                             <div className="w-16 bg-muted rounded-full h-1.5 mt-1 mx-auto">
-                              <div 
-                                className="bg-primary h-1.5 rounded-full" 
-                                style={{ width: `${getUsagePercentage(promotion)}%` }}
+                              <div
+                                className="bg-primary h-1.5 rounded-full"
+                                style={{
+                                  width: `${getUsagePercentage(promotion)}%`,
+                                }}
                               />
                             </div>
                           </div>
                         ) : (
-                          <span className="font-medium">{promotion.uso_actual}</span>
+                          <span className="font-medium">
+                            {promotion.uso_actual}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-center">
                         {!promotion.activo ? (
-                          <Badge className="bg-red-100 text-red-800 border-red-200">Inactiva</Badge>
+                          <Badge className="bg-red-100 text-red-800 border-red-200">
+                            Inactiva
+                          </Badge>
                         ) : isExpired(promotion) ? (
-                          <Badge className="bg-destructive/20 text-destructive border-destructive/30">Expirada</Badge>
+                          <Badge className="bg-destructive/20 text-destructive border-destructive/30">
+                            Expirada
+                          </Badge>
                         ) : isActive(promotion) ? (
-                          <Badge className="bg-green-100 text-green-800 border-green-200">Activa</Badge>
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            Activa
+                          </Badge>
                         ) : (
-                          <Badge className="bg-chart-4/20 text-chart-4 border-chart-4/30">Próxima</Badge>
+                          <Badge className="bg-chart-4/20 text-chart-4 border-chart-4/30">
+                            Próxima
+                          </Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right flex gap-2 justify-center">
@@ -380,11 +475,11 @@ export default function PromotionsAdminPage() {
       </div>
 
       {/* Modal */}
-      <PromotionModal
+      <PromocionModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         mode={modalMode}
-        initialData={selectedPromotion || undefined}
+        initialData={selectedPromotion}
         onSubmit={handleModalSubmit}
         categories={categories}
       />
@@ -395,13 +490,16 @@ export default function PromotionsAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar Promoción</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro de que deseas eliminar la promoción "{promotionToDelete?.titulo}"? 
-              Esta acción no se puede deshacer.
+              ¿Estás seguro de que deseas eliminar la promoción "
+              {promotionToDelete?.titulo}"? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground"
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -414,19 +512,22 @@ export default function PromotionsAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Restaurar Promoción</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro de que deseas restaurar la promoción "{promotionToRestore?.titulo}"? 
-              La promoción volverá a estar activa.
+              ¿Estás seguro de que deseas restaurar la promoción "
+              {promotionToRestore?.titulo}"? La promoción volverá a estar
+              activa.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRestoreConfirm} className="bg-green-600 text-white">
+            <AlertDialogAction
+              onClick={handleRestoreConfirm}
+              className="bg-green-600 text-white"
+            >
               Restaurar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </DashboardLayout>
-  )
+  );
 }
-

@@ -48,7 +48,7 @@ interface DashboardLayoutProps {
 
 const navigation = [
   { name: "Calcular Envío", href: "/calculator", icon: Calculator },
-  { name: "Restricciones", href: "/restrictions", icon: Shield },
+  { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Entrega", href: "/delivery", icon: MapPin },
   { name: "Promociones", href: "/promotions", icon: TrendingUp },
   { name: "Seguimiento", href: "/tracking", icon: Package },
@@ -77,8 +77,6 @@ export function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const { rol, user } = useAuth();
-
-  console.log({ user });
 
   const handleLogout = async () => {
     try {

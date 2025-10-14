@@ -3,7 +3,7 @@ import {
   PromocionData,
   CrearPromocionData,
   UpdatePromotion,
-} from "@/lib/validation/promotions";
+} from "@/lib/validation/promociones";
 
 import { supabaseErrorMap } from "../errorMap";
 
@@ -15,7 +15,7 @@ export const PromocionService = {
       .from("promociones")
       .select("*")
       .eq("activo", true)
-      .order("created_at", { ascending: false });
+      .order("id", { ascending: false });
     if (error)
       throw new Error(
         supabaseErrorMap[error.code] || "Error al obtener promociones"
@@ -27,7 +27,7 @@ export const PromocionService = {
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("id", { ascending: false });
     if (error)
       throw new Error(
         supabaseErrorMap[error.code] || "Error al obtener promociones"
@@ -42,8 +42,8 @@ export const PromocionService = {
       .eq("id", id)
       .single();
     if (error) {
-      if (error.code === 'PGRST116') {
-        return null; // No se encontró el registro
+      if (error.code === "PGRST116") {
+        return null; 
       }
       throw new Error(
         supabaseErrorMap[error.code] || "Error al obtener promoción"
@@ -53,32 +53,34 @@ export const PromocionService = {
   },
 
   async create(data: CrearPromocionData): Promise<PromocionData> {
-    const { data: newData, error } = await supabase
+    const { id, ...payload } = data;
+
+    const { data: created, error } = await supabase
       .from("promociones")
-      .insert({
-        ...data,
-        uso_actual: 0,
-        restricciones: data.restricciones || null,
-      })
+      .insert(payload)
       .select()
       .single();
+
     if (error)
       throw new Error(
         supabaseErrorMap[error.code] || "Error al crear promoción"
       );
-    return newData as PromocionData;
+
+    return created as PromocionData;
   },
 
-  async update(id: number, data: UpdatePromotion): Promise<PromocionData> {
+  async update(data: UpdatePromotion): Promise<PromocionData> {
+    const { id, ...payload } = data;
+
     const updateData = {
       ...data,
-      // Ensure restricciones is properly handled as null or array
-      restricciones: data.restricciones || null,
+      restricciones: data.restricciones_categorias || null,
     };
+
     const { data: updatedData, error } = await supabase
       .from("promociones")
-      .update(updateData)
-      .eq("id", id)
+      .update(payload)
+      .eq("id", data.id)
       .select()
       .single();
     if (error)
@@ -117,15 +119,15 @@ export const PromocionService = {
     // CREATE OR REPLACE FUNCTION increment_promotion_usage(promotion_id INTEGER)
     // RETURNS BOOLEAN AS $$
     // BEGIN
-    //   UPDATE promociones 
-    //   SET uso_actual = uso_actual + 1 
+    //   UPDATE promociones
+    //   SET uso_actual = uso_actual + 1
     //   WHERE id = promotion_id;
     //   RETURN FOUND;
     // END;
     // $$ LANGUAGE plpgsql;
-    
-    const { error } = await supabase.rpc('increment_promotion_usage', {
-      promotion_id: id
+
+    const { error } = await supabase.rpc("increment_promotion_usage", {
+      promotion_id: id,
     });
     if (error)
       throw new Error(
@@ -135,7 +137,7 @@ export const PromocionService = {
   },
 
   async getActivePromotions(): Promise<PromocionData[]> {
-    const now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const now = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
