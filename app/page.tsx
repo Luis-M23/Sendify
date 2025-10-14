@@ -78,7 +78,7 @@ export default function HomePage() {
           internacionales con total transparencia y control.
         </p>
         <div className="flex gap-4 justify-center">
-          <Link href="/calculator">
+          <Link href="/calculadora">
             <Button size="lg" className="gap-2">
               <Calculator className="h-5 w-5" />
               Calcular Envío
@@ -103,7 +103,7 @@ export default function HomePage() {
           Módulos del Sistema
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/calculator">
+          <Link href="/calculadora">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
@@ -148,7 +148,7 @@ export default function HomePage() {
             </Card>
           </Link>
 
-          <Link href="/promotions">
+          <Link href="/promociones">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="h-12 w-12 rounded-lg bg-chart-4/10 flex items-center justify-center mb-4">

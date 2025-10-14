@@ -47,10 +47,10 @@ interface DashboardLayoutProps {
 }
 
 const navigation = [
-  { name: "Calcular Envío", href: "/calculator", icon: Calculator },
+  { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Entrega", href: "/delivery", icon: MapPin },
-  { name: "Promociones", href: "/promotions", icon: TrendingUp },
+  { name: "Promociones", href: "/promociones", icon: TrendingUp },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Reportes", href: "/reports", icon: FileText },
 ];

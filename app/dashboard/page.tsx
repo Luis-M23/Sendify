@@ -103,7 +103,7 @@ console.log({user});
               <CardDescription>Operaciones frecuentes</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Link href="/calculator">
+              <Link href="/calculadora">
                 <Button
                   className="w-full justify-start bg-transparent"
                   variant="outline"
