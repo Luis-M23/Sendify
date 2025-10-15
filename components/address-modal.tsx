@@ -54,7 +54,7 @@ export function AddressModal({ open, onOpenChange, mode, initialData, onSubmit }
   const handleFormSubmit = (data: AddressFormData) => {
     onSubmit(data)
     toast({
-      title: mode === "add" ? "Dirección agregada" : "Dirección actualizada",
+      title: mode === "add" ? "Casillero agregado" : "Casillero actualizado",
       description: "Los cambios se han guardado correctamente.",
     })
     onOpenChange(false)
@@ -64,7 +64,7 @@ export function AddressModal({ open, onOpenChange, mode, initialData, onSubmit }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{mode === "add" ? "Agregar Nueva Dirección" : "Editar Dirección"}</DialogTitle>
+          <DialogTitle>{mode === "add" ? "Agregar Nuevo Casillero" : "Editar Casillero"}</DialogTitle>
           <DialogDescription>
             {mode === "add"
               ? "Completa los datos de tu nueva dirección de entrega"

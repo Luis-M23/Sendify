@@ -175,17 +175,16 @@ export default function DireccionesAdminPage() {
         <Card>
           <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle>Gestión de Direcciones de Envío</CardTitle>
+              <CardTitle>Gestión de Casilleros</CardTitle>
               <CardDescription>
-                Administra los orígenes, contactos y costos asociados a tus
-                envíos.
+                Administra los orígenes, contactos y costos asociados a la compra de los clientes.
               </CardDescription>
             </div>
             <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
               <div className="relative md:w-64">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar direcciones"
+                  placeholder="Buscar casillero"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8"
@@ -193,7 +192,7 @@ export default function DireccionesAdminPage() {
               </div>
               <Button onClick={handleAdd} className="md:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
-                Nueva Dirección
+                Nuevo Casillero
               </Button>
             </div>
           </CardHeader>

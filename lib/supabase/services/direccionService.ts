@@ -6,7 +6,7 @@ import {
 import { supabaseErrorMap } from "../errorMap";
 
 const supabase = createClient();
-const TABLE_NAME = "direcciones";
+const TABLE_NAME = "casilleros";
 
 export const DireccionService = {
   async getAll(): Promise<DireccionData[]> {

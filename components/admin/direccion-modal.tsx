@@ -94,9 +94,7 @@ export function DireccionModal({
       <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {mode === "add"
-              ? "Agregar Nueva Dirección"
-              : "Editar Dirección"}
+            {mode === "add" ? "Agregar Nuevo Casillero" : "Editar Casillero"}
           </DialogTitle>
           <DialogDescription>
             {mode === "add"
@@ -106,7 +104,7 @@ export function DireccionModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="codigo">Código *</Label>
               <Input id="codigo" maxLength={10} {...register("codigo")} />
@@ -126,16 +124,16 @@ export function DireccionModal({
                 </p>
               )}
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="estado">Estado / Provincia *</Label>
-              <Input id="estado" {...register("estado")} />
-              {errors.estado && (
-                <p className="text-sm text-destructive">
-                  {errors.estado.message}
-                </p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="estado">Estado / Provincia *</Label>
+            <Input id="estado" {...register("estado")} />
+            {errors.estado && (
+              <p className="text-sm text-destructive">
+                {errors.estado.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -148,7 +146,7 @@ export function DireccionModal({
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label htmlFor="telefono">Teléfono *</Label>
               <Input id="telefono" {...register("telefono")} />
@@ -159,7 +157,7 @@ export function DireccionModal({
               )}
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="activo">Estado</Label>
               <div className="flex items-center gap-3 rounded-md border p-2">
                 <Switch
@@ -171,7 +169,7 @@ export function DireccionModal({
                   {activo ? "Activo" : "Inactivo"}
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
