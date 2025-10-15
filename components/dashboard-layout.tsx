@@ -37,7 +37,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { logoutService } from "@/lib/supabase/services/logoutService";
+import { AuthService } from "@/lib/supabase/services/authService";
 import { toast } from "react-toastify";
 import { RolesSistema } from "@/lib/enum";
 import { useAuth } from "./auth-provider";
@@ -82,7 +82,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await logoutService();
+      await AuthService.logout();
       toast.success("Sesión cerrada correctamente");
       router.push("/");
     } catch (err: any) {

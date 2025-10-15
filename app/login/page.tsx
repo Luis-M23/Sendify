@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Package } from "lucide-react";
 import { toast } from "react-toastify";
 import { loginSchema } from "@/lib/validation/login";
-import { loginService } from "@/lib/supabase/services/loginService";
+import { AuthService } from "@/lib/supabase/services/authService";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await loginService({ email, password });
+      await AuthService.login({ email, password });
       toast.success("¡Bienvenido!");
       router.push("/dashboard");
     } catch (err: any) {
