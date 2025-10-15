@@ -64,7 +64,7 @@ const adminNavigation = [
     href: "/admin/factores-conversion",
     icon: Package,
   },
-  { name: "Direcciones", href: "/admin/direcciones", icon: Globe },
+  { name: "Casilleros", href: "/admin/casilleros", icon: Globe },
   { name: "Categorías", href: "/admin/categorias", icon: Folder },
   { name: "Promociones", href: "/admin/promociones", icon: Gift },  {
     name: "Recompensas",
