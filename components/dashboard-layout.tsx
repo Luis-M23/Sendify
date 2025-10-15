@@ -234,17 +234,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </Badge>
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
+                    <Link href="/perfil" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       Perfil
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  {/* <DropdownMenuItem asChild>
                     <Link href="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       Configuración
                     </Link>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-destructive"
