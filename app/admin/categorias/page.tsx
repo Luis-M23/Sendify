@@ -193,7 +193,7 @@ export default function CategoriesAdminPage() {
   };
 
   return (
-    <DashboardLayout userRole="admin">
+    <DashboardLayout >
       <div className="space-y-6">
         <Card>
           <CardHeader>

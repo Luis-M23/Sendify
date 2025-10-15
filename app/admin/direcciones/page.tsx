@@ -170,7 +170,7 @@ export default function DireccionesAdminPage() {
   });
 
   return (
-    <DashboardLayout userRole="admin">
+    <DashboardLayout >
       <div className="space-y-6">
         <Card>
           <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

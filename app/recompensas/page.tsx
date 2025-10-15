@@ -90,7 +90,7 @@ export default function RecompensasPage() {
   }, []);
 
   return (
-    <DashboardLayout userRole="vip">
+    <DashboardLayout >
       <div className="space-y-6">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Programa de Recompensas VIP</h1>

@@ -44,7 +44,6 @@ import { useAuth } from "./auth-provider";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  userRole?: RolesSistema;
 }
 
 const navigation = [
@@ -67,14 +66,15 @@ const adminNavigation = [
   },
   { name: "Direcciones", href: "/admin/direcciones", icon: Globe },
   { name: "Categorías", href: "/admin/categorias", icon: Folder },
-  { name: "Promociones", href: "/admin/promociones", icon: Gift },
+  { name: "Promociones", href: "/admin/promociones", icon: Gift },  {
+    name: "Recompensas",
+    href: "/admin/recompensas",
+    icon: Crown,
+  },
   { name: "Usuarios", href: "/admin/usuarios", icon: Users },
 ];
 
-export function DashboardLayout({
-  children,
-  userRole = RolesSistema.CLIENTE,
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();

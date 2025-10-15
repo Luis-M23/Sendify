@@ -146,7 +146,7 @@ export default function CalculatorPage() {
   }
 
   return (
-    <DashboardLayout userRole="vip">
+    <DashboardLayout >
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Calculadora de Envíos</h1>

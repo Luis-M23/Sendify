@@ -11,25 +11,52 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plane, Truck, Ship, Save, Search, Plus } from "lucide-react";
+import {
+  Plane,
+  Truck,
+  Ship,
+  Save,
+  Search,
+  Star,
+  Award,
+  Crown,
+  Sparkles,
+} from "lucide-react";
 import { ModosTransporteService } from "@/lib/supabase/services/factorConversionService";
 import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
-import { FactorConversionData } from "@/lib/validation/factorConversion";
+import { RecompensaService } from "@/lib/supabase/services/recompensaService";
+import { RecompensaData } from "@/lib/validation";
+
+const levelDecorations: Record<
+  number,
+  {
+    color: string;
+    Icon: typeof Star;
+  }
+> = {
+  1: { color: "oklch(0.627 0.265 303.9)", Icon: Award },
+  2: { color: "oklch(0.708 0 0)", Icon: Star },
+  3: { color: "oklch(0.769 0.188 70.08)", Icon: Crown },
+  4: { color: "oklch(0.645 0.246 16.439)", Icon: Sparkles },
+};
+
+const getLevelDecoration = (nivel: number) =>
+  levelDecorations[nivel] ?? {
+    color: "oklch(0.7 0.12 220)",
+    Icon: Star,
+  };
 
 export default function ModosTransportePage() {
-  const [modos, setModos] = useState<
-    (FactorConversionData & { error?: string })[]
-  >([]);
+  const [recompensas, setRecompensas] = useState<RecompensaData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const loadModos = async () => {
     try {
       setLoading(true);
-      const data = await ModosTransporteService.getAll();
-      setModos(data);
+      const data = await RecompensaService.getAll();
+      setRecompensas(data);
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -41,64 +68,15 @@ export default function ModosTransportePage() {
     loadModos();
   }, []);
 
-  const handleDivisorChange = (id: number, value: string) => {
-    setModos((prev) =>
-      prev.map((m) => {
-        if (m.id === id) {
-          const num = Number(value);
-          let error;
-          try {
-            FactorConversionSchema.parse({ ...m, divisor_vol: num });
-          } catch (e: any) {
-            error = e.errors[0]?.message;
-          }
-          return { ...m, divisor_vol: num, error };
-        }
-        return m;
-      })
-    );
-  };
-
-  const handleSaveChanges = async () => {
-    const invalid = modos.find((m) => m.error);
-    if (invalid) return;
-
-    try {
-      setSaving(true);
-      await ModosTransporteService.updateAll(modos);
-      toast.success("Factores actualizados");
-      loadModos();
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Error al actualizar");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const iconsMap: Record<number, JSX.Element> = {
-    1: <Plane className="h-6 w-6 text-blue-500" />,
-    2: <Truck className="h-6 w-6 text-green-500" />,
-    3: <Ship className="h-6 w-6 text-cyan-500" />,
-  };
-
-  const getIcon = (id: number) => {
-    return iconsMap[id] || null;
-  };
-
-  const filteredModos = modos.filter((m) =>
-    m.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <DashboardLayout >
+    <DashboardLayout>
       <div className="space-y-6">
         <Card>
           <CardHeader className="flex justify-between items-center">
             <div>
-              <CardTitle>Factores de Conversión</CardTitle>
+              <CardTitle>Recompensas</CardTitle>
               <CardDescription>
-                Gestiona los factores de conversión (peso volumétrico)
+                Gestiona los límites de las recomepensas
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -113,7 +91,7 @@ export default function ModosTransportePage() {
               </div>
               <Button
                 onClick={handleSaveChanges}
-                disabled={saving || modos.some((m) => m.error)}
+                disabled={saving || recompensas.some((m) => m.error)}
               >
                 <Save className="h-4 w-4 mr-2" />{" "}
                 {saving ? "Guardando..." : "Guardar"}
@@ -126,7 +104,7 @@ export default function ModosTransportePage() {
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-muted-foreground mt-2">
-                  Cargando modos de transporte...
+                  Cargando las recompensas...
                 </p>
               </div>
             ) : (
@@ -135,15 +113,17 @@ export default function ModosTransportePage() {
                   <Card key={modo.id} className="flex flex-col justify-between">
                     <CardHeader className="flex items-center gap-3">
                       {getIcon(modo.id)}
-                      <CardTitle className="text-lg">{modo.nombre}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {recompensas.nombre}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center gap-2">
                       <CardDescription>Divisor Volumétrico</CardDescription>
                       <Input
                         type="number"
-                        value={modo.divisor_vol}
+                        value={recompensas.divisor_vol}
                         onChange={(e) =>
-                          handleDivisorChange(modo.id, e.target.value)
+                          handleDivisorChange(recompensas.id, e.target.value)
                         }
                         className={`text-center ${
                           modo.error ? "border-red-500" : ""

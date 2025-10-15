@@ -109,7 +109,7 @@ export default function UsersAdminPage() {
   );
 
   return (
-    <DashboardLayout userRole="admin">
+    <DashboardLayout >
       <Card>
         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>

@@ -24,7 +24,7 @@ export default function DashboardPage() {
 console.log({user});
  
   return (
-    <DashboardLayout userRole="vip">
+    <DashboardLayout >
       <div className="space-y-8">
         {/* Welcome Section */}
         <div>

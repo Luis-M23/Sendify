@@ -119,7 +119,7 @@ export default function AdminPage() {
   }
 
   return (
-    <DashboardLayout userRole="admin">
+    <DashboardLayout >
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Panel Administrativo</h1>

@@ -235,7 +235,7 @@ export default function PromotionsAdminPage() {
     );
   };
   return (
-    <DashboardLayout userRole={RolesSistema.ADMINISTRADOR}>
+    <DashboardLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestión de Promociones</h1>
@@ -384,7 +384,9 @@ export default function PromotionsAdminPage() {
                             })}
                           </div>
                           <div className="text-muted-foreground">
-                            {format(parseISO(promotion.fecha_fin), "PPP", { locale: es })}
+                            {format(parseISO(promotion.fecha_fin), "PPP", {
+                              locale: es,
+                            })}
                           </div>
                         </div>
                       </TableCell>
