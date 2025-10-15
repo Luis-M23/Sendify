@@ -50,7 +50,7 @@ const navigation = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Entrega", href: "/delivery", icon: MapPin },
-  { name: "Promociones", href: "/promociones", icon: TrendingUp },
+  { name: "Promociones", href: "/promociones", icon: Gift },
   { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Reportes", href: "/reports", icon: FileText },
