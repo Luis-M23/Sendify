@@ -20,7 +20,9 @@ export const PromocionSchema = z.object({
     .min(1, "El porcentaje debe ser mayor a 1")
     .max(100, "El porcentaje no debe superar el 100%")
     .default(0),
-  restricciones_categorias: z.array(z.number()).optional().nullable(),
+  restricciones_categorias: z
+    .array(z.union([z.number(), z.string()]))
+    .nullable(),
   created_at: z.string().optional(),
 });
 

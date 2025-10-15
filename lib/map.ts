@@ -1,9 +1,10 @@
+import { CategoriaService } from "./supabase/services/categoriaService";
+
 export const permisoMap: Record<number, string> = {
   1: "Prohibido",
   2: "Permitido",
   3: "Requiere Permiso",
 };
-
 
 export const recompensaMap: Record<number, string> = {
   1: "Bronce",
@@ -11,3 +12,13 @@ export const recompensaMap: Record<number, string> = {
   3: "Oro",
   4: "Platino",
 };
+
+export async function categoriaMap(): Promise<Record<number, string>> {
+  try {
+    const categorias = await CategoriaService.getAll();
+    return Object.fromEntries(categorias.map((cat) => [cat.id, cat.nombre]));
+  } catch (error) {
+    console.error("Error al obtener categorías:", error);
+    return {};
+  }
+}
