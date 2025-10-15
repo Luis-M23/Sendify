@@ -128,7 +128,7 @@ export default function AdminRecompensasPage() {
                 onClick={loadRecompensas}
                 disabled={loading}
               >
-                {loading ? "Actualizando..." : "Refrescar"}
+                {loading ? "Actualizando..." : "Recargar"}
               </Button>
             </div>
           </CardHeader>
