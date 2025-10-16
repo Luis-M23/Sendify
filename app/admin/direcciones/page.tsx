@@ -45,8 +45,8 @@ import { z } from "zod";
 const formatCurrency = (value?: number | null) =>
   `$ ${Number(value ?? 0).toFixed(2)}`;
 
-export default function CasillerosAdminPage() {
-  const [casilleros, setCasilleros] = useState<DireccionData[]>([]);
+export default function DireccionesAdminPage() {
+  const [direcciones, setDirecciones] = useState<DireccionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -64,10 +64,10 @@ export default function CasillerosAdminPage() {
     try {
       setLoading(true);
       const data = await DireccionService.getAll();
-      setCasilleros(data);
+      setDirecciones(data);
     } catch (error: any) {
       toast.error(
-        error.message || "Ocurrió un error al cargar las casilleros"
+        error.message || "Ocurrió un error al cargar las direcciones"
       );
     } finally {
       setLoading(false);
@@ -158,7 +158,7 @@ export default function CasillerosAdminPage() {
     setDireccionToDelete(null);
   };
 
-  const filteredDirecciones = casilleros.filter((direccion) => {
+  const filteredDirecciones = direcciones.filter((direccion) => {
     const term = searchTerm.toLowerCase();
     return (
       direccion.codigo.toLowerCase().includes(term) ||
@@ -201,7 +201,7 @@ export default function CasillerosAdminPage() {
               <div className="py-8 text-center">
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
                 <p className="mt-2 text-muted-foreground">
-                  Cargando casilleros...
+                  Cargando direcciones...
                 </p>
               </div>
             ) : (
@@ -228,7 +228,7 @@ export default function CasillerosAdminPage() {
                     <TableRow>
                       <TableCell colSpan={10} className="py-8 text-center">
                         <p className="text-muted-foreground">
-                          No se encontraron casilleros con el criterio
+                          No se encontraron direcciones con el criterio
                           proporcionado.
                         </p>
                       </TableCell>
