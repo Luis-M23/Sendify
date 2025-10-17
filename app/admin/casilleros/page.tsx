@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { DireccionModal } from "@/components/admin/direccion-modal";
+import { CasilleroModal } from "@/components/admin/casillero-modal";
 import { DireccionService } from "@/lib/supabase/services/direccionService";
 import {
   DireccionData,
@@ -310,7 +310,7 @@ export default function CasillerosAdminPage() {
           </CardContent>
         </Card>
 
-        <DireccionModal
+        <CasilleroModal
           open={modalOpen}
           onOpenChange={setModalOpen}
           mode={modalMode}
