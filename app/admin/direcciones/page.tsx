@@ -34,37 +34,46 @@ import {
 import { DireccionModal } from "@/components/admin/direccion-modal";
 import { DireccionService } from "@/lib/supabase/services/direccionService";
 import {
-  DireccionData,
-  CrearDireccionData,
+  DireccionDistrito,
+  CrearDireccion,
   DireccionSchema,
   CrearDireccionSchema,
 } from "@/lib/validation/direccion";
 import { toast } from "react-toastify";
 import { z } from "zod";
+import { Distrito } from "@/lib/validation/distrito";
+import { DistritoService } from "@/lib/supabase/services/distritoService";
 
-const formatCurrency = (value?: number | null) =>
-  `$ ${Number(value ?? 0).toFixed(2)}`;
+const parseHorarioAtencion = (beneficios?: string | null) =>
+  beneficios
+    ?.split(/\r?\n|;/)
+    .map((item) => item.trim())
+    .filter(Boolean) ?? [];
 
 export default function DireccionesAdminPage() {
-  const [direcciones, setDirecciones] = useState<DireccionData[]>([]);
+  const [distritos, setSelectedDistritos] = useState<Distrito[]>([]);
+  const [direcciones, setDirecciones] = useState<DireccionDistrito[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedDireccion, setSelectedDireccion] =
-    useState<DireccionData | null>(null);
+    useState<DireccionDistrito | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
   const [direccionToDelete, setDireccionToDelete] =
-    useState<DireccionData | null>(null);
+    useState<DireccionDistrito | null>(null);
   const [direccionToRestore, setDireccionToRestore] =
-    useState<DireccionData | null>(null);
+    useState<DireccionDistrito | null>(null);
 
   const loadDirecciones = async () => {
     try {
       setLoading(true);
-      const data = await DireccionService.getAll();
-      setDirecciones(data);
+      const direcciones = await DireccionService.getAll();
+      const distritos = await DistritoService.getAll();
+      setDirecciones(direcciones);
+      setSelectedDistritos(distritos);
+      console.log(distritos);
     } catch (error: any) {
       toast.error(
         error.message || "Ocurrió un error al cargar las direcciones"
@@ -84,18 +93,18 @@ export default function DireccionesAdminPage() {
     setModalOpen(true);
   };
 
-  const handleEdit = (direccion: DireccionData) => {
+  const handleEdit = (direccion: Direccion) => {
     setModalMode("edit");
     setSelectedDireccion(direccion);
     setModalOpen(true);
   };
 
-  const handleDelete = (direccion: DireccionData) => {
+  const handleDelete = (direccion: Direccion) => {
     setDireccionToDelete(direccion);
     setDeleteDialogOpen(true);
   };
 
-  const handleRestoreDialog = (direccion: DireccionData) => {
+  const handleRestoreDialog = (direccion: Direccion) => {
     setDireccionToRestore(direccion);
     setRestoreDialogOpen(true);
   };
@@ -105,7 +114,7 @@ export default function DireccionesAdminPage() {
       try {
         await DireccionService.restore(direccionToRestore.id!);
         toast.success(
-          `Dirección ${direccionToRestore.codigo} restaurada correctamente`
+          `Dirección ${direccionToRestore.direccion} restaurada correctamente`
         );
         await loadDirecciones();
       } catch (error: any) {
@@ -118,16 +127,14 @@ export default function DireccionesAdminPage() {
     setDireccionToRestore(null);
   };
 
-  const handleModalSubmit = async (
-    data: CrearDireccionData | DireccionData
-  ) => {
+  const handleModalSubmit = async (data: CrearDireccion | Direccion) => {
     try {
       if (modalMode === "add") {
         CrearDireccionSchema.parse(data);
-        await DireccionService.create(data as CrearDireccionData);
+        await DireccionService.create(data as CrearDireccion);
       } else {
         DireccionSchema.parse(data);
-        await DireccionService.update(data as DireccionData);
+        await DireccionService.update(data as Direccion);
       }
       await loadDirecciones();
       setModalOpen(false);
@@ -161,7 +168,7 @@ export default function DireccionesAdminPage() {
   const filteredDirecciones = direcciones.filter((direccion) => {
     const term = searchTerm.toLowerCase();
     return (
-      direccion.codigo.toLowerCase().includes(term) ||
+      direccion.direccion.toLowerCase().includes(term) ||
       direccion.pais.toLowerCase().includes(term) ||
       direccion.estado.toLowerCase().includes(term) ||
       direccion.direccion.toLowerCase().includes(term) ||
@@ -170,14 +177,14 @@ export default function DireccionesAdminPage() {
   });
 
   return (
-    <DashboardLayout >
+    <DashboardLayout>
       <div className="space-y-6">
         <Card>
           <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle>Gestión de Casilleros</CardTitle>
+              <CardTitle>Gestión de Direcciones</CardTitle>
               <CardDescription>
-                Administra los orígenes, contactos y costos asociados a la compra de los clientes.
+                Administra las direcciones de los locales.
               </CardDescription>
             </div>
             <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
@@ -192,7 +199,7 @@ export default function DireccionesAdminPage() {
               </div>
               <Button onClick={handleAdd} className="md:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
-                Nuevo Casillero
+                Nueva Dirección
               </Button>
             </div>
           </CardHeader>
@@ -208,16 +215,10 @@ export default function DireccionesAdminPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-left">Código</TableHead>
-                    <TableHead className="text-left">Direcciones</TableHead>
-                    <TableHead className="text-center">
-                      Costo Aéreo (USD)
-                    </TableHead>
-                    <TableHead className="text-center">
-                      Costo Terrestre (USD)
-                    </TableHead>
-                    <TableHead className="text-center">
-                      Costo Marítimo (USD)
+                    <TableHead className="text-left">Distrito</TableHead>
+                    <TableHead className="text-left">Dirección</TableHead>
+                    <TableHead className="text-left">
+                      Horario de Atención
                     </TableHead>
                     <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
@@ -237,30 +238,42 @@ export default function DireccionesAdminPage() {
                     filteredDirecciones.map((direccion) => (
                       <TableRow key={direccion.id}>
                         <TableCell className="text-left">
-                          <Badge variant="outline">{direccion.codigo}</Badge>
-                        </TableCell>
-                        <TableCell className="text-left">
                           <div className="truncate">
-                            <div className="font-medium">{direccion.pais}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {direccion.estado}
+                            <div className="font-medium">
+                              {direccion?.distritos?.departamento}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {direccion.direccion}
+                              {direccion?.distritos?.municipio}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {direccion.telefono}
+                              {direccion?.distritos?.distrito}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">
-                          {formatCurrency(direccion.costo_aereo)}
+                        <TableCell className="text-left">
+                          <div className="truncate">
+                            <div className="text-left">
+                              {direccion.direccion}
+                            </div>
+                          </div>
                         </TableCell>
-                        <TableCell className="text-center">
-                          {formatCurrency(direccion.costo_terrestre)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {formatCurrency(direccion.costo_maritimo)}
+                        <TableCell className="text-left">
+                          {parseHorarioAtencion(direccion.horario_atencion)
+                            .length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                              Sin horario registrado.
+                            </p>
+                          ) : (
+                            <ul className="space-y-1 text-sm text-muted-foreground">
+                              {parseHorarioAtencion(
+                                direccion.horario_atencion
+                              ).map((dir, index) => (
+                                <li key={`${direccion.id}-${index}`}>
+                                  • {dir}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           {direccion.activo ? (
@@ -316,6 +329,7 @@ export default function DireccionesAdminPage() {
           mode={modalMode}
           initialData={selectedDireccion}
           onSubmit={handleModalSubmit}
+          distritos={distritos}
         />
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -323,7 +337,7 @@ export default function DireccionesAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Desactivar dirección</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Deseas desactivar la dirección {direccionToDelete?.codigo}?
+                ¿Deseas desactivar la dirección {direccionToDelete?.direccion}?
                 Podrás restaurarla más adelante.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -347,7 +361,7 @@ export default function DireccionesAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Restaurar dirección</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Deseas restaurar la dirección {direccionToRestore?.codigo}?
+                ¿Deseas restaurar la dirección {direccionToRestore?.direccion}?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

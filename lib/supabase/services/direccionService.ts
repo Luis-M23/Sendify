@@ -1,31 +1,32 @@
 import { createClient } from "../client";
 import {
-  DireccionData,
-  CrearDireccionData,
+  Direccion,
+  DireccionDistrito,
+  CrearDireccion,
 } from "@/lib/validation/direccion";
 import { supabaseErrorMap } from "../errorMap";
 
 const supabase = createClient();
-const TABLE_NAME = "casilleros";
+const TABLE_NAME = "direcciones";
 
 export const DireccionService = {
-  async getAll(): Promise<DireccionData[]> {
+  async getAll(): Promise<DireccionDistrito[]> {
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .select("*")
+      .select("*, distritos(*)")
       .order("id");
 
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al obtener las direcciones de envío"
+          "Error al obtener las direcciones de los locales"
       );
     }
 
-    return data as DireccionData[];
+    return data as DireccionDistrito[];
   },
 
-  async getById(id: number): Promise<DireccionData | null> {
+  async getById(id: number): Promise<Direccion | null> {
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .select("*")
@@ -39,10 +40,10 @@ export const DireccionService = {
       );
     }
 
-    return data as DireccionData;
+    return data as Direccion;
   },
 
-  async create(data: CrearDireccionData): Promise<DireccionData> {
+  async create(data: CrearDireccion): Promise<Direccion> {
     const { data: created, error } = await supabase
       .from(TABLE_NAME)
       .insert(data)
@@ -51,15 +52,14 @@ export const DireccionService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] ||
-          "Error al registrar la nueva dirección"
+        supabaseErrorMap[error.code] || "Error al registrar la nueva dirección"
       );
     }
 
-    return created as DireccionData;
+    return created as Direccion;
   },
 
-  async update(data: DireccionData): Promise<DireccionData> {
+  async update(data: Direccion): Promise<Direccion> {
     const { id, created_at, ...rest } = data;
 
     const { data: updated, error } = await supabase
@@ -76,7 +76,7 @@ export const DireccionService = {
       );
     }
 
-    return updated as DireccionData;
+    return updated as Direccion;
   },
 
   async delete(id: number): Promise<boolean> {

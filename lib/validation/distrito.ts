@@ -7,9 +7,10 @@ export const DistritoSchema = z.object({
   distrito: z.string(),
   created_at: z.string(),
 });
+
 export type Distrito = z.infer<typeof DistritoSchema>;
 
-export const CasilleroSchema = z.object({
+export const DireccionSchema = z.object({
   id: z.number(),
   id_distrito: z.number().optional(), 
   direccion: z
@@ -23,15 +24,18 @@ export const CasilleroSchema = z.object({
   activo: z.boolean().optional(),
   created_at: z.string().optional(),
 });
-export type Casillero = z.infer<typeof CasilleroSchema>;
 
-export const CrearCasilleroSchema = CasilleroSchema.omit({
+export type Direccion = z.infer<typeof DireccionSchema>;
+
+export const CrearDireccionSchema = DireccionSchema.omit({
   id: true,
   created_at: true,
 });
-export type CrearCasillero = z.infer<typeof CrearCasilleroSchema>;
 
-export const CasilleroCompletoSchema = CasilleroSchema.extend({
+export type CrearDireccion = z.infer<typeof CrearDireccionSchema>;
+
+export const DireccionDistritoSchema = DireccionSchema.extend({
   distritos: DistritoSchema,
 });
-export type CasilleroCompleto = z.infer<typeof CasilleroCompletoSchema>;
+
+export type DireccionDistrito = z.infer<typeof DireccionDistritoSchema>;

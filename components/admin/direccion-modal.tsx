@@ -16,21 +16,30 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 
 import {
-  DireccionData,
-  CrearDireccionData,
+  Direccion,
+  CrearDireccion,
   DireccionSchema,
   CrearDireccionSchema,
 } from "@/lib/validation/direccion";
+import { Textarea } from "../ui/textarea";
+import { Distrito } from "@/lib/validation/distrito";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface DireccionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "add" | "edit";
-  initialData?: DireccionData | null;
-  onSubmit: (data: CrearDireccionData | DireccionData) => void;
+  initialData?: Direccion | null;
+  onSubmit: (data: CrearDireccion | Direccion) => void;
+  distritos: Distrito[];
 }
 
 export function DireccionModal({
@@ -39,17 +48,12 @@ export function DireccionModal({
   mode,
   initialData,
   onSubmit,
+  distritos,
 }: DireccionModalProps) {
-  const defaultValues: CrearDireccionData = {
-    codigo: "",
-    pais: "",
-    estado: "",
+  const defaultValues: CrearDireccion = {
+    id_distrito: undefined,
     direccion: "",
-    telefono: "",
-    costo_aereo: 0,
-    costo_terrestre: 0,
-    costo_maritimo: 0,
-    activo: true,
+    horario_atencion: "",
   };
 
   const {
@@ -59,19 +63,17 @@ export function DireccionModal({
     setValue,
     watch,
     reset,
-  } = useForm<DireccionData>({
+  } = useForm<Direccion>({
     resolver: zodResolver(
       mode === "add" ? CrearDireccionSchema : DireccionSchema
     ),
     defaultValues: mode === "add" ? defaultValues : undefined,
   });
 
-  const activo = watch("activo");
-
-  const handleFormSubmit = (data: DireccionData) => {
+  const handleFormSubmit = (data: Direccion) => {
     onSubmit(data);
     toast.success(
-      mode === "add" ? "Dirección agregada" : "Dirección actualizada"
+      mode === "add" ? "Direccion agregado" : "Direccion actualizado"
     );
     onOpenChange(false);
   };
@@ -94,46 +96,37 @@ export function DireccionModal({
       <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {mode === "add" ? "Agregar Nuevo Casillero" : "Editar Casillero"}
+            {mode === "add" ? "Agregar Nuevo Direccion" : "Editar Direccion"}
           </DialogTitle>
           <DialogDescription>
             {mode === "add"
-              ? "Registra una nueva dirección para envíos"
-              : "Actualiza los datos de la dirección seleccionada"}
+              ? "Registra un nuevo casillero para envíos"
+              : "Actualiza los datos del casillero seleccionado"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols gap-4">
             <div className="space-y-2">
-              <Label htmlFor="codigo">Código *</Label>
-              <Input id="codigo" maxLength={10} {...register("codigo")} />
-              {errors.codigo && (
+              <Label htmlFor="pais">Distrito *</Label>
+              <Select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecciona un distrito" />
+                </SelectTrigger>
+                <SelectContent>
+                  {distritos.map((distrito) => (
+                    <SelectItem key={distrito.id} value={String(distrito.id)}>
+                      {`${distrito.distrito}, ${distrito.municipio}, ${distrito.departamento}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.id_distrito && (
                 <p className="text-sm text-destructive">
-                  {errors.codigo.message}
+                  {errors.id_distrito.message}
                 </p>
               )}
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pais">País *</Label>
-              <Input id="pais" {...register("pais")} />
-              {errors.pais && (
-                <p className="text-sm text-destructive">
-                  {errors.pais.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="estado">Estado / Provincia *</Label>
-            <Input id="estado" {...register("estado")} />
-            {errors.estado && (
-              <p className="text-sm text-destructive">
-                {errors.estado.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -148,75 +141,15 @@ export function DireccionModal({
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono *</Label>
-              <Input id="telefono" {...register("telefono")} />
-              {errors.telefono && (
-                <p className="text-sm text-destructive">
-                  {errors.telefono.message}
-                </p>
-              )}
-            </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="activo">Estado</Label>
-              <div className="flex items-center gap-3 rounded-md border p-2">
-                <Switch
-                  id="activo"
-                  checked={Boolean(activo)}
-                  onCheckedChange={(checked) => setValue("activo", checked)}
-                />
-                <span className="text-sm text-muted-foreground">
-                  {activo ? "Activo" : "Inactivo"}
-                </span>
-              </div>
-            </div> */}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="costo_aereo">Costo Aéreo (USD)</Label>
-              <Input
-                id="costo_aereo"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_aereo", { valueAsNumber: true })}
+              <Label htmlFor="horario_atencion">Horario de Atención *</Label>
+              <Textarea
+                id="horario_atencion"
+                rows={5}
+                {...register("horario_atencion")}
               />
-              {errors.costo_aereo && (
+              {errors.horario_atencion && (
                 <p className="text-sm text-destructive">
-                  {errors.costo_aereo.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="costo_terrestre">Costo Terrestre (USD)</Label>
-              <Input
-                id="costo_terrestre"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_terrestre", { valueAsNumber: true })}
-              />
-              {errors.costo_terrestre && (
-                <p className="text-sm text-destructive">
-                  {errors.costo_terrestre.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="costo_maritimo">Costo Marítimo (USD)</Label>
-              <Input
-                id="costo_maritimo"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_maritimo", { valueAsNumber: true })}
-              />
-              {errors.costo_maritimo && (
-                <p className="text-sm text-destructive">
-                  {errors.costo_maritimo.message}
+                  {errors.horario_atencion.message}
                 </p>
               )}
             </div>
@@ -231,7 +164,7 @@ export function DireccionModal({
               Cancelar
             </Button>
             <Button type="submit">
-              {mode === "add" ? "Agregar Dirección" : "Guardar Cambios"}
+              {mode === "add" ? "Agregar Direccion" : "Guardar Cambios"}
             </Button>
           </DialogFooter>
         </form>
