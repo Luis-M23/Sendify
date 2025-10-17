@@ -40,7 +40,7 @@ export function CasilleroModal({
   onSubmit,
 }: CasilleroModalProps) {
   const defaultValues: CrearCasillero = {
-    id_distrito: null,
+    id_distrito: undefined,
     direccion: "",
     horario_atencion: "",
   };
@@ -58,8 +58,6 @@ export function CasilleroModal({
     ),
     defaultValues: mode === "add" ? defaultValues : undefined,
   });
-
-  const activo = watch("activo");
 
   const handleFormSubmit = (data: Casillero) => {
     onSubmit(data);
