@@ -16,21 +16,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 
 import {
-  DireccionData,
-  CrearDireccionData,
-  DireccionSchema,
-  CrearDireccionSchema,
-} from "@/lib/validation/direccion";
+  Casillero,
+  CrearCasillero,
+  CasilleroSchema,
+  CrearCasilleroSchema,
+} from "@/lib/validation/casillero";
 
 interface CasilleroModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "add" | "edit";
-  initialData?: DireccionData | null;
-  onSubmit: (data: CrearDireccionData | DireccionData) => void;
+  initialData?: Casillero | null;
+  onSubmit: (data: CrearCasillero | Casillero) => void;
 }
 
 export function CasilleroModal({
@@ -40,16 +39,10 @@ export function CasilleroModal({
   initialData,
   onSubmit,
 }: CasilleroModalProps) {
-  const defaultValues: CrearDireccionData = {
-    codigo: "",
-    pais: "",
-    estado: "",
+  const defaultValues: CrearCasillero = {
+    id_distrito: null,
     direccion: "",
-    telefono: "",
-    costo_aereo: 0,
-    costo_terrestre: 0,
-    costo_maritimo: 0,
-    activo: true,
+    horario_atencion: "",
   };
 
   const {
@@ -59,19 +52,19 @@ export function CasilleroModal({
     setValue,
     watch,
     reset,
-  } = useForm<DireccionData>({
+  } = useForm<Casillero>({
     resolver: zodResolver(
-      mode === "add" ? CrearDireccionSchema : DireccionSchema
+      mode === "add" ? CrearCasilleroSchema : CasilleroSchema
     ),
     defaultValues: mode === "add" ? defaultValues : undefined,
   });
 
   const activo = watch("activo");
 
-  const handleFormSubmit = (data: DireccionData) => {
+  const handleFormSubmit = (data: Casillero) => {
     onSubmit(data);
     toast.success(
-      mode === "add" ? "Dirección agregada" : "Dirección actualizada"
+      mode === "add" ? "Casillero agregado" : "Casillero actualizado"
     );
     onOpenChange(false);
   };
@@ -98,8 +91,8 @@ export function CasilleroModal({
           </DialogTitle>
           <DialogDescription>
             {mode === "add"
-              ? "Registra una nueva dirección para envíos"
-              : "Actualiza los datos de la dirección seleccionada"}
+              ? "Registra un nuevo casillero para envíos"
+              : "Actualiza los datos del casillero seleccionado"}
           </DialogDescription>
         </DialogHeader>
 
@@ -148,28 +141,14 @@ export function CasilleroModal({
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono *</Label>
-              <Input id="telefono" {...register("telefono")} />
-              {errors.telefono && (
+              <Label htmlFor="horario_atencion">Horario de Atención *</Label>
+              <Input id="horario_atencion" {...register("horario_atencion")} />
+              {errors.horario_atencion && (
                 <p className="text-sm text-destructive">
-                  {errors.telefono.message}
+                  {errors.horario_atencion.message}
                 </p>
               )}
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="activo">Estado</Label>
-              <div className="flex items-center gap-3 rounded-md border p-2">
-                <Switch
-                  id="activo"
-                  checked={Boolean(activo)}
-                  onCheckedChange={(checked) => setValue("activo", checked)}
-                />
-                <span className="text-sm text-muted-foreground">
-                  {activo ? "Activo" : "Inactivo"}
-                </span>
-              </div>
-            </div> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -231,7 +210,7 @@ export function CasilleroModal({
               Cancelar
             </Button>
             <Button type="submit">
-              {mode === "add" ? "Agregar Dirección" : "Guardar Cambios"}
+              {mode === "add" ? "Agregar Casillero" : "Guardar Cambios"}
             </Button>
           </DialogFooter>
         </form>

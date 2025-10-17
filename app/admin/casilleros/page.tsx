@@ -32,13 +32,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CasilleroModal } from "@/components/admin/casillero-modal";
-import { DireccionService } from "@/lib/supabase/services/direccionService";
+import { DireccionService } from "@/lib/supabase/services/casilleroService";
 import {
-  DireccionData,
-  CrearDireccionData,
-  DireccionSchema,
-  CrearDireccionSchema,
-} from "@/lib/validation/direccion";
+  Casillero,
+  CrearCasillero,
+  CasilleroSchema,
+  CrearCasilleroSchema,
+} from "@/lib/validation/casillero";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
@@ -46,19 +46,19 @@ const formatCurrency = (value?: number | null) =>
   `$ ${Number(value ?? 0).toFixed(2)}`;
 
 export default function CasillerosAdminPage() {
-  const [casilleros, setCasilleros] = useState<DireccionData[]>([]);
+  const [casilleros, setCasilleros] = useState<Casillero[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedCasillero, setSelectedCasillero] =
-    useState<DireccionData | null>(null);
+    useState<Casillero | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
   const [casilleroToDelete, setCasilleroToDelete] =
-    useState<DireccionData | null>(null);
+    useState<Casillero | null>(null);
   const [casilletoToRestore, setCasilleroToRestore] =
-    useState<DireccionData | null>(null);
+    useState<Casillero | null>(null);
 
   const loadDirecciones = async () => {
     try {
@@ -84,18 +84,18 @@ export default function CasillerosAdminPage() {
     setModalOpen(true);
   };
 
-  const handleEdit = (direccion: DireccionData) => {
+  const handleEdit = (direccion: Casillero) => {
     setModalMode("edit");
     setSelectedCasillero(direccion);
     setModalOpen(true);
   };
 
-  const handleDelete = (direccion: DireccionData) => {
+  const handleDelete = (direccion: Casillero) => {
     setCasilleroToDelete(direccion);
     setDeleteDialogOpen(true);
   };
 
-  const handleRestoreDialog = (direccion: DireccionData) => {
+  const handleRestoreDialog = (direccion: Casillero) => {
     setCasilleroToRestore(direccion);
     setRestoreDialogOpen(true);
   };
@@ -119,15 +119,15 @@ export default function CasillerosAdminPage() {
   };
 
   const handleModalSubmit = async (
-    data: CrearDireccionData | DireccionData
+    data: CrearCasillero | Casillero
   ) => {
     try {
       if (modalMode === "add") {
-        CrearDireccionSchema.parse(data);
-        await DireccionService.create(data as CrearDireccionData);
+        CrearCasilleroSchema.parse(data);
+        await DireccionService.create(data as CrearCasillero);
       } else {
-        DireccionSchema.parse(data);
-        await DireccionService.update(data as DireccionData);
+        CasilleroSchema.parse(data);
+        await DireccionService.update(data as Casillero);
       }
       await loadDirecciones();
       setModalOpen(false);
