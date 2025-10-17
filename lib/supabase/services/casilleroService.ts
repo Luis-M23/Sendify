@@ -15,7 +15,7 @@ export const CasilleroService = {
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al obtener las direcciones de envío"
+          "Error al obtener los casilleros de envío"
       );
     }
 
@@ -32,7 +32,7 @@ export const CasilleroService = {
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al obtener la dirección solicitada"
+          "Error al obtener el casillero solicitado"
       );
     }
 
@@ -48,7 +48,7 @@ export const CasilleroService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] || "Error al registrar la nueva dirección"
+        supabaseErrorMap[error.code] || "Error al registrar el casillero"
       );
     }
 
@@ -68,7 +68,7 @@ export const CasilleroService = {
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al actualizar la dirección seleccionada"
+          "Error al actualizar el casillero"
       );
     }
 
@@ -84,7 +84,7 @@ export const CasilleroService = {
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al desactivar la dirección seleccionada"
+          "Error al desactivar el casillero"
       );
     }
 
@@ -100,7 +100,7 @@ export const CasilleroService = {
     if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
-          "Error al restaurar la dirección seleccionada"
+          "Error al restaurar el casillero"
       );
     }
 
