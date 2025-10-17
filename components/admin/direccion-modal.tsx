@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 
@@ -25,13 +25,15 @@ import {
 } from "@/lib/validation/direccion";
 import { Textarea } from "../ui/textarea";
 import { Distrito } from "@/lib/validation/distrito";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
 
 interface DireccionModalProps {
   open: boolean;
@@ -50,18 +52,21 @@ export function DireccionModal({
   onSubmit,
   distritos,
 }: DireccionModalProps) {
-  const defaultValues: CrearDireccion = {
-    id_distrito: undefined,
-    direccion: "",
-    horario_atencion: "",
-  };
+  const defaultValues = useMemo<CrearDireccion>(
+    () => ({
+      id_distrito: undefined,
+      direccion: "",
+      horario_atencion: "",
+    }),
+    []
+  );
+  const [distritoPopoverOpen, setDistritoPopoverOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
+    control,
     reset,
   } = useForm<Direccion>({
     resolver: zodResolver(
@@ -80,16 +85,50 @@ export function DireccionModal({
 
   const handleOpenChange = (state: boolean) => {
     if (!state) {
-      reset(mode === "add" ? defaultValues : initialData || undefined);
+      reset(defaultValues);
+      setDistritoPopoverOpen(false);
     }
     onOpenChange(state);
   };
 
-  useEffect(() => {
-    if (mode === "edit" && initialData) {
-      reset(initialData);
+  const normalizedEditValues = useMemo<Direccion | null>(() => {
+    if (mode !== "edit" || !initialData) {
+      return null;
     }
-  }, [mode, initialData, reset]);
+
+    const distritoId =
+      initialData.id_distrito ??
+      (initialData as { id_distritos?: number }).id_distritos ??
+      (initialData as { distritos?: { id?: number } }).distritos?.id;
+
+    return {
+      ...initialData,
+      id_distrito: distritoId,
+    };
+  }, [mode, initialData]);
+
+  useEffect(() => {
+    if (!open) {
+      setDistritoPopoverOpen(false);
+      return;
+    }
+
+    if (mode === "add") {
+      reset(defaultValues);
+      return;
+    }
+
+    if (normalizedEditValues) {
+      reset(normalizedEditValues);
+    }
+  }, [
+    open,
+    mode,
+    reset,
+    defaultValues,
+    normalizedEditValues,
+    setDistritoPopoverOpen,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -109,18 +148,65 @@ export function DireccionModal({
           <div className="grid grid-cols-1 md:grid-cols gap-4">
             <div className="space-y-2">
               <Label htmlFor="pais">Distrito *</Label>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecciona un distrito" />
-                </SelectTrigger>
-                <SelectContent>
-                  {distritos.map((distrito) => (
-                    <SelectItem key={distrito.id} value={String(distrito.id)}>
-                      {`${distrito.distrito}, ${distrito.municipio}, ${distrito.departamento}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="id_distrito"
+                render={({ field }) => {
+                  const selectedDistrito = distritos.find(
+                    (item) => item.id === field.value
+                  );
+
+                  return (
+                    <Popover
+                      open={distritoPopoverOpen}
+                      onOpenChange={setDistritoPopoverOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={distritoPopoverOpen}
+                          className="w-full justify-between"
+                          disabled={distritos.length === 0}
+                        >
+                          {selectedDistrito
+                            ? `${selectedDistrito.distrito}, ${selectedDistrito.municipio}, ${selectedDistrito.departamento}`
+                            : "Selecciona un distrito"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="w-[var(--radix-popper-anchor-width)] p-0"
+                      >
+                        <Command>
+                          <CommandInput placeholder="Buscar distrito..." />
+                          <CommandEmpty>
+                            No se encontraron distritos.
+                          </CommandEmpty>
+                          <CommandList>
+                            <CommandGroup>
+                              {distritos.map((distrito) => (
+                                <CommandItem
+                                  key={distrito.id}
+                                  value={`${distrito.distrito} ${distrito.municipio} ${distrito.departamento}`}
+                                  onSelect={() => {
+                                    field.onChange(distrito.id);
+                                    field.onBlur();
+                                    setDistritoPopoverOpen(false);
+                                  }}
+                                >
+                                  {`${distrito.distrito}, ${distrito.municipio}, ${distrito.departamento}`}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }}
+              />
               {errors.id_distrito && (
                 <p className="text-sm text-destructive">
                   {errors.id_distrito.message}

@@ -35,8 +35,7 @@ export const DireccionService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] ||
-          "Error al obtener la dirección solicitada"
+        supabaseErrorMap[error.code] || "Error al obtener la dirección"
       );
     }
 
@@ -52,7 +51,7 @@ export const DireccionService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] || "Error al registrar la nueva dirección"
+        supabaseErrorMap[error.code] || "Error al registrar la dirección"
       );
     }
 
@@ -62,6 +61,8 @@ export const DireccionService = {
   async update(data: Direccion): Promise<Direccion> {
     const { id, created_at, ...rest } = data;
 
+    console.log({ id, created_at, rest });
+
     const { data: updated, error } = await supabase
       .from(TABLE_NAME)
       .update(rest)
@@ -70,9 +71,9 @@ export const DireccionService = {
       .single();
 
     if (error) {
+      console.log(error);
       throw new Error(
-        supabaseErrorMap[error.code] ||
-          "Error al actualizar la dirección seleccionada"
+        supabaseErrorMap[error.code] || "Error al actualizar la dirección"
       );
     }
 
@@ -87,8 +88,7 @@ export const DireccionService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] ||
-          "Error al desactivar la dirección seleccionada"
+        supabaseErrorMap[error.code] || "Error al desactivar la dirección"
       );
     }
 
@@ -103,8 +103,7 @@ export const DireccionService = {
 
     if (error) {
       throw new Error(
-        supabaseErrorMap[error.code] ||
-          "Error al restaurar la dirección seleccionada"
+        supabaseErrorMap[error.code] || "Error al restaurar la dirección"
       );
     }
 
