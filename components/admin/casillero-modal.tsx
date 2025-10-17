@@ -156,6 +156,56 @@ export function CasilleroModal({
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="costo_aereo">Costo Aéreo (USD)</Label>
+              <Input
+                id="costo_aereo"
+                type="number"
+                step={0.01}
+                min={0}
+                {...register("costo_aereo", { valueAsNumber: true })}
+              />
+              {errors.costo_aereo && (
+                <p className="text-sm text-destructive">
+                  {errors.costo_aereo.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="costo_terrestre">Costo Terrestre (USD)</Label>
+              <Input
+                id="costo_terrestre"
+                type="number"
+                step={0.01}
+                min={0}
+                {...register("costo_terrestre", { valueAsNumber: true })}
+              />
+              {errors.costo_terrestre && (
+                <p className="text-sm text-destructive">
+                  {errors.costo_terrestre.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="costo_maritimo">Costo Marítimo (USD)</Label>
+              <Input
+                id="costo_maritimo"
+                type="number"
+                step={0.01}
+                min={0}
+                {...register("costo_maritimo", { valueAsNumber: true })}
+              />
+              {errors.costo_maritimo && (
+                <p className="text-sm text-destructive">
+                  {errors.costo_maritimo.message}
+                </p>
+              )}
+            </div>
+          </div>
+
           <DialogFooter>
             <Button
               type="button"
