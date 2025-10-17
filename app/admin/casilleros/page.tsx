@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CasilleroModal } from "@/components/admin/casillero-modal";
-import { DireccionService } from "@/lib/supabase/services/casilleroService";
+import { CasilleroService } from "@/lib/supabase/services/casilleroService";
 import {
   Casillero,
   CrearCasillero,
@@ -63,7 +63,7 @@ export default function CasillerosAdminPage() {
   const loadDirecciones = async () => {
     try {
       setLoading(true);
-      const data = await DireccionService.getAll();
+      const data = await CasilleroService.getAll();
       setCasilleros(data);
     } catch (error: any) {
       toast.error(
@@ -103,7 +103,7 @@ export default function CasillerosAdminPage() {
   const handleRestoreConfirm = async () => {
     if (casilletoToRestore) {
       try {
-        await DireccionService.restore(casilletoToRestore.id!);
+        await CasilleroService.restore(casilletoToRestore.id!);
         toast.success(
           `Dirección ${casilletoToRestore.codigo} restaurada correctamente`
         );
@@ -124,10 +124,10 @@ export default function CasillerosAdminPage() {
     try {
       if (modalMode === "add") {
         CrearCasilleroSchema.parse(data);
-        await DireccionService.create(data as CrearCasillero);
+        await CasilleroService.create(data as CrearCasillero);
       } else {
         CasilleroSchema.parse(data);
-        await DireccionService.update(data as Casillero);
+        await CasilleroService.update(data as Casillero);
       }
       await loadDirecciones();
       setModalOpen(false);
@@ -143,7 +143,7 @@ export default function CasillerosAdminPage() {
   const handleDeleteConfirm = async () => {
     if (casilleroToDelete) {
       try {
-        await DireccionService.delete(casilleroToDelete.id!);
+        await CasilleroService.delete(casilleroToDelete.id!);
         toast.success(
           `Dirección ${casilleroToDelete.codigo} eliminada correctamente`
         );

@@ -1,11 +1,11 @@
 import { createClient } from "../client";
-import { Casillero, CrearCasillero } from "@/lib/validation/casillero-rename";
+import { Casillero, CrearCasillero } from "@/lib/validation/casillero";
 import { supabaseErrorMap } from "../errorMap";
 
 const supabase = createClient();
 const TABLE_NAME = "casilleros";
 
-export const DireccionService = {
+export const CasilleroService = {
   async getAll(): Promise<Casillero[]> {
     const { data, error } = await supabase
       .from(TABLE_NAME)
