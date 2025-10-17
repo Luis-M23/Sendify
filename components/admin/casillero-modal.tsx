@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-
 import {
   Dialog,
   DialogContent,
@@ -40,9 +39,15 @@ export function CasilleroModal({
   onSubmit,
 }: CasilleroModalProps) {
   const defaultValues: CrearCasillero = {
-    id_distrito: undefined,
+    codigo: "",
+    pais: "",
+    estado: "",
     direccion: "",
-    horario_atencion: "",
+    telefono: "",
+    costo_aereo: 0,
+    costo_terrestre: 0,
+    costo_maritimo: 0,
+    activo: true,
   };
 
   const {
@@ -59,10 +64,12 @@ export function CasilleroModal({
     defaultValues: mode === "add" ? defaultValues : undefined,
   });
 
+  const activo = watch("activo");
+
   const handleFormSubmit = (data: Casillero) => {
     onSubmit(data);
     toast.success(
-      mode === "add" ? "Casillero agregado" : "Casillero actualizado"
+      mode === "add" ? "Dirección agregada" : "Dirección actualizada"
     );
     onOpenChange(false);
   };
@@ -85,12 +92,12 @@ export function CasilleroModal({
       <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {mode === "add" ? "Agregar Nuevo Casillero" : "Editar Casillero"}
+            {mode === "add" ? "Agregar Nueva Dirección" : "Editar Dirección"}
           </DialogTitle>
           <DialogDescription>
             {mode === "add"
-              ? "Registra un nuevo casillero para envíos"
-              : "Actualiza los datos del casillero seleccionado"}
+              ? "Registra una nueva dirección"
+              : "Actualiza los datos de la dirección seleccionada"}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,61 +146,11 @@ export function CasilleroModal({
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="horario_atencion">Horario de Atención *</Label>
-              <Input id="horario_atencion" {...register("horario_atencion")} />
-              {errors.horario_atencion && (
+              <Label htmlFor="telefono">Teléfono *</Label>
+              <Input id="telefono" {...register("telefono")} />
+              {errors.telefono && (
                 <p className="text-sm text-destructive">
-                  {errors.horario_atencion.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="costo_aereo">Costo Aéreo (USD)</Label>
-              <Input
-                id="costo_aereo"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_aereo", { valueAsNumber: true })}
-              />
-              {errors.costo_aereo && (
-                <p className="text-sm text-destructive">
-                  {errors.costo_aereo.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="costo_terrestre">Costo Terrestre (USD)</Label>
-              <Input
-                id="costo_terrestre"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_terrestre", { valueAsNumber: true })}
-              />
-              {errors.costo_terrestre && (
-                <p className="text-sm text-destructive">
-                  {errors.costo_terrestre.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="costo_maritimo">Costo Marítimo (USD)</Label>
-              <Input
-                id="costo_maritimo"
-                type="number"
-                step={0.01}
-                min={0}
-                {...register("costo_maritimo", { valueAsNumber: true })}
-              />
-              {errors.costo_maritimo && (
-                <p className="text-sm text-destructive">
-                  {errors.costo_maritimo.message}
+                  {errors.telefono.message}
                 </p>
               )}
             </div>
@@ -208,7 +165,7 @@ export function CasilleroModal({
               Cancelar
             </Button>
             <Button type="submit">
-              {mode === "add" ? "Agregar Casillero" : "Guardar Cambios"}
+              {mode === "add" ? "Agregar Dirección" : "Guardar Cambios"}
             </Button>
           </DialogFooter>
         </form>

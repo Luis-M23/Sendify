@@ -1,5 +1,5 @@
 import { createClient } from "../client";
-import { Casillero, CrearCasillero } from "@/lib/validation/casillero";
+import { Casillero, CrearCasillero } from "@/lib/validation/casillero-rename";
 import { supabaseErrorMap } from "../errorMap";
 
 const supabase = createClient();
