@@ -51,13 +51,13 @@ export default function CasillerosAdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedDireccion, setSelectedDireccion] =
+  const [selectedCasillero, setSelectedCasillero] =
     useState<DireccionData | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
-  const [direccionToDelete, setDireccionToDelete] =
+  const [casilleroToDelete, setCasilleroToDelete] =
     useState<DireccionData | null>(null);
-  const [direccionToRestore, setDireccionToRestore] =
+  const [casilletoToRestore, setCasilleroToRestore] =
     useState<DireccionData | null>(null);
 
   const loadDirecciones = async () => {
@@ -80,32 +80,32 @@ export default function CasillerosAdminPage() {
 
   const handleAdd = () => {
     setModalMode("add");
-    setSelectedDireccion(null);
+    setSelectedCasillero(null);
     setModalOpen(true);
   };
 
   const handleEdit = (direccion: DireccionData) => {
     setModalMode("edit");
-    setSelectedDireccion(direccion);
+    setSelectedCasillero(direccion);
     setModalOpen(true);
   };
 
   const handleDelete = (direccion: DireccionData) => {
-    setDireccionToDelete(direccion);
+    setCasilleroToDelete(direccion);
     setDeleteDialogOpen(true);
   };
 
   const handleRestoreDialog = (direccion: DireccionData) => {
-    setDireccionToRestore(direccion);
+    setCasilleroToRestore(direccion);
     setRestoreDialogOpen(true);
   };
 
   const handleRestoreConfirm = async () => {
-    if (direccionToRestore) {
+    if (casilletoToRestore) {
       try {
-        await DireccionService.restore(direccionToRestore.id!);
+        await DireccionService.restore(casilletoToRestore.id!);
         toast.success(
-          `Dirección ${direccionToRestore.codigo} restaurada correctamente`
+          `Dirección ${casilletoToRestore.codigo} restaurada correctamente`
         );
         await loadDirecciones();
       } catch (error: any) {
@@ -115,7 +115,7 @@ export default function CasillerosAdminPage() {
       }
     }
     setRestoreDialogOpen(false);
-    setDireccionToRestore(null);
+    setCasilleroToRestore(null);
   };
 
   const handleModalSubmit = async (
@@ -141,11 +141,11 @@ export default function CasillerosAdminPage() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (direccionToDelete) {
+    if (casilleroToDelete) {
       try {
-        await DireccionService.delete(direccionToDelete.id!);
+        await DireccionService.delete(casilleroToDelete.id!);
         toast.success(
-          `Dirección ${direccionToDelete.codigo} eliminada correctamente`
+          `Dirección ${casilleroToDelete.codigo} eliminada correctamente`
         );
         await loadDirecciones();
       } catch (error: any) {
@@ -155,7 +155,7 @@ export default function CasillerosAdminPage() {
       }
     }
     setDeleteDialogOpen(false);
-    setDireccionToDelete(null);
+    setCasilleroToDelete(null);
   };
 
   const filteredDirecciones = casilleros.filter((direccion) => {
@@ -314,7 +314,7 @@ export default function CasillerosAdminPage() {
           open={modalOpen}
           onOpenChange={setModalOpen}
           mode={modalMode}
-          initialData={selectedDireccion}
+          initialData={selectedCasillero}
           onSubmit={handleModalSubmit}
         />
 
@@ -323,7 +323,7 @@ export default function CasillerosAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Desactivar dirección</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Deseas desactivar la dirección {direccionToDelete?.codigo}?
+                ¿Deseas desactivar la dirección {casilleroToDelete?.codigo}?
                 Podrás restaurarla más adelante.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -347,7 +347,7 @@ export default function CasillerosAdminPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Restaurar dirección</AlertDialogTitle>
               <AlertDialogDescription>
-                ¿Deseas restaurar la dirección {direccionToRestore?.codigo}?
+                ¿Deseas restaurar la dirección {casilletoToRestore?.codigo}?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
