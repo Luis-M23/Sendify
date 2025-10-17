@@ -109,7 +109,7 @@ export default function UsersAdminPage() {
   );
 
   return (
-    <DashboardLayout >
+    <DashboardLayout>
       <Card>
         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
@@ -179,7 +179,20 @@ export default function UsersAdminPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
-                        {user.last_sign_in_at || "Nunca"}
+                        {user.last_sign_in_at
+                          ? new Date(user.last_sign_in_at).toLocaleString(
+                              "es-SV",
+                              {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                                hour12: true,
+                              }
+                            )
+                          : "Nunca"}
                       </TableCell>
                     </TableRow>
                   ))}
