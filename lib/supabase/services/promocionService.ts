@@ -20,19 +20,6 @@ export const PromocionService = {
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
-      .eq("activo", true)
-      .order("id", { ascending: false });
-    if (error)
-      throw new Error(
-        supabaseErrorMap[error.code] || "Error al obtener promociones"
-      );
-    return data as Promocion[];
-  },
-
-  async getAllIncludingInactive(): Promise<Promocion[]> {
-    const { data, error } = await supabase
-      .from("promociones")
-      .select("*")
       .order("id", { ascending: false });
     if (error)
       throw new Error(

@@ -43,7 +43,7 @@ interface PromotionModalProps {
   mode: "add" | "edit";
   initialData?: ActualizarPromocion | null;
   onSubmit: (data: CrearPromocion | ActualizarPromocion) => void;
-  categories?: CategoriaData[];
+  categorias?: CategoriaData[];
 }
 
 export function PromocionModal({
@@ -52,7 +52,7 @@ export function PromocionModal({
   mode,
   initialData,
   onSubmit,
-  categories = [],
+  categorias = [],
 }: PromotionModalProps) {
   const { toast } = useToast();
   const {
@@ -273,7 +273,7 @@ export function PromocionModal({
           <div className="space-y-2">
             <Label>Restricciones por Categorías</Label>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-md p-2">
-              {categories.map((category) => (
+              {categorias.map((category) => (
                 <div key={category.id} className="flex items-center space-x-2">
                   <input
                     type="checkbox"

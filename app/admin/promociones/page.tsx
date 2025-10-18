@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { RolesSistema } from "@/lib/enum";
 import {
@@ -40,26 +40,28 @@ import {
   Percent,
   Users,
   RotateCcw,
+  Equal,
+  Scale,
+  Sigma,
 } from "lucide-react";
 import { PromocionService } from "@/lib/supabase/services/promocionService";
 import { Promocion } from "@/lib/validation/promociones";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { CategoriaData } from "@/lib/validation/categoria";
-import { useToast } from "@/hooks/use-toast";
 import { PromocionModal } from "@/components/admin/promocion-modal";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { toast } from "react-toastify";
 
 export default function PromotionsAdminPage() {
-  const [promotions, setPromotions] = useState<Promocion[]>([]);
-  const [categories, setCategories] = useState<CategoriaData[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaData[]>([]);
+  const [promociones, setPromociones] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedPromotion, setSelectedPromotion] = useState<Promocion | null>(
-    null
-  );
+  const [promocionSeleccionada, setPromocionSeleccionada] =
+    useState<Promocion | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState<Promocion | null>(
@@ -67,38 +69,72 @@ export default function PromotionsAdminPage() {
   );
   const [promotionToRestore, setPromotionToRestore] =
     useState<Promocion | null>(null);
-  const [showInactive, setShowInactive] = useState(false);
-  const { toast } = useToast();
+  const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
-  const loadPromotions = async () => {
+  const promocionesMemo = useMemo(() => {
+    let filtradas = [];
+
+    if (mostrarInactivos) {
+      filtradas = [...promociones];
+    } else {
+      filtradas = [
+        ...promociones.filter((promotion) => promotion.activo === true),
+      ];
+    }
+
+    if (searchTerm) {
+      return filtradas.filter(
+        (promotion) =>
+          promotion.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          promotion.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (promotion.descripcion &&
+            promotion.descripcion
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    return filtradas;
+  }, [mostrarInactivos, promociones, searchTerm]);
+
+  const loadPromociones = async () => {
     try {
-      setLoading(true);
-      const data = showInactive
-        ? await PromocionService.getAllIncludingInactive()
-        : await PromocionService.getAll();
-      setPromotions(data);
+      const data = await PromocionService.getAll();
+      setPromociones(data);
     } catch (error) {
-      console.error("Error loading promotions:", error);
+      console.error("Error loading promociones:", error);
+      toast.error("Hubo un error al cargar las promociones.");
     } finally {
       setLoading(false);
     }
   };
 
-  const loadCategories = async () => {
+  const loadCategorias = async () => {
     try {
       const data = await CategoriaService.getAll();
-      setCategories(data);
+      setCategorias(data);
     } catch (error) {
-      console.error("Error loading categories:", error);
+      console.error("Error loading categorias:", error);
+      toast.error(error);
     }
   };
 
-  useEffect(() => {
-    loadPromotions();
-    loadCategories();
-  }, [showInactive]);
+  const initialData = async () => {
+    setLoading(true);
+    await loadPromociones();
+    await loadCategorias();
+    setLoading(false);
+  };
 
-  const filteredPromotions = promotions.filter(
+  useEffect(() => {
+    loadPromociones();
+  }, [mostrarInactivos]);
+
+  useEffect(() => {
+    initialData();
+  }, []);
+
+  const filteredPromotions = promociones.filter(
     (promotion) =>
       promotion.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (promotion.descripcion &&
@@ -107,13 +143,13 @@ export default function PromotionsAdminPage() {
 
   const handleAddPromotion = () => {
     setModalMode("add");
-    setSelectedPromotion(null);
+    setPromocionSeleccionada(null);
     setModalOpen(true);
   };
 
   const handleEditPromotion = (promotion: Promocion) => {
     setModalMode("edit");
-    setSelectedPromotion(promotion);
+    setPromocionSeleccionada(promotion);
     setModalOpen(true);
   };
 
@@ -132,23 +168,18 @@ export default function PromotionsAdminPage() {
       if (modalMode === "add") {
         await PromocionService.create(data);
       } else {
-        console.log({ data });
         await PromocionService.update(data);
       }
 
-      await loadPromotions();
-      toast({
-        title:
-          modalMode === "add" ? "Promoción creada" : "Promoción actualizada",
-        description: "Los cambios se han guardado correctamente.",
-      });
+      loadPromociones();
+      toast.success(
+        modalMode === "add" ? "Promoción creada" : "Promoción actualizada"
+      );
     } catch (error) {
       console.error("Error al guardar la promoción:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo guardar la promoción. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      toast.error(
+        `No se pudo guardar la promoción. Inténtalo de nuevo. ${error}`
+      );
     }
   };
 
@@ -156,18 +187,11 @@ export default function PromotionsAdminPage() {
     if (promotionToDelete) {
       try {
         await PromocionService.delete(promotionToDelete.id!);
-        await loadPromotions();
-        toast({
-          title: "Promoción eliminada",
-          description: "La promoción ha sido eliminada correctamente.",
-        });
+        loadPromociones();
+        toast.success("Promoción eliminada");
       } catch (error) {
         console.error("Error deleting promotion:", error);
-        toast({
-          title: "Error",
-          description: "No se pudo eliminar la promoción. Inténtalo de nuevo.",
-          variant: "destructive",
-        });
+        toast.error(error);
       }
     }
     setDeleteDialogOpen(false);
@@ -178,18 +202,11 @@ export default function PromotionsAdminPage() {
     if (promotionToRestore) {
       try {
         await PromocionService.restore(promotionToRestore.id!);
-        await loadPromotions();
-        toast({
-          title: "Promoción restaurada",
-          description: "La promoción ha sido restaurada correctamente.",
-        });
+        loadPromociones();
+        toast.success("Promoción restaurada");
       } catch (error) {
         console.error("Error restoring promotion:", error);
-        toast({
-          title: "Error",
-          description: "No se pudo restaurar la promoción. Inténtalo de nuevo.",
-          variant: "destructive",
-        });
+        toast.error(error);
       }
     }
     setRestoreDialogOpen(false);
@@ -228,7 +245,7 @@ export default function PromotionsAdminPage() {
     return (
       <ul className="list-disc list-inside">
         {restrictionIds.map((id) => {
-          const category = categories.find((c) => c.id === id);
+          const category = categorias.find((c) => c.id === id);
           return <li key={id}>{category?.nombre || `ID ${id}`}</li>;
         })}
       </ul>
@@ -250,12 +267,12 @@ export default function PromotionsAdminPage() {
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    id="showInactive"
-                    checked={showInactive}
-                    onChange={(e) => setShowInactive(e.target.checked)}
+                    id="mostrarInactivos"
+                    checked={mostrarInactivos}
+                    onChange={(e) => setMostrarInactivos(e.target.checked)}
                     className="rounded"
                   />
-                  <label htmlFor="showInactive" className="text-sm">
+                  <label htmlFor="mostrarInactivos" className="text-sm">
                     Mostrar inactivas
                   </label>
                 </div>
@@ -280,13 +297,41 @@ export default function PromotionsAdminPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Promociones Activas
+                    Uso Total
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {promocionesMemo.reduce((sum, p) => sum + p.uso_actual, 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Activas
                   </CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {promotions.filter(isActive).length}
+                    {promocionesMemo.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Inactivas
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {promociones.filter(isExpired).length}
                   </div>
                 </CardContent>
               </Card>
@@ -296,38 +341,10 @@ export default function PromotionsAdminPage() {
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     Total Promociones
                   </CardTitle>
-                  <Percent className="h-4 w-4 text-muted-foreground" />
+                  <Sigma className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{promotions.length}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Uso Total
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {promotions.reduce((sum, p) => sum + p.uso_actual, 0)}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Expiradas
-                  </CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {promotions.filter(isExpired).length}
-                  </div>
+                  <div className="text-2xl font-bold">{promociones.length}</div>
                 </CardContent>
               </Card>
             </div>
@@ -353,7 +370,7 @@ export default function PromotionsAdminPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPromotions.map((promotion) => (
+                  {promocionesMemo.map((promotion) => (
                     <TableRow key={promotion.id}>
                       <TableCell className="text-left">
                         <div>
@@ -469,17 +486,15 @@ export default function PromotionsAdminPage() {
         </Card>
       </div>
 
-      {/* Modal */}
       <PromocionModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         mode={modalMode}
-        initialData={selectedPromotion}
+        initialData={promocionSeleccionada}
         onSubmit={handleModalSubmit}
-        categories={categories}
+        categorias={categorias}
       />
 
-      {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
