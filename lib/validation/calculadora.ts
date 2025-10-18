@@ -1,8 +1,24 @@
 import * as z from "zod";
 
 export const CalculadoraSchema = z.object({
-  id_casillero: z.number({ message: "Debe seleccionar el casillero" }),
-  id_categoria: z.number({ message: "Debe seleccionar la categoría" }),
+  id_casillero: z
+    .nullable(z.number())
+    .refine((val) => val !== null && val !== 0, {
+      message: "Debe seleccionar el casillero",
+    }),
+  id_categoria: z
+    .nullable(z.number())
+    .refine((val) => val !== null && val !== 0, {
+      message: "Debe seleccionar la categoría",
+    }),
+  servicio: z
+    .nullable(z.enum(["terrestre", "maritimo", "aereo"]))
+    .refine(
+      (val) => val === "terrestre" || val === "maritimo" || val === "aereo",
+      {
+        message: "Debe seleccionar un tipo de servicio.",
+      }
+    ),
   peso: z
     .string()
     .min(1, "El peso es requerido")

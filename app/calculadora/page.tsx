@@ -39,6 +39,7 @@ import { FactorConversionService } from "@/lib/supabase/services/factorConversio
 import { toast } from "react-toastify";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { Categoria } from "@/lib/validation/categoria";
+import { PermisoMap } from "@/lib/map";
 
 interface QuoteResult {
   pesoReal: number;
@@ -53,6 +54,10 @@ interface QuoteResult {
   codigoCotizacion: string;
 }
 
+type CostoKey = "costo_aereo" | "costo_maritimo" | "costo_terrestre";
+
+type MedioKey = "aereo" | "maritimo" | "terrestre";
+
 export default function CalculatorPage() {
   const {
     register,
@@ -63,28 +68,33 @@ export default function CalculatorPage() {
   } = useForm<Calculadora>({
     resolver: zodResolver(CalculadoraSchema),
     defaultValues: {
+      id_casillero: null,
+      id_categoria: null,
+      servicio: null,
       peso: "",
       largo: "",
       ancho: "",
       alto: "",
-      servicio: "",
-      origen: "",
-      destino: "",
     },
   });
 
   const idCasillero = watch("id_casillero");
   const idCategoria = watch("id_categoria");
-
   const servicio = watch("servicio");
 
-  const [quote, setQuote] = useState<QuoteResult | null>(null);
+  const [factura, setFactura] = useState<QuoteResult | null>(null);
+
   const [casilleros, setCasilleros] = useState<Casillero[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+
   const [factoresConversion, setFactoresConversion] = useState<
     FactorConversion[]
   >([]);
+
   const [selectedCasillero, setSelectedCasillero] = useState<Casillero | null>(
+    null
+  );
+  const [selectedCategoria, setSelectedCategoria] = useState<Categoria | null>(
     null
   );
 
@@ -92,18 +102,24 @@ export default function CalculatorPage() {
     try {
       const casilleros = await CasilleroService.getAll();
       setCasilleros(casilleros);
+
       const factores = await FactorConversionService.getAll();
       setFactoresConversion(factores);
+
       const categorias = await CategoriaService.getAll();
       setCategorias(categorias);
     } catch (error: any) {
-      toast.error(error.message || "Ocurrió un error al cargar las casilleros");
+      toast.error(error.message || "Ocurrió un error al cargar los datos");
     } finally {
     }
   };
 
   useEffect(() => {
-    if (idCasillero && casilleros.length > 0) {
+    if (
+      typeof idCasillero === "number" &&
+      !Number.isNaN(idCasillero) &&
+      casilleros.length > 0
+    ) {
       const casilleroFind = casilleros.find((c) => c.id === idCasillero);
       setSelectedCasillero(casilleroFind || null);
     } else {
@@ -111,18 +127,50 @@ export default function CalculatorPage() {
     }
   }, [idCasillero, casilleros]);
 
-  const transporteDesactivado = (
-    medio: "costo_aereo" | "costo_maritimo" | "costo_terrestre"
-  ): boolean => {
+  useEffect(() => {
+    console.log({ idCategoria });
+    if (
+      typeof idCategoria === "number" &&
+      !Number.isNaN(idCategoria) &&
+      categorias.length > 0
+    ) {
+      const categoriaFind = categorias.find((c) => c.id === idCategoria);
+      console.log({ categoriaFind });
+      setSelectedCategoria(categoriaFind || null);
+    } else {
+      setSelectedCategoria(null);
+    }
+  }, [idCategoria, categorias]);
+
+  const mapCostToMedio = (costKey: CostoKey): MedioKey => {
+    return costKey.slice(6) as MedioKey;
+  };
+
+  const transporteDesactivado = (medio: CostoKey): boolean => {
     if (selectedCasillero === null) return true;
 
     if (selectedCasillero[medio] === 0) return true;
 
+    if (selectedCategoria === null) {
+      return true;
+    }
+
+    const categoriaKey = mapCostToMedio(medio);
+
+    if (selectedCategoria[categoriaKey] === 1) {
+      return true;
+    }
+
     return false;
   };
 
-  const formatCurrencyPerKg = (price: number | null | undefined): string => {
-    if (!selectedCasillero) return "";
+  const formatoPermiso = (id: number | undefined): string => {
+    console.log({ id });
+    return PermisoMap[id || 0] || "-";
+  };
+
+  const formatoPrecioKg = (price: number | null | undefined): string => {
+    if (!selectedCasillero) return "-";
 
     if (price === null || price === undefined || isNaN(price) || price === 0) {
       return "N/A";
@@ -166,7 +214,7 @@ export default function CalculatorPage() {
       const descuento = tarifaBase * 0.1; // 10% VIP discount
       const total = tarifaBase + impuestos + recargoCombustible - descuento;
 
-      setQuote({
+      setFactura({
         pesoReal,
         pesoVolumetrico,
         pesoFacturable,
@@ -365,12 +413,12 @@ export default function CalculatorPage() {
                 <div className="space-y-2">
                   <Label>Tipo de Servicio</Label>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-4">
                     <Button
                       disabled={transporteDesactivado("costo_aereo")}
                       type="button"
                       variant={servicio === "aereo" ? "default" : "outline"}
-                      className="h-auto flex-col gap-2 py-4"
+                      className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
                         setValue("servicio", "aereo", { shouldValidate: true })
                       }
@@ -378,14 +426,17 @@ export default function CalculatorPage() {
                       <Plane className="h-6 w-6" />
                       <span className="text-md">Aéreo</span>
                       <span className="text-md">
-                        {formatCurrencyPerKg(selectedCasillero?.costo_aereo)}
+                        {formatoPermiso(selectedCategoria?.aereo)}
+                      </span>
+                      <span className="text-md">
+                        {formatoPrecioKg(selectedCasillero?.costo_aereo)}
                       </span>
                     </Button>
                     <Button
                       disabled={transporteDesactivado("costo_terrestre")}
                       type="button"
                       variant={servicio === "terrestre" ? "default" : "outline"}
-                      className="h-auto flex-col gap-2 py-4"
+                      className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
                         setValue("servicio", "terrestre", {
                           shouldValidate: true,
@@ -395,16 +446,17 @@ export default function CalculatorPage() {
                       <Truck className="h-6 w-6" />
                       <span className="text-md">Terrestre</span>
                       <span className="text-md">
-                        {formatCurrencyPerKg(
-                          selectedCasillero?.costo_terrestre
-                        )}
+                        {formatoPermiso(selectedCategoria?.terrestre)}
+                      </span>
+                      <span className="text-md">
+                        {formatoPrecioKg(selectedCasillero?.costo_terrestre)}
                       </span>
                     </Button>
                     <Button
                       disabled={transporteDesactivado("costo_maritimo")}
                       type="button"
                       variant={servicio === "maritimo" ? "default" : "outline"}
-                      className="h-auto flex-col gap-2 py-4"
+                      className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
                         setValue("servicio", "maritimo", {
                           shouldValidate: true,
@@ -414,7 +466,10 @@ export default function CalculatorPage() {
                       <Ship className="h-6 w-6" />
                       <span className="text-md">Marítimo</span>
                       <span className="text-md">
-                        {formatCurrencyPerKg(selectedCasillero?.costo_maritimo)}
+                        {formatoPermiso(selectedCategoria?.maritimo)}
+                      </span>
+                      <span className="text-md">
+                        {formatoPrecioKg(selectedCasillero?.costo_maritimo)}
                       </span>
                     </Button>
                   </div>
@@ -534,13 +589,13 @@ export default function CalculatorPage() {
 
           {/* Quote Result */}
           <div className="space-y-4">
-            {quote ? (
+            {factura ? (
               <>
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Cotización</CardTitle>
                     <CardDescription className="font-mono text-xs">
-                      {quote.codigoCotizacion}
+                      {factura.codigoCotizacion}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -548,7 +603,7 @@ export default function CalculatorPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Peso Real</span>
                         <span className="font-medium">
-                          {quote.pesoReal.toFixed(2)} kg
+                          {factura.pesoReal.toFixed(2)} kg
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -556,7 +611,7 @@ export default function CalculatorPage() {
                           Peso Volumétrico
                         </span>
                         <span className="font-medium">
-                          {quote.pesoVolumetrico.toFixed(2)} kg
+                          {factura.pesoVolumetrico.toFixed(2)} kg
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -564,7 +619,7 @@ export default function CalculatorPage() {
                           Peso Facturable
                         </span>
                         <span className="font-semibold">
-                          {quote.pesoFacturable.toFixed(2)} kg
+                          {factura.pesoFacturable.toFixed(2)} kg
                         </span>
                       </div>
                     </div>
@@ -576,23 +631,23 @@ export default function CalculatorPage() {
                         <span className="text-muted-foreground">
                           Tarifa Base
                         </span>
-                        <span>${quote.tarifaBase.toFixed(2)}</span>
+                        <span>${factura.tarifaBase.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           Impuestos (15%)
                         </span>
-                        <span>${quote.impuestos.toFixed(2)}</span>
+                        <span>${factura.impuestos.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           Recargo Combustible
                         </span>
-                        <span>${quote.recargoCombustible.toFixed(2)}</span>
+                        <span>${factura.recargoCombustible.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm text-chart-4">
                         <span>Descuento VIP (10%)</span>
-                        <span>-${quote.descuento.toFixed(2)}</span>
+                        <span>-${factura.descuento.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -601,13 +656,13 @@ export default function CalculatorPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total</span>
                       <span className="text-2xl font-bold">
-                        ${quote.total.toFixed(2)}
+                        ${factura.total.toFixed(2)}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Package className="h-4 w-4" />
-                      <span>Tiempo estimado: {quote.tiempoEstimado}</span>
+                      <span>Tiempo estimado: {factura.tiempoEstimado}</span>
                     </div>
 
                     <Button className="w-full" size="lg">
@@ -625,7 +680,7 @@ export default function CalculatorPage() {
                           Beneficio VIP Aplicado
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Ahorraste ${quote.descuento.toFixed(2)} con tu
+                          Ahorraste ${factura.descuento.toFixed(2)} con tu
                           membresía Oro
                         </p>
                       </div>

@@ -44,7 +44,7 @@ import { CategoriaModal } from "@/components/admin/categorias-modal";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { Categoria, CrearCategoria } from "@/lib/validation/categoria";
 import { toast } from "react-toastify";
-import { permisoMap } from "@/lib/map";
+import { PermisoMap } from "@/lib/map";
 
 export default function CategoriesAdminPage() {
   const [categories, setCategories] = useState<Categoria[]>([]);
@@ -162,7 +162,7 @@ export default function CategoriesAdminPage() {
       icon: <XCircle className="h-4 w-4 text-destructive" />,
       badge: (
         <Badge className="bg-destructive/20 text-destructive hover:bg-destructive/30 border-destructive/30">
-          {permisoMap[1]}
+          {PermisoMap[1]}
         </Badge>
       ),
     },
@@ -170,7 +170,7 @@ export default function CategoriesAdminPage() {
       icon: <CheckCircle2 className="h-4 w-4 text-chart-3" />,
       badge: (
         <Badge className="bg-chart-3/20 text-chart-3 hover:bg-chart-3/30 border-chart-3/30">
-          {permisoMap[2]}
+          {PermisoMap[2]}
         </Badge>
       ),
     },
@@ -178,7 +178,7 @@ export default function CategoriesAdminPage() {
       icon: <AlertTriangle className="h-4 w-4 text-chart-4" />,
       badge: (
         <Badge className="bg-chart-4/20 text-chart-4 hover:bg-chart-4/30 border-chart-4/30">
-          {permisoMap[3]}
+          {PermisoMap[3]}
         </Badge>
       ),
     },

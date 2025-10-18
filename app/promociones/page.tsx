@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Promocion } from "@/lib/validation";
 import { PromocionCard } from "@/components/promociones/promocion-card";
 import { Loader2 } from "lucide-react";
-import { categoriaMap } from "@/lib/map";
+import { CategoriaMap } from "@/lib/map";
 
 export default function PromocionesPage() {
   const [promocionesActivas, setPromocionesActivas] = useState<Promocion[]>([]);
@@ -17,7 +17,7 @@ export default function PromocionesPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const categorias = await categoriaMap();
+        const categorias = await CategoriaMap();
 
         const activas = await PromocionService.promocionesActivas();
         setPromocionesActivas(
