@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -18,17 +18,17 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 
-
 export default function DashboardPage() {
-  const { rol, user } = useAuth();
-console.log({user});
- 
+  const { user } = useAuth();
+
   return (
-    <DashboardLayout >
+    <DashboardLayout>
       <div className="space-y-8">
         {/* Welcome Section */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Bienvenido {user?.user_metadata?.nombre}</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Bienvenido {user?.user_metadata?.nombre}
+          </h1>
           <p className="text-muted-foreground">
             Gestiona tus envíos internacionales desde un solo lugar
           </p>

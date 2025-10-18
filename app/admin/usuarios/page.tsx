@@ -62,7 +62,6 @@ export default function UsersAdminPage() {
     try {
       setLoading(true);
       const data = await getAllUsers();
-      console.log(data);
       setUsers(data);
     } catch (error: any) {
       console.error("Error loading users:", error);

@@ -121,7 +121,6 @@ export function PromocionModal({
   }, [open, mode, initialData, reset, clearErrors]);
 
   const handleFormSubmit = (data: Promocion) => {
-    console.log({ data, type: "form" });
     const formattedData: ActualizarPromocion = {
       id: data?.id,
       codigo: data.codigo,

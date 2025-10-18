@@ -84,7 +84,6 @@ export default function AdminPage() {
   }
 
   const handleTariffSubmit = (data: any) => {
-    console.log("[v0] Tariff submitted:", data)
   }
 
   const handleAddUser = () => {
@@ -100,7 +99,6 @@ export default function AdminPage() {
   }
 
   const handleUserSubmit = (data: any) => {
-    console.log("[v0] User submitted:", data)
   }
 
   const handleAddPromotion = () => {
@@ -115,7 +113,6 @@ export default function AdminPage() {
   }
 
   const handleDeleteConfirm = () => {
-    console.log("[v0] Deleting item:", deleteItem)
   }
 
   return (

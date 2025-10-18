@@ -73,7 +73,6 @@ export default function DireccionesAdminPage() {
       const distritos = await DistritoService.getAll();
       setDirecciones(direcciones);
       setSelectedDistritos(distritos);
-      console.log(distritos);
     } catch (error: any) {
       toast.error(
         error.message || "Ocurrió un error al cargar las direcciones"

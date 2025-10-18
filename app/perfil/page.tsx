@@ -89,7 +89,6 @@ export default function ProfilePage() {
   };
 
   const onAddressSubmit = (data: AddressFormData) => {
-    console.log("Address data:", data);
     toast.success("Dirección actualizada");
   };
 

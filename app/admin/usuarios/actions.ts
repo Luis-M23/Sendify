@@ -15,7 +15,6 @@ export async function getAllUsers() {
 
   const { users } = data;
 
-  console.log({ users, error, data });
   if (error) throw new Error(error.message);
 
   return users.map((user) => ({

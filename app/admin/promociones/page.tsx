@@ -37,11 +37,8 @@ import {
   Trash2,
   Search,
   Calendar,
-  Percent,
   Users,
   RotateCcw,
-  Equal,
-  Scale,
   Sigma,
 } from "lucide-react";
 import { PromocionService } from "@/lib/supabase/services/promocionService";
@@ -104,31 +101,22 @@ export default function PromotionsAdminPage() {
     } catch (error) {
       console.error("Error loading promociones:", error);
       toast.error("Hubo un error al cargar las promociones.");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const loadCategorias = async () => {
+  const initialData = async () => {
+    setLoading(true);
     try {
+      await loadPromociones();
       const data = await CategoriaService.getAll();
       setCategorias(data);
     } catch (error) {
       console.error("Error loading categorias:", error);
       toast.error(error);
     }
-  };
 
-  const initialData = async () => {
-    setLoading(true);
-    await loadPromociones();
-    await loadCategorias();
     setLoading(false);
   };
-
-  useEffect(() => {
-    loadPromociones();
-  }, [mostrarInactivos]);
 
   useEffect(() => {
     initialData();
@@ -531,7 +519,7 @@ export default function PromotionsAdminPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRestoreConfirm}
-              className="bg-green-600 text-white"
+              className="bg-primary text-white"
             >
               Restaurar
             </AlertDialogAction>

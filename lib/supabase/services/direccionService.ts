@@ -61,8 +61,6 @@ export const DireccionService = {
   async update(data: Direccion): Promise<Direccion> {
     const { id, created_at, ...rest } = data;
 
-    console.log({ id, created_at, rest });
-
     const { data: updated, error } = await supabase
       .from(TABLE_NAME)
       .update(rest)
@@ -71,7 +69,7 @@ export const DireccionService = {
       .single();
 
     if (error) {
-      console.log(error);
+      console.error(error);
       throw new Error(
         supabaseErrorMap[error.code] || "Error al actualizar la dirección"
       );

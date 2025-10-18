@@ -107,8 +107,6 @@ export default function DeliveryPage() {
   }
 
   const handleAddressSubmit = (data: any) => {
-    console.log("[v0] Address submitted:", data)
-    // Here you would typically save to database
   }
 
   return (
