@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -63,6 +64,7 @@ const defaultCalculadoraValues: Calculadora = {
   id_casillero: null,
   id_categoria: null,
   servicio: undefined,
+  producto: "",
   peso: "",
   largo: "",
   ancho: "",
@@ -149,7 +151,7 @@ export default function CalculatorPage() {
   }, [idCategoria, categorias]);
 
   useEffect(() => {
-    setValue("servicio", undefined, { shouldValidate: false });
+    setValue("id_tipo_transporte", null, { shouldValidate: false });
   }, [idCasillero, idCategoria, setValue]);
 
   const mapCostToMedio = (costKey: CostoKey): MedioKey => {
@@ -243,16 +245,10 @@ export default function CalculatorPage() {
 
       setIsFormLocked(true);
 
-      toast({
-        title: "Cotización calculada",
-        description: "Tu cotización ha sido generada exitosamente",
-      });
+      toast.success("Cotización calculada");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al calcular la cotización",
-        variant: "destructive",
-      });
+      console.error(error);
+      toast.error("Error al calcular la cotización");
     }
   };
 
@@ -261,7 +257,7 @@ export default function CalculatorPage() {
     reset({ ...defaultCalculadoraValues });
     setValue("id_casillero", null, { shouldValidate: false });
     setValue("id_categoria", null, { shouldValidate: false });
-    setValue("servicio", undefined, { shouldValidate: false });
+    setValue("id_tipo_transporte", null, { shouldValidate: false });
     setSelectedCasillero(null);
     setSelectedCategoria(null);
     setIsFormLocked(false);
@@ -544,14 +540,32 @@ export default function CalculatorPage() {
                       </span>
                     </Button>
                   </div>
-                  {errors.servicio && (
+                  {errors.id_tipo_transporte && (
                     <p className="text-sm text-destructive flex items-center gap-1">
-                      {errors.servicio.message}
+                      {errors.id_tipo_transporte.message}
                     </p>
                   )}
                 </div>
 
+                <Separator/>
+
                 <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="producto">Producto</Label>
+                    <Textarea
+                      id="producto"
+                      placeholder="Describe el producto"
+                      {...register("producto")}
+                      disabled={isFormLocked}
+                      className={errors.producto ? "border-destructive" : ""}
+                    />
+                    {errors.producto && (
+                      <p className="text-sm text-destructive flex items-center gap-1">
+                        {errors.producto.message}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="peso">Peso Real (kg)</Label>
                     <Input

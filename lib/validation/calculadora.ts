@@ -16,18 +16,9 @@ export const CalculadoraSchema = z.object({
     .refine((val) => val !== null && val !== 0, {
       message: "Debe seleccionar la categoría",
     }),
-  servicio: z
-    .nullable(
-      z.enum(["terrestre", "maritimo", "aereo"], {
-        message: "Debe seleccionar el tipo de servicio",
-      })
-    )
-    .refine(
-      (val) => val === "terrestre" || val === "maritimo" || val === "aereo",
-      {
-        message: "Debe seleccionar un tipo de servicio.",
-      }
-    ),
+  producto: z
+    .string()
+    .min(5, "Debe describir la compra (mínimo 5 caracteres)"),
   peso: z
     .string()
     .min(1, "El peso es requerido")
