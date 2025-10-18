@@ -61,7 +61,7 @@ export const PromocionService = {
     const { id, ...payload } = data;
     const updateData = {
       ...payload,
-      restricciones: data.restricciones_categorias || null,
+      restricciones_categorias: data.restricciones_categorias || null,
     };
     const { data: updatedData, error } = await supabase
       .from("promociones")
