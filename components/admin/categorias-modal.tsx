@@ -20,16 +20,16 @@ import { useEffect } from "react";
 import {
   CrearCategoriaSchema,
   CategoriaSchema,
-  CrearCategoriaData,
-  CategoriaData,
+  CrearCategoria,
+  Categoria,
 } from "@/lib/validation/categoria";
 
 interface CategoriaModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "add" | "edit";
-  initialData?: CategoriaData | null;
-  onSubmit: (data: CrearCategoriaData | CategoriaData) => void;
+  initialData?: Categoria | null;
+  onSubmit: (data: CrearCategoria | Categoria) => void;
 }
 
 export function CategoriaModal({
@@ -39,7 +39,7 @@ export function CategoriaModal({
   initialData,
   onSubmit,
 }: CategoriaModalProps) {
-  const defaultValues: CrearCategoriaData = {
+  const defaultValues: CrearCategoria = {
     nombre: "",
     descripcion: "",
     aereo: 1,
@@ -56,12 +56,12 @@ export function CategoriaModal({
     formState: { errors },
     reset,
     watch,
-  } = useForm<CategoriaData>({
+  } = useForm<Categoria>({
     resolver: zodResolver(mode === "add" ? CrearCategoriaSchema : CategoriaSchema),
     defaultValues: mode === "add" ? defaultValues : undefined,
   });
 
-  const handleFormSubmit = (data: CategoriaData) => {
+  const handleFormSubmit = (data: Categoria) => {
     onSubmit(data);
     toast.success(mode === "add" ? "Categoría agregada" : "Categoría actualizada");
     onOpenChange(false);

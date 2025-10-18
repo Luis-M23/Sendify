@@ -34,7 +34,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
-import { CategoriaData } from "@/lib/validation/categoria";
+import { Categoria } from "@/lib/validation/categoria";
 import { useEffect } from "react";
 
 // Tariff Modal Schema
@@ -457,7 +457,7 @@ interface PromotionModalProps {
   mode: "add" | "edit";
   initialData?: Partial<PromotionAPIData>;
   onSubmit: (data: PromotionAPIData) => void;
-  categories?: CategoriaData[];
+  categories?: Categoria[];
 }
 
 export function PromotionModal({

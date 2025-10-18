@@ -44,14 +44,14 @@ import {
 import { PromocionService } from "@/lib/supabase/services/promocionService";
 import { Promocion } from "@/lib/validation/promociones";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
-import { CategoriaData } from "@/lib/validation/categoria";
+import { Categoria } from "@/lib/validation/categoria";
 import { PromocionModal } from "@/components/admin/promocion-modal";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "react-toastify";
 
 export default function PromotionsAdminPage() {
-  const [categorias, setCategorias] = useState<CategoriaData[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [promociones, setPromociones] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

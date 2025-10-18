@@ -1,7 +1,7 @@
 import { createClient } from "../client";
 import {
-  CategoriaData,
-  CrearCategoriaData,
+  Categoria,
+  CrearCategoria,
 } from "@/lib/validation/categoria";
 
 import { supabaseErrorMap } from "../errorMap";
@@ -9,7 +9,7 @@ import { supabaseErrorMap } from "../errorMap";
 const supabase = createClient();
 
 export const CategoriaService = {
-  async getAll(): Promise<CategoriaData[]> {
+  async getAll(): Promise<Categoria[]> {
     const { data, error } = await supabase
       .from("categorias")
       .select("*")
@@ -18,10 +18,10 @@ export const CategoriaService = {
       throw new Error(
         supabaseErrorMap[error.code] || "Error al obtener categorías"
       );
-    return data as CategoriaData[];
+    return data as Categoria[];
   },
 
-  async getById(id: number): Promise<CategoriaData | null> {
+  async getById(id: number): Promise<Categoria | null> {
     const { data, error } = await supabase
       .from("categorias")
       .select("*")
@@ -31,10 +31,10 @@ export const CategoriaService = {
       throw new Error(
         supabaseErrorMap[error.code] || "Error al obtener categoría"
       );
-    return data as CategoriaData;
+    return data as Categoria;
   },
 
-  async create(data: CrearCategoriaData): Promise<CategoriaData> {
+  async create(data: CrearCategoria): Promise<Categoria> {
     const { data: newData, error } = await supabase
       .from("categorias")
       .insert(data)
@@ -44,10 +44,10 @@ export const CategoriaService = {
       throw new Error(
         supabaseErrorMap[error.code] || "Error al crear categoría"
       );
-    return newData as CategoriaData;
+    return newData as Categoria;
   },
 
-  async update(data: CategoriaData): Promise<CategoriaData> {
+  async update(data: Categoria): Promise<Categoria> {
     const { id } = data;
     const { data: updated, error } = await supabase
       .from("categorias")
@@ -59,7 +59,7 @@ export const CategoriaService = {
       throw new Error(
         supabaseErrorMap[error.code] || "Error al actualizar categoría"
       );
-    return updated as CategoriaData;
+    return updated as Categoria;
   },
 
   async delete(id: number): Promise<boolean> {

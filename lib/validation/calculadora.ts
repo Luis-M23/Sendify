@@ -1,8 +1,8 @@
 import * as z from "zod";
-import { CasilleroSchema } from "./casillero";
 
 export const CalculadoraSchema = z.object({
-  casillero: z.number({ message: "Debe seleccionar el casillero" }),
+  id_casillero: z.number({ message: "Debe seleccionar el casillero" }),
+  id_categoria: z.number({ message: "Debe seleccionar la categoría" }),
   peso: z
     .string()
     .min(1, "El peso es requerido")
@@ -39,8 +39,6 @@ export const CalculadoraSchema = z.object({
     .refine((val) => Number(val) <= 500, {
       message: "El alto no puede exceder 500 cm",
     }),
-  servicio: z.string().min(1, "Selecciona un tipo de servicio"),
-  destino: z.string().min(1, "Selecciona el país de destino"),
 });
 
 export type Calculadora = z.infer<typeof CalculadoraSchema>;

@@ -37,6 +37,8 @@ import { Casillero } from "@/lib/validation/casillero";
 import { CasilleroService } from "@/lib/supabase/services/casilleroService";
 import { FactorConversionService } from "@/lib/supabase/services/factorConversionService";
 import { toast } from "react-toastify";
+import { CategoriaService } from "@/lib/supabase/services/categoriaService";
+import { Categoria } from "@/lib/validation/categoria";
 
 interface QuoteResult {
   pesoReal: number;
@@ -71,15 +73,17 @@ export default function CalculatorPage() {
     },
   });
 
-  const casillero = watch("casillero");
+  const idCasillero = watch("id_casillero");
+  const idCategoria = watch("id_categoria");
+
   const servicio = watch("servicio");
 
   const [quote, setQuote] = useState<QuoteResult | null>(null);
+  const [casilleros, setCasilleros] = useState<Casillero[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [factoresConversion, setFactoresConversion] = useState<
     FactorConversion[]
   >([]);
-  const [casilleros, setCasilleros] = useState<Casillero[]>([]);
-
   const [selectedCasillero, setSelectedCasillero] = useState<Casillero | null>(
     null
   );
@@ -90,6 +94,8 @@ export default function CalculatorPage() {
       setCasilleros(casilleros);
       const factores = await FactorConversionService.getAll();
       setFactoresConversion(factores);
+      const categorias = await CategoriaService.getAll();
+      setCategorias(categorias);
     } catch (error: any) {
       toast.error(error.message || "Ocurrió un error al cargar las casilleros");
     } finally {
@@ -97,13 +103,13 @@ export default function CalculatorPage() {
   };
 
   useEffect(() => {
-    if (casillero && casilleros.length > 0) {
-      const casilleroFind = casilleros.find((c) => c.id === casillero);
+    if (idCasillero && casilleros.length > 0) {
+      const casilleroFind = casilleros.find((c) => c.id === idCasillero);
       setSelectedCasillero(casilleroFind || null);
     } else {
       setSelectedCasillero(null);
     }
-  }, [casillero, casilleros]);
+  }, [idCasillero, casilleros]);
 
   const transporteDesactivado = (
     medio: "costo_aereo" | "costo_maritimo" | "costo_terrestre"
@@ -266,15 +272,19 @@ export default function CalculatorPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="casillero">Casillero</Label>
+                    <Label htmlFor="id_casillero">Casillero</Label>
                     <Select
                       onValueChange={(value) =>
-                        setValue("casillero", +value, { shouldValidate: true })
+                        setValue("id_casillero", +value, {
+                          shouldValidate: true,
+                        })
                       }
                     >
                       <SelectTrigger
-                        id="casillero"
-                        className={errors.casillero ? "border-destructive" : ""}
+                        id="id_casillero"
+                        className={
+                          errors.id_casillero ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder="Seleccionar casillero" />
                       </SelectTrigger>
@@ -289,10 +299,46 @@ export default function CalculatorPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.casillero && (
+                    {errors.id_casillero && (
                       <p className="text-sm text-destructive flex items-center gap-1">
                         <AlertCircle className="h-3 w-3" />
-                        {errors.casillero.message}
+                        {errors.id_casillero.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="casillero">Categoría</Label>
+                    <Select
+                      onValueChange={(value) =>
+                        setValue("id_categoria", +value, {
+                          shouldValidate: true,
+                        })
+                      }
+                    >
+                      <SelectTrigger
+                        id="id_categoria"
+                        className={
+                          errors.id_categoria ? "border-destructive" : ""
+                        }
+                      >
+                        <SelectValue placeholder="Seleccionar categoría" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categorias.map((categoria) => (
+                          <SelectItem
+                            key={String(categoria.id)}
+                            value={String(categoria.id)}
+                          >
+                            {categoria.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.id_categoria && (
+                      <p className="text-sm text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.id_categoria.message}
                       </p>
                     )}
                   </div>
@@ -315,30 +361,10 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="truncate">
-                    <div className="font-medium">{selectedCasillero?.pais}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {selectedCasillero?.estado}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {selectedCasillero?.direccion}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {selectedCasillero?.telefono}
-                    </div>
-                  </div>
-                </div>
-
                 {/* Service Type */}
                 <div className="space-y-2">
                   <Label>Tipo de Servicio</Label>
-                  {errors.servicio && (
-                    <p className="text-sm text-destructive flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      {errors.servicio.message}
-                    </p>
-                  )}
+
                   <div className="grid grid-cols-3 gap-3">
                     <Button
                       disabled={transporteDesactivado("costo_aereo")}
@@ -392,15 +418,15 @@ export default function CalculatorPage() {
                       </span>
                     </Button>
                   </div>
+                  {errors.servicio && (
+                    <p className="text-sm text-destructive flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.servicio.message}
+                    </p>
+                  )}
                 </div>
-
                 <Separator />
 
-                {/* Origin and Destination */}
-
-                <Separator />
-
-                {/* Weight and Dimensions */}
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="peso">Peso Real (kg)</Label>

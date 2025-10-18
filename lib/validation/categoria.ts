@@ -42,5 +42,5 @@ export const CategoriaSchema = CrearCategoriaSchema.extend({
   created_at: z.string().optional(),
 });
 
-export type CrearCategoriaData = z.infer<typeof CrearCategoriaSchema>;
-export type CategoriaData = z.infer<typeof CategoriaSchema>;
+export type CrearCategoria = z.infer<typeof CrearCategoriaSchema>;
+export type Categoria = z.infer<typeof CategoriaSchema>;

@@ -33,12 +33,12 @@ import {
   Search,
 } from "lucide-react";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
-import { CategoriaData } from "@/lib/validation/categoria";
+import { Categoria } from "@/lib/validation/categoria";
 import { toast } from "react-toastify";
 
 export default function RestrictionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [categorias, setCategorias] = useState<CategoriaData[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {

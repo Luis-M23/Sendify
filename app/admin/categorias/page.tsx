@@ -42,25 +42,25 @@ import {
 } from "lucide-react";
 import { CategoriaModal } from "@/components/admin/categorias-modal";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
-import { CategoriaData, CrearCategoriaData } from "@/lib/validation/categoria";
+import { Categoria, CrearCategoria } from "@/lib/validation/categoria";
 import { toast } from "react-toastify";
 import { permisoMap } from "@/lib/map";
 
 export default function CategoriesAdminPage() {
-  const [categories, setCategories] = useState<CategoriaData[]>([]);
+  const [categories, setCategories] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedCategory, setSelectedCategory] =
-    useState<CategoriaData | null>(null);
+    useState<Categoria | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] =
-    useState<CategoriaData | null>(null);
+    useState<Categoria | null>(null);
 
   const [categoryToRestore, setCategoryToRestore] =
-    useState<CategoriaData | null>(null);
+    useState<Categoria | null>(null);
 
   const loadCategories = async () => {
     try {
@@ -90,25 +90,25 @@ export default function CategoriesAdminPage() {
     setModalOpen(true);
   };
 
-  const handleEditCategory = (category: CategoriaData) => {
+  const handleEditCategory = (category: Categoria) => {
     setModalMode("edit");
     setSelectedCategory(category);
     setModalOpen(true);
   };
 
-  const handleDeleteCategory = (category: CategoriaData) => {
+  const handleDeleteCategory = (category: Categoria) => {
     setCategoryToDelete(category);
     setDeleteDialogOpen(true);
   };
 
   const handleModalSubmit = async (
-    data: CategoriaData | CrearCategoriaData
+    data: Categoria | CrearCategoria
   ) => {
     try {
       if (modalMode === "add") {
-        await CategoriaService.create(data as CrearCategoriaData);
+        await CategoriaService.create(data as CrearCategoria);
       } else {
-        await CategoriaService.update(data as CategoriaData);
+        await CategoriaService.update(data as Categoria);
       }
       await loadCategories();
     } catch (error) {
@@ -129,7 +129,7 @@ export default function CategoriesAdminPage() {
     setCategoryToDelete(null);
   };
 
-  const handleRestoreDialog = (country: CategoriaData) => {
+  const handleRestoreDialog = (country: Categoria) => {
     setCategoryToRestore(country);
     setRestoreDialogOpen(true);
   };

@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { CategoriaData } from "@/lib/validation/categoria";
+import { Categoria } from "@/lib/validation/categoria";
 import {
   PromocionSchema,
   Promocion,
@@ -43,7 +43,7 @@ interface PromotionModalProps {
   mode: "add" | "edit";
   initialData?: ActualizarPromocion | null;
   onSubmit: (data: CrearPromocion | ActualizarPromocion) => void;
-  categorias?: CategoriaData[];
+  categorias?: Categoria[];
 }
 
 export function PromocionModal({
