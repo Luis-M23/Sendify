@@ -341,10 +341,7 @@ export default function CalculatorPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="id_casillero">Casillero</Label>
@@ -383,7 +380,6 @@ export default function CalculatorPage() {
                     </Select>
                     {errors.id_casillero && (
                       <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
                         {errors.id_casillero.message}
                       </p>
                     )}
@@ -426,7 +422,6 @@ export default function CalculatorPage() {
                     </Select>
                     {errors.id_categoria && (
                       <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
                         {errors.id_categoria.message}
                       </p>
                     )}
@@ -522,12 +517,10 @@ export default function CalculatorPage() {
                   </div>
                   {errors.servicio && (
                     <p className="text-sm text-destructive flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
                       {errors.servicio.message}
                     </p>
                   )}
                 </div>
-                <Separator />
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -544,7 +537,6 @@ export default function CalculatorPage() {
                     />
                     {errors.peso && (
                       <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
                         {errors.peso.message}
                       </p>
                     )}
@@ -571,7 +563,6 @@ export default function CalculatorPage() {
                         />
                         {errors.largo && (
                           <p className="text-xs text-destructive flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
                             {errors.largo.message}
                           </p>
                         )}
@@ -594,7 +585,6 @@ export default function CalculatorPage() {
                         />
                         {errors.ancho && (
                           <p className="text-xs text-destructive flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
                             {errors.ancho.message}
                           </p>
                         )}
@@ -617,7 +607,6 @@ export default function CalculatorPage() {
                         />
                         {errors.alto && (
                           <p className="text-xs text-destructive flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
                             {errors.alto.message}
                           </p>
                         )}
