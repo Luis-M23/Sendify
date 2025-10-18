@@ -12,7 +12,7 @@ export const CalculadoraSchema = z.object({
       message: "Debe seleccionar la categoría",
     }),
   servicio: z
-    .nullable(z.enum(["terrestre", "maritimo", "aereo"]))
+    .nullable(z.enum(["terrestre", "maritimo", "aereo"], { message: "Debe seleccionar el tipo de servicio" }))
     .refine(
       (val) => val === "terrestre" || val === "maritimo" || val === "aereo",
       {

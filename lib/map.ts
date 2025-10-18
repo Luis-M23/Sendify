@@ -1,5 +1,11 @@
 import { CategoriaService } from "./supabase/services/categoriaService";
 
+export const TipoServicioMap: Record<number, string> = {
+  1: "Aéreo",
+  2: "Terrestre",
+  3: "Marítimo",
+};
+
 export const PermisoMap: Record<number, string> = {
   1: "Prohibido",
   2: "Permitido",

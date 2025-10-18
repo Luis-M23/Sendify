@@ -197,7 +197,7 @@ export default function CalculatorPage() {
 
   const calcularCotizacion = async (data: Calculadora) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1));
 
       const pesoReal = Number.parseFloat(data.peso);
       const dimensiones =
