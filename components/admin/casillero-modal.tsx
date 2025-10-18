@@ -163,7 +163,6 @@ export function CasilleroModal({
                 id="costo_aereo"
                 type="number"
                 step={0.01}
-                min={0}
                 {...register("costo_aereo", { valueAsNumber: true })}
               />
               {errors.costo_aereo && (
@@ -179,7 +178,6 @@ export function CasilleroModal({
                 id="costo_terrestre"
                 type="number"
                 step={0.01}
-                min={0}
                 {...register("costo_terrestre", { valueAsNumber: true })}
               />
               {errors.costo_terrestre && (
@@ -195,7 +193,6 @@ export function CasilleroModal({
                 id="costo_maritimo"
                 type="number"
                 step={0.01}
-                min={0}
                 {...register("costo_maritimo", { valueAsNumber: true })}
               />
               {errors.costo_maritimo && (
@@ -205,6 +202,10 @@ export function CasilleroModal({
               )}
             </div>
           </div>
+
+          <p className="text-muted-foreground text-sm">
+            Un valor de cero indica que no se puede transportar por ese medio
+          </p>
 
           <DialogFooter>
             <Button

@@ -1,86 +1,65 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Calculator, Package, Plane, Ship, Truck, CheckCircle2, AlertCircle } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-
-const calculatorSchema = z.object({
-  peso: z
-    .string()
-    .min(1, "El peso es requerido")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "El peso debe ser mayor a 0 kg",
-    })
-    .refine((val) => Number(val) <= 1000, {
-      message: "El peso no puede exceder 1000 kg",
-    }),
-  largo: z
-    .string()
-    .min(1, "El largo es requerido")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "El largo debe ser mayor a 0 cm",
-    })
-    .refine((val) => Number(val) <= 500, {
-      message: "El largo no puede exceder 500 cm",
-    }),
-  ancho: z
-    .string()
-    .min(1, "El ancho es requerido")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "El ancho debe ser mayor a 0 cm",
-    })
-    .refine((val) => Number(val) <= 500, {
-      message: "El ancho no puede exceder 500 cm",
-    }),
-  alto: z
-    .string()
-    .min(1, "El alto es requerido")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "El alto debe ser mayor a 0 cm",
-    })
-    .refine((val) => Number(val) <= 500, {
-      message: "El alto no puede exceder 500 cm",
-    }),
-  servicio: z.string().min(1, "Selecciona un tipo de servicio"),
-  origen: z.string().min(1, "Selecciona el país de origen"),
-  destino: z.string().min(1, "Selecciona el país de destino"),
-})
-
-type CalculatorFormData = z.infer<typeof calculatorSchema>
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Calculator,
+  Package,
+  Plane,
+  Ship,
+  Truck,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
+import { CalculadoraSchema, Calculadora } from "@/lib/validation/calculadora";
+import { FactorConversion } from "@/lib/validation/factorConversion";
+import { Casillero } from "@/lib/validation/casillero";
+import { CasilleroService } from "@/lib/supabase/services/casilleroService";
+import { FactorConversionService } from "@/lib/supabase/services/factorConversionService";
+import { toast } from "react-toastify";
 
 interface QuoteResult {
-  pesoReal: number
-  pesoVolumetrico: number
-  pesoFacturable: number
-  tarifaBase: number
-  impuestos: number
-  recargoCombustible: number
-  descuento: number
-  total: number
-  tiempoEstimado: string
-  codigoCotizacion: string
+  pesoReal: number;
+  pesoVolumetrico: number;
+  pesoFacturable: number;
+  tarifaBase: number;
+  impuestos: number;
+  recargoCombustible: number;
+  descuento: number;
+  total: number;
+  tiempoEstimado: string;
+  codigoCotizacion: string;
 }
 
 export default function CalculatorPage() {
-  const { toast } = useToast()
   const {
     register,
     handleSubmit,
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<CalculatorFormData>({
-    resolver: zodResolver(calculatorSchema),
+  } = useForm<Calculadora>({
+    resolver: zodResolver(CalculadoraSchema),
     defaultValues: {
       peso: "",
       largo: "",
@@ -90,27 +69,96 @@ export default function CalculatorPage() {
       origen: "",
       destino: "",
     },
-  })
+  });
 
-  const [quote, setQuote] = useState<QuoteResult | null>(null)
+  const casillero = watch("casillero");
+  const servicio = watch("servicio");
 
-  const servicio = watch("servicio")
+  const [quote, setQuote] = useState<QuoteResult | null>(null);
+  const [factoresConversion, setFactoresConversion] = useState<
+    FactorConversion[]
+  >([]);
+  const [casilleros, setCasilleros] = useState<Casillero[]>([]);
 
-  const calcularCotizacion = async (data: CalculatorFormData) => {
+  const [selectedCasillero, setSelectedCasillero] = useState<Casillero | null>(
+    null
+  );
+
+  const loadData = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const casilleros = await CasilleroService.getAll();
+      setCasilleros(casilleros);
+      const factores = await FactorConversionService.getAll();
+      setFactoresConversion(factores);
+    } catch (error: any) {
+      toast.error(error.message || "Ocurrió un error al cargar las casilleros");
+    } finally {
+    }
+  };
 
-      const pesoReal = Number.parseFloat(data.peso)
-      const dimensiones = Number.parseFloat(data.largo) * Number.parseFloat(data.ancho) * Number.parseFloat(data.alto)
-      const factor = data.servicio === "aereo" ? 6000 : 4000
-      const pesoVolumetrico = dimensiones / factor
-      const pesoFacturable = Math.max(pesoReal, pesoVolumetrico)
+  useEffect(() => {
+    if (casillero && casilleros.length > 0) {
+      const casilleroFind = casilleros.find((c) => c.id === casillero);
+      setSelectedCasillero(casilleroFind || null);
+    } else {
+      setSelectedCasillero(null);
+    }
+  }, [casillero, casilleros]);
 
-      const tarifaBase = pesoFacturable * (data.servicio === "aereo" ? 25 : data.servicio === "maritimo" ? 8 : 15)
-      const impuestos = tarifaBase * 0.15
-      const recargoCombustible = tarifaBase * 0.08
-      const descuento = tarifaBase * 0.1 // 10% VIP discount
-      const total = tarifaBase + impuestos + recargoCombustible - descuento
+  const transporteDesactivado = (
+    medio: "costo_aereo" | "costo_maritimo" | "costo_terrestre"
+  ): boolean => {
+    if (selectedCasillero === null) return true;
+
+    if (selectedCasillero[medio] === 0) return true;
+
+    return false;
+  };
+
+  const formatCurrencyPerKg = (price: number | null | undefined): string => {
+    if (!selectedCasillero) return "";
+
+    if (price === null || price === undefined || isNaN(price) || price === 0) {
+      return "N/A";
+    }
+
+    const formattedPrice = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    }).format(price);
+
+    return `${formattedPrice} / kg`;
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const calcularCotizacion = async (data: Calculadora) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const pesoReal = Number.parseFloat(data.peso);
+      const dimensiones =
+        Number.parseFloat(data.largo) *
+        Number.parseFloat(data.ancho) *
+        Number.parseFloat(data.alto);
+      const factor = data.servicio === "aereo" ? 6000 : 4000;
+      const pesoVolumetrico = dimensiones / factor;
+      const pesoFacturable = Math.max(pesoReal, pesoVolumetrico);
+
+      const tarifaBase =
+        pesoFacturable *
+        (data.servicio === "aereo"
+          ? 25
+          : data.servicio === "maritimo"
+          ? 8
+          : 15);
+      const impuestos = tarifaBase * 0.15;
+      const recargoCombustible = tarifaBase * 0.08;
+      const descuento = tarifaBase * 0.1; // 10% VIP discount
+      const total = tarifaBase + impuestos + recargoCombustible - descuento;
 
       setQuote({
         pesoReal,
@@ -122,35 +170,84 @@ export default function CalculatorPage() {
         descuento,
         total,
         tiempoEstimado:
-          data.servicio === "aereo" ? "3-5 días" : data.servicio === "maritimo" ? "20-30 días" : "7-10 días",
+          data.servicio === "aereo"
+            ? "3-5 días"
+            : data.servicio === "maritimo"
+            ? "20-30 días"
+            : "7-10 días",
         codigoCotizacion: `COT-${Date.now().toString().slice(-8)}`,
-      })
+      });
 
       toast({
         title: "Cotización calculada",
         description: "Tu cotización ha sido generada exitosamente",
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Hubo un problema al calcular la cotización",
         variant: "destructive",
-      })
+      });
     }
-  }
-
-  const servicioIcons = {
-    aereo: Plane,
-    terrestre: Truck,
-    maritimo: Ship,
-  }
+  };
 
   return (
-    <DashboardLayout >
+    <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Calculadora de Envíos</h1>
-          <p className="text-muted-foreground">Cotiza tu envío internacional en segundos</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Package className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Peso Volumétrico</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Se calcula dividiendo (Largo × Ancho × Alto) entre el factor
+                    del servicio
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-lg bg-chart-2/10 flex items-center justify-center flex-shrink-0">
+                  <Plane className="h-5 w-5 text-chart-2" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Factor Volumétrico</h3>
+                  {factoresConversion.map((factorConversion) => (
+                    <p
+                      className="text-sm text-muted-foreground"
+                      key={factorConversion.id}
+                    >
+                      {factorConversion.nombre}: {factorConversion.divisor_vol}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-lg bg-chart-4/10 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="h-5 w-5 text-chart-4" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Peso Facturable</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Se cobra el mayor entre peso real y volumétrico
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -159,12 +256,80 @@ export default function CalculatorPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5" />
-                Datos del Envío
+                Calculadora de Envíos
               </CardTitle>
-              <CardDescription>Ingresa la información de tu paquete para calcular el costo</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(calcularCotizacion)} className="space-y-6">
+              <form
+                onSubmit={handleSubmit(calcularCotizacion)}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="casillero">Casillero</Label>
+                    <Select
+                      onValueChange={(value) =>
+                        setValue("casillero", +value, { shouldValidate: true })
+                      }
+                    >
+                      <SelectTrigger
+                        id="casillero"
+                        className={errors.casillero ? "border-destructive" : ""}
+                      >
+                        <SelectValue placeholder="Seleccionar casillero" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {casilleros.map((casillero) => (
+                          <SelectItem
+                            key={String(casillero.id)}
+                            value={String(casillero.id)}
+                          >
+                            {casillero.codigo}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.casillero && (
+                      <p className="text-sm text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.casillero.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="truncate">
+                      <div className="font-medium">
+                        {selectedCasillero?.pais}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {selectedCasillero?.estado}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {selectedCasillero?.direccion}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {selectedCasillero?.telefono}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="truncate">
+                    <div className="font-medium">{selectedCasillero?.pais}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {selectedCasillero?.estado}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {selectedCasillero?.direccion}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {selectedCasillero?.telefono}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Service Type */}
                 <div className="space-y-2">
                   <Label>Tipo de Servicio</Label>
@@ -176,34 +341,55 @@ export default function CalculatorPage() {
                   )}
                   <div className="grid grid-cols-3 gap-3">
                     <Button
+                      disabled={transporteDesactivado("costo_aereo")}
                       type="button"
                       variant={servicio === "aereo" ? "default" : "outline"}
                       className="h-auto flex-col gap-2 py-4"
-                      onClick={() => setValue("servicio", "aereo", { shouldValidate: true })}
+                      onClick={() =>
+                        setValue("servicio", "aereo", { shouldValidate: true })
+                      }
                     >
                       <Plane className="h-6 w-6" />
-                      <span className="text-sm">Aéreo</span>
-                      <span className="text-xs">3-5 días</span>
+                      <span className="text-md">Aéreo</span>
+                      <span className="text-md">
+                        {formatCurrencyPerKg(selectedCasillero?.costo_aereo)}
+                      </span>
                     </Button>
                     <Button
+                      disabled={transporteDesactivado("costo_terrestre")}
                       type="button"
                       variant={servicio === "terrestre" ? "default" : "outline"}
                       className="h-auto flex-col gap-2 py-4"
-                      onClick={() => setValue("servicio", "terrestre", { shouldValidate: true })}
+                      onClick={() =>
+                        setValue("servicio", "terrestre", {
+                          shouldValidate: true,
+                        })
+                      }
                     >
                       <Truck className="h-6 w-6" />
-                      <span className="text-sm">Terrestre</span>
-                      <span className="text-xs">7-10 días</span>
+                      <span className="text-md">Terrestre</span>
+                      <span className="text-md">
+                        {formatCurrencyPerKg(
+                          selectedCasillero?.costo_terrestre
+                        )}
+                      </span>
                     </Button>
                     <Button
+                      disabled={transporteDesactivado("costo_maritimo")}
                       type="button"
                       variant={servicio === "maritimo" ? "default" : "outline"}
                       className="h-auto flex-col gap-2 py-4"
-                      onClick={() => setValue("servicio", "maritimo", { shouldValidate: true })}
+                      onClick={() =>
+                        setValue("servicio", "maritimo", {
+                          shouldValidate: true,
+                        })
+                      }
                     >
                       <Ship className="h-6 w-6" />
-                      <span className="text-sm">Marítimo</span>
-                      <span className="text-xs">20-30 días</span>
+                      <span className="text-md">Marítimo</span>
+                      <span className="text-md">
+                        {formatCurrencyPerKg(selectedCasillero?.costo_maritimo)}
+                      </span>
                     </Button>
                   </div>
                 </div>
@@ -211,48 +397,6 @@ export default function CalculatorPage() {
                 <Separator />
 
                 {/* Origin and Destination */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="origen">País de Origen</Label>
-                    <Select onValueChange={(value) => setValue("origen", value, { shouldValidate: true })}>
-                      <SelectTrigger id="origen" className={errors.origen ? "border-destructive" : ""}>
-                        <SelectValue placeholder="Seleccionar país" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="us">Estados Unidos</SelectItem>
-                        <SelectItem value="cn">China</SelectItem>
-                        <SelectItem value="mx">México</SelectItem>
-                        <SelectItem value="es">España</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.origen && (
-                      <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        {errors.origen.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="destino">País de Destino</Label>
-                    <Select onValueChange={(value) => setValue("destino", value, { shouldValidate: true })}>
-                      <SelectTrigger id="destino" className={errors.destino ? "border-destructive" : ""}>
-                        <SelectValue placeholder="Seleccionar país" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="gt">Guatemala</SelectItem>
-                        <SelectItem value="sv">El Salvador</SelectItem>
-                        <SelectItem value="hn">Honduras</SelectItem>
-                        <SelectItem value="cr">Costa Rica</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.destino && (
-                      <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        {errors.destino.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
 
                 <Separator />
 
@@ -281,7 +425,10 @@ export default function CalculatorPage() {
                     <Label className="mb-2 block">Dimensiones (cm)</Label>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
-                        <Label htmlFor="largo" className="text-xs text-muted-foreground">
+                        <Label
+                          htmlFor="largo"
+                          className="text-xs text-muted-foreground"
+                        >
                           Largo
                         </Label>
                         <Input
@@ -300,7 +447,10 @@ export default function CalculatorPage() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="ancho" className="text-xs text-muted-foreground">
+                        <Label
+                          htmlFor="ancho"
+                          className="text-xs text-muted-foreground"
+                        >
                           Ancho
                         </Label>
                         <Input
@@ -319,7 +469,10 @@ export default function CalculatorPage() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="alto" className="text-xs text-muted-foreground">
+                        <Label
+                          htmlFor="alto"
+                          className="text-xs text-muted-foreground"
+                        >
                           Alto
                         </Label>
                         <Input
@@ -341,7 +494,12 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Calculando..." : "Calcular Cotización"}
                 </Button>
               </form>
@@ -355,21 +513,33 @@ export default function CalculatorPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Cotización</CardTitle>
-                    <CardDescription className="font-mono text-xs">{quote.codigoCotizacion}</CardDescription>
+                    <CardDescription className="font-mono text-xs">
+                      {quote.codigoCotizacion}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Peso Real</span>
-                        <span className="font-medium">{quote.pesoReal.toFixed(2)} kg</span>
+                        <span className="font-medium">
+                          {quote.pesoReal.toFixed(2)} kg
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Peso Volumétrico</span>
-                        <span className="font-medium">{quote.pesoVolumetrico.toFixed(2)} kg</span>
+                        <span className="text-muted-foreground">
+                          Peso Volumétrico
+                        </span>
+                        <span className="font-medium">
+                          {quote.pesoVolumetrico.toFixed(2)} kg
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Peso Facturable</span>
-                        <span className="font-semibold">{quote.pesoFacturable.toFixed(2)} kg</span>
+                        <span className="text-muted-foreground">
+                          Peso Facturable
+                        </span>
+                        <span className="font-semibold">
+                          {quote.pesoFacturable.toFixed(2)} kg
+                        </span>
                       </div>
                     </div>
 
@@ -377,15 +547,21 @@ export default function CalculatorPage() {
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Tarifa Base</span>
+                        <span className="text-muted-foreground">
+                          Tarifa Base
+                        </span>
                         <span>${quote.tarifaBase.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Impuestos (15%)</span>
+                        <span className="text-muted-foreground">
+                          Impuestos (15%)
+                        </span>
                         <span>${quote.impuestos.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Recargo Combustible</span>
+                        <span className="text-muted-foreground">
+                          Recargo Combustible
+                        </span>
                         <span>${quote.recargoCombustible.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm text-chart-4">
@@ -398,7 +574,9 @@ export default function CalculatorPage() {
 
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total</span>
-                      <span className="text-2xl font-bold">${quote.total.toFixed(2)}</span>
+                      <span className="text-2xl font-bold">
+                        ${quote.total.toFixed(2)}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -417,9 +595,12 @@ export default function CalculatorPage() {
                     <div className="flex gap-3">
                       <CheckCircle2 className="h-5 w-5 text-chart-4 flex-shrink-0 mt-0.5" />
                       <div className="space-y-1">
-                        <p className="text-sm font-medium">Beneficio VIP Aplicado</p>
+                        <p className="text-sm font-medium">
+                          Beneficio VIP Aplicado
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          Ahorraste ${quote.descuento.toFixed(2)} con tu membresía Oro
+                          Ahorraste ${quote.descuento.toFixed(2)} con tu
+                          membresía Oro
                         </p>
                       </div>
                     </div>
@@ -431,61 +612,16 @@ export default function CalculatorPage() {
                 <CardContent className="pt-6">
                   <div className="text-center py-8 text-muted-foreground">
                     <Calculator className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-sm">Completa el formulario para ver tu cotización</p>
+                    <p className="text-sm">
+                      Completa el formulario para ver tu cotización
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             )}
           </div>
         </div>
-
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Package className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Peso Volumétrico</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Se calcula dividiendo (Largo × Ancho × Alto) entre el factor del servicio
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-lg bg-chart-2/10 flex items-center justify-center flex-shrink-0">
-                  <Plane className="h-5 w-5 text-chart-2" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Factor Volumétrico</h3>
-                  <p className="text-sm text-muted-foreground">Aéreo: 6000 | Terrestre/Marítimo: 4000</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-lg bg-chart-4/10 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Peso Facturable</h3>
-                  <p className="text-sm text-muted-foreground">Se cobra el mayor entre peso real y volumétrico</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }

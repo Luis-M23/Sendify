@@ -1,13 +1,13 @@
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
 import { FactorConversionSchema } from "@/lib/validation/factorConversion";
-import { FactorConversionData } from "@/lib/validation/factorConversion";
+import { FactorConversion } from "@/lib/validation/factorConversion";
 
 
 const supabase = createClient();
 
-export const ModosTransporteService = {
-  async getAll(): Promise<FactorConversionData[]> {
+export const FactorConversionService = {
+  async getAll(): Promise<FactorConversion[]> {
     const { data, error } = await supabase
       .from("factores_conversion")
       .select("*")
@@ -20,10 +20,10 @@ export const ModosTransporteService = {
       throw new Error(translated);
     }
 
-    return data as FactorConversionData[];
+    return data as FactorConversion[];
   },
 
-  async updateAll(modos: FactorConversionData[]): Promise<void> {
+  async updateAll(modos: FactorConversion[]): Promise<void> {
     modos.forEach((modo) => FactorConversionSchema.parse(modo));
 
     for (const modo of modos) {

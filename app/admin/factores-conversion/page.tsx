@@ -12,14 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plane, Truck, Ship, Save, Search, Plus } from "lucide-react";
-import { ModosTransporteService } from "@/lib/supabase/services/factorConversionService";
+import { FactorConversionService } from "@/lib/supabase/services/FactorConversionService";
 import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
-import { FactorConversionData } from "@/lib/validation/factorConversion";
+import { FactorConversion } from "@/lib/validation/factorConversion";
 
 export default function ModosTransportePage() {
   const [modos, setModos] = useState<
-    (FactorConversionData & { error?: string })[]
+    (FactorConversion & { error?: string })[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +28,7 @@ export default function ModosTransportePage() {
   const loadModos = async () => {
     try {
       setLoading(true);
-      const data = await ModosTransporteService.getAll();
+      const data = await FactorConversionService.getAll();
       setModos(data);
     } catch (error: any) {
       console.error(error);
@@ -65,7 +65,7 @@ export default function ModosTransportePage() {
 
     try {
       setSaving(true);
-      await ModosTransporteService.updateAll(modos);
+      await FactorConversionService.updateAll(modos);
       toast.success("Factores actualizados");
       loadModos();
     } catch (error: any) {
