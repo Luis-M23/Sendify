@@ -58,24 +58,27 @@ type CostoKey = "costo_aereo" | "costo_maritimo" | "costo_terrestre";
 
 type MedioKey = "aereo" | "maritimo" | "terrestre";
 
+const defaultCalculadoraValues: Calculadora = {
+  id_casillero: null,
+  id_categoria: null,
+  servicio: undefined,
+  peso: "",
+  largo: "",
+  ancho: "",
+  alto: "",
+};
+
 export default function CalculatorPage() {
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<Calculadora>({
     resolver: zodResolver(CalculadoraSchema),
-    defaultValues: {
-      id_casillero: null,
-      id_categoria: null,
-      servicio: null,
-      peso: "",
-      largo: "",
-      ancho: "",
-      alto: "",
-    },
+    defaultValues: defaultCalculadoraValues,
   });
 
   const idCasillero = watch("id_casillero");
@@ -83,6 +86,8 @@ export default function CalculatorPage() {
   const servicio = watch("servicio");
 
   const [factura, setFactura] = useState<QuoteResult | null>(null);
+  const [isFormLocked, setIsFormLocked] = useState(false);
+  const [formResetKey, setFormResetKey] = useState(0);
 
   const [casilleros, setCasilleros] = useState<Casillero[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -128,19 +133,21 @@ export default function CalculatorPage() {
   }, [idCasillero, casilleros]);
 
   useEffect(() => {
-    console.log({ idCategoria });
     if (
       typeof idCategoria === "number" &&
       !Number.isNaN(idCategoria) &&
       categorias.length > 0
     ) {
       const categoriaFind = categorias.find((c) => c.id === idCategoria);
-      console.log({ categoriaFind });
       setSelectedCategoria(categoriaFind || null);
     } else {
       setSelectedCategoria(null);
     }
   }, [idCategoria, categorias]);
+
+  useEffect(() => {
+    setValue("servicio", undefined, { shouldValidate: false });
+  }, [idCasillero, idCategoria, setValue]);
 
   const mapCostToMedio = (costKey: CostoKey): MedioKey => {
     return costKey.slice(6) as MedioKey;
@@ -165,7 +172,6 @@ export default function CalculatorPage() {
   };
 
   const formatoPermiso = (id: number | undefined): string => {
-    console.log({ id });
     return PermisoMap[id || 0] || "-";
   };
 
@@ -232,6 +238,8 @@ export default function CalculatorPage() {
         codigoCotizacion: `COT-${Date.now().toString().slice(-8)}`,
       });
 
+      setIsFormLocked(true);
+
       toast({
         title: "Cotización calculada",
         description: "Tu cotización ha sido generada exitosamente",
@@ -243,6 +251,25 @@ export default function CalculatorPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleClearForm = () => {
+    setFactura(null);
+    reset({ ...defaultCalculadoraValues });
+    setValue("id_casillero", null, { shouldValidate: false });
+    setValue("id_categoria", null, { shouldValidate: false });
+    setValue("servicio", undefined, { shouldValidate: false });
+    setSelectedCasillero(null);
+    setSelectedCategoria(null);
+    setIsFormLocked(false);
+    setFormResetKey((key) => key + 1);
+  };
+
+  const onSubmit = (data: Calculadora) => {
+    if (isFormLocked) {
+      return;
+    }
+    calcularCotizacion(data);
   };
 
   return (
@@ -315,13 +342,20 @@ export default function CalculatorPage() {
             </CardHeader>
             <CardContent>
               <form
-                onSubmit={handleSubmit(calcularCotizacion)}
+                onSubmit={handleSubmit(onSubmit)}
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="id_casillero">Casillero</Label>
                     <Select
+                      key={`casillero-${formResetKey}`}
+                      disabled={isFormLocked}
+                      value={
+                        idCasillero !== null && idCasillero !== undefined
+                          ? String(idCasillero)
+                          : undefined
+                      }
                       onValueChange={(value) =>
                         setValue("id_casillero", +value, {
                           shouldValidate: true,
@@ -358,6 +392,13 @@ export default function CalculatorPage() {
                   <div className="space-y-2">
                     <Label htmlFor="casillero">Categoría</Label>
                     <Select
+                      key={`categoria-${formResetKey}`}
+                      disabled={isFormLocked}
+                      value={
+                        idCategoria !== null && idCategoria !== undefined
+                          ? String(idCategoria)
+                          : undefined
+                      }
                       onValueChange={(value) =>
                         setValue("id_categoria", +value, {
                           shouldValidate: true,
@@ -415,7 +456,9 @@ export default function CalculatorPage() {
 
                   <div className="grid grid-cols-3 gap-4">
                     <Button
-                      disabled={transporteDesactivado("costo_aereo")}
+                      disabled={
+                        transporteDesactivado("costo_aereo") || isFormLocked
+                      }
                       type="button"
                       variant={servicio === "aereo" ? "default" : "outline"}
                       className="h-auto flex-col gap-1 py-2"
@@ -433,7 +476,9 @@ export default function CalculatorPage() {
                       </span>
                     </Button>
                     <Button
-                      disabled={transporteDesactivado("costo_terrestre")}
+                      disabled={
+                        transporteDesactivado("costo_terrestre") || isFormLocked
+                      }
                       type="button"
                       variant={servicio === "terrestre" ? "default" : "outline"}
                       className="h-auto flex-col gap-1 py-2"
@@ -453,7 +498,9 @@ export default function CalculatorPage() {
                       </span>
                     </Button>
                     <Button
-                      disabled={transporteDesactivado("costo_maritimo")}
+                      disabled={
+                        transporteDesactivado("costo_maritimo") || isFormLocked
+                      }
                       type="button"
                       variant={servicio === "maritimo" ? "default" : "outline"}
                       className="h-auto flex-col gap-1 py-2"
@@ -492,6 +539,7 @@ export default function CalculatorPage() {
                       step="0.1"
                       min="0"
                       {...register("peso")}
+                      disabled={isFormLocked}
                       className={errors.peso ? "border-destructive" : ""}
                     />
                     {errors.peso && (
@@ -518,6 +566,7 @@ export default function CalculatorPage() {
                           placeholder="30"
                           min="0"
                           {...register("largo")}
+                          disabled={isFormLocked}
                           className={errors.largo ? "border-destructive" : ""}
                         />
                         {errors.largo && (
@@ -540,6 +589,7 @@ export default function CalculatorPage() {
                           placeholder="20"
                           min="0"
                           {...register("ancho")}
+                          disabled={isFormLocked}
                           className={errors.ancho ? "border-destructive" : ""}
                         />
                         {errors.ancho && (
@@ -562,6 +612,7 @@ export default function CalculatorPage() {
                           placeholder="15"
                           min="0"
                           {...register("alto")}
+                          disabled={isFormLocked}
                           className={errors.alto ? "border-destructive" : ""}
                         />
                         {errors.alto && (
@@ -575,14 +626,26 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Calculando..." : "Calcular Cotización"}
-                </Button>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-auto"
+                    size="lg"
+                    disabled={isSubmitting || isFormLocked}
+                  >
+                    {isSubmitting ? "Calculando..." : "Calcular Cotización"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    size="lg"
+                    onClick={handleClearForm}
+                    disabled={isSubmitting}
+                  >
+                    Restablecer formulario
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
