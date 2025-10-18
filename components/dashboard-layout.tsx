@@ -49,14 +49,13 @@ interface DashboardLayoutProps {
 const navigation = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
-  { name: "Entrega", href: "/delivery", icon: Navigation },
   { name: "Promociones", href: "/promociones", icon: Gift },
-  { name: "Recompensas", href: "/recompensas", icon: Crown },
+  { name: "Recompensas", href: "/recompensas", icon: Crown },  
   { name: "Seguimiento", href: "/tracking", icon: Package },
+  { name: "Mis Paquetes", href: "/delivery", icon: Navigation },
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
 
-// Navegación adicional para administradores
 const adminNavigation = [
   { name: "Panel Admin", href: "/admin", icon: Settings },
   {

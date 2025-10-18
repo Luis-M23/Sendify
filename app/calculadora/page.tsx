@@ -40,6 +40,7 @@ import { toast } from "react-toastify";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { Categoria } from "@/lib/validation/categoria";
 import { PermisoMap } from "@/lib/map";
+import { idTipoServicioEnum } from "@/lib/enum";
 
 interface QuoteResult {
   pesoReal: number;
@@ -83,6 +84,8 @@ export default function CalculatorPage() {
 
   const idCasillero = watch("id_casillero");
   const idCategoria = watch("id_categoria");
+  const idTipoTransporte = watch("id_tipo_transporte");
+
   const servicio = watch("servicio");
 
   const [factura, setFactura] = useState<QuoteResult | null>(null);
@@ -455,10 +458,20 @@ export default function CalculatorPage() {
                         transporteDesactivado("costo_aereo") || isFormLocked
                       }
                       type="button"
-                      variant={servicio === "aereo" ? "default" : "outline"}
+                      variant={
+                        idTipoTransporte === idTipoServicioEnum.AEREO
+                          ? "default"
+                          : "outline"
+                      }
                       className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
-                        setValue("servicio", "aereo", { shouldValidate: true })
+                        setValue(
+                          "id_tipo_transporte",
+                          idTipoServicioEnum.AEREO,
+                          {
+                            shouldValidate: true,
+                          }
+                        )
                       }
                     >
                       <Plane className="h-6 w-6" />
@@ -475,12 +488,20 @@ export default function CalculatorPage() {
                         transporteDesactivado("costo_terrestre") || isFormLocked
                       }
                       type="button"
-                      variant={servicio === "terrestre" ? "default" : "outline"}
+                      variant={
+                        idTipoTransporte === idTipoServicioEnum.TERRESTRE
+                          ? "default"
+                          : "outline"
+                      }
                       className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
-                        setValue("servicio", "terrestre", {
-                          shouldValidate: true,
-                        })
+                        setValue(
+                          "id_tipo_transporte",
+                          idTipoServicioEnum.TERRESTRE,
+                          {
+                            shouldValidate: true,
+                          }
+                        )
                       }
                     >
                       <Truck className="h-6 w-6" />
@@ -497,12 +518,20 @@ export default function CalculatorPage() {
                         transporteDesactivado("costo_maritimo") || isFormLocked
                       }
                       type="button"
-                      variant={servicio === "maritimo" ? "default" : "outline"}
+                      variant={
+                        idTipoTransporte === idTipoServicioEnum.MARITIMO
+                          ? "default"
+                          : "outline"
+                      }
                       className="h-auto flex-col gap-1 py-2"
                       onClick={() =>
-                        setValue("servicio", "maritimo", {
-                          shouldValidate: true,
-                        })
+                        setValue(
+                          "id_tipo_transporte",
+                          idTipoServicioEnum.MARITIMO,
+                          {
+                            shouldValidate: true,
+                          }
+                        )
                       }
                     >
                       <Ship className="h-6 w-6" />
