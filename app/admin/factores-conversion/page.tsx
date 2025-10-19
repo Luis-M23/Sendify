@@ -12,10 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plane, Truck, Ship, Save, Search, Plus } from "lucide-react";
-import { FactorConversionService } from "@/lib/supabase/services/FactorConversionService";
 import { FactorConversionSchema } from "@/lib/validation/factorConversion";
 import { toast } from "react-toastify";
 import { FactorConversion } from "@/lib/validation/factorConversion";
+import { FactorConversionService } from "@/lib/supabase/services/factorConversionService";
 
 export default function ModosTransportePage() {
   const [modos, setModos] = useState<
