@@ -634,7 +634,7 @@ export default function CalculatorPage() {
                     size="lg"
                     disabled={isSubmitting || isFormLocked}
                   >
-                    {isSubmitting ? "Calculando..." : "Calcular Cotización"}
+                    {isSubmitting ? "Calculando..." : "Calcular"}
                   </Button>
                   <Button
                     type="button"
@@ -644,7 +644,7 @@ export default function CalculatorPage() {
                     onClick={handleClearForm}
                     disabled={isSubmitting}
                   >
-                    Restablecer formulario
+                    Restablecer
                   </Button>
                 </div>
               </form>
