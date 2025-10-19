@@ -24,11 +24,11 @@ export const RecompensaSchema = z.object({
   created_at: z.string().optional(),
 });
 
-export type RecompensaData = z.infer<typeof RecompensaSchema>;
+export type Recompensa = z.infer<typeof RecompensaSchema>;
 
 export const CrearRecompensaSchema = RecompensaSchema.omit({
   id: true,
   created_at: true,
 });
 
-export type CrearRecompensaData = z.infer<typeof CrearRecompensaSchema>;
+export type CrearRecompensa = z.infer<typeof CrearRecompensaSchema>;

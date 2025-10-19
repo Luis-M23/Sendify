@@ -3,12 +3,14 @@ import { CalculadoraSchema } from "./calculadora";
 import { FactorConversionSchema } from "./factorConversion";
 import { CasilleroSchema } from "./casillero";
 import { CategoriaSchema } from "./categoria";
+import { RecompensaSchema } from "./recompensa";
 
 const CotizacionBaseSchema = z.object({
   formDeclaracion: CalculadoraSchema,
   formFactorConversion: FactorConversionSchema,
   formCasillero: CasilleroSchema,
   formCategoria: CategoriaSchema,
+  recompensaActual: RecompensaSchema.nullable(),
 
   codigo: z.string(),
   peso_volumetrico: z.number(),
@@ -27,6 +29,7 @@ export const CotizacionCalculoSchema = CotizacionBaseSchema.pick({
   formFactorConversion: true,
   formCasillero: true,
   formCategoria: true,
+  recompensaActual: true,
 });
 
 export const CotizacionSchema = CotizacionBaseSchema.omit({
@@ -34,6 +37,7 @@ export const CotizacionSchema = CotizacionBaseSchema.omit({
   formFactorConversion: true,
   formCasillero: true,
   formCategoria: true,
+  recompensaActual: true,
 }).merge(CalculadoraSchema);
 
 export type Cotizacion = z.infer<typeof CotizacionSchema>;

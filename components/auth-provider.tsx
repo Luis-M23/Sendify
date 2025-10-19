@@ -3,12 +3,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient, User } from "@supabase/supabase-js";
 import { RolesSistema } from "@/lib/enum";
+import { Recompensa } from "@/lib/validation/recompensa";
+import { RecompensaService } from "@/lib/supabase/services/recompensaService";
+import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
 
 type AuthContextState = {
   user: User | null;
   rol: string | null;
   isAuthenticated: boolean;
   loading: boolean;
+  recompensa: Recompensa | null;
 };
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -23,6 +27,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [rol, setRol] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [recompensa, setRecompensa] = useState<Recompensa | null>(null);
+
+  async function checkUsuarioMetadata() {
+    const id = user?.id ?? null;
+
+    if (id) {
+      try {
+        const usuario = await UsuarioMetadataService.firstOrCreate(id);
+        const recompensa = await RecompensaService.getNivel(
+          usuario.compras_realizadas
+        );
+        setRecompensa(recompensa);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
+  useEffect(() => {
+    checkUsuarioMetadata();
+  }, [user]);
 
   const setAuthState = (currentUser: User | null) => {
     setIsAuthenticated(!!currentUser);
@@ -39,7 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-                
         if (event === "SIGNED_IN" && session) {
           const currentUser = session?.user ?? null;
           setAuthState(currentUser);
@@ -58,7 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const value: AuthContextState = { user, rol, isAuthenticated, loading };
+  const value: AuthContextState = {
+    user,
+    rol,
+    isAuthenticated,
+    loading,
+    recompensa,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

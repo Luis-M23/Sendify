@@ -24,7 +24,7 @@ import { Search, Edit2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { RecompensaModal } from "@/components/admin/recompensa-modal";
 import { RecompensaService } from "@/lib/supabase/services/recompensaService";
-import { RecompensaData } from "@/lib/validation/recompensa";
+import { Recompensa } from "@/lib/validation/recompensa";
 
 const parseBeneficios = (beneficios?: string | null) =>
   beneficios
@@ -33,12 +33,12 @@ const parseBeneficios = (beneficios?: string | null) =>
     .filter(Boolean) ?? [];
 
 export default function AdminRecompensasPage() {
-  const [recompensas, setRecompensas] = useState<RecompensaData[]>([]);
+  const [recompensas, setRecompensas] = useState<Recompensa[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRecompensa, setSelectedRecompensa] =
-    useState<RecompensaData | null>(null);
+    useState<Recompensa | null>(null);
 
   const loadRecompensas = async () => {
     try {
@@ -72,7 +72,7 @@ export default function AdminRecompensasPage() {
     });
   }, [recompensas, searchTerm]);
 
-  const handleEdit = (recompensa: RecompensaData) => {
+  const handleEdit = (recompensa: Recompensa) => {
     setSelectedRecompensa({
       ...recompensa,
       beneficios: recompensa.beneficios ?? "",
@@ -80,7 +80,7 @@ export default function AdminRecompensasPage() {
     setModalOpen(true);
   };
 
-  const handleModalSubmit = async (data: RecompensaData) => {
+  const handleModalSubmit = async (data: Recompensa) => {
     try {
       await RecompensaService.update({
         ...data,

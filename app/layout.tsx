@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemedToastContainer } from "@/components/themed-toast-container";
-import { AuthProvider } from "@/components/auth-provider"; // <-- Asegúrate de importar esto
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 import { AppLoader } from "@/components/app-loader";
 

@@ -15,14 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RecompensaData, RecompensaSchema } from "@/lib/validation/recompensa";
+import { Recompensa, RecompensaSchema } from "@/lib/validation/recompensa";
 import { cn } from "@/lib/utils";
 
 interface RecompensaModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialData: RecompensaData | null;
-  onSubmit: (data: RecompensaData) => void;
+  initialData: Recompensa | null;
+  onSubmit: (data: Recompensa) => void;
 }
 
 export function RecompensaModal({
@@ -36,7 +36,7 @@ export function RecompensaModal({
     reset,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RecompensaData>({
+  } = useForm<Recompensa>({
     resolver: zodResolver(RecompensaSchema),
     defaultValues: initialData ?? undefined,
   });
@@ -60,7 +60,7 @@ export function RecompensaModal({
     onOpenChange(nextState);
   };
 
-  const onFormSubmit = (data: RecompensaData) => {
+  const onFormSubmit = (data: Recompensa) => {
     onSubmit({
       ...data,
       beneficios: data.beneficios?.trim() || null,

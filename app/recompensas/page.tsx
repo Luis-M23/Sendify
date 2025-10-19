@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { RecompensaService } from "@/lib/supabase/services/recompensaService";
-import { RecompensaData } from "@/lib/validation/recompensa";
+import { Recompensa } from "@/lib/validation/recompensa";
 
 const levelDecorations: Record<
   string,
@@ -59,7 +59,7 @@ export default function RecompensasPage() {
   const [currentLevel] = useState("Oro");
   const [currentShipments] = useState(28);
   const [nextLevelShipments] = useState(50);
-  const [recompensas, setRecompensas] = useState<RecompensaData[]>([]);
+  const [recompensas, setRecompensas] = useState<Recompensa[]>([]);
   const [loadingLevels, setLoadingLevels] = useState(true);
 
   const progress = (currentShipments / nextLevelShipments) * 100;

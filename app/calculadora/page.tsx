@@ -43,6 +43,7 @@ import { PermisoMap } from "@/lib/map";
 import { idTipoServicioEnum } from "@/lib/enum";
 import { CalculadoraService } from "@/lib/supabase/services/calculadoraService";
 import { Cotizacion } from "@/lib/validation/cotizacion";
+import { useAuth } from "@/components/auth-provider";
 
 interface QuoteResult {
   pesoReal: number;
@@ -84,6 +85,7 @@ export default function CalculatorPage() {
     resolver: zodResolver(CalculadoraSchema),
     defaultValues: defaultCalculadoraValues,
   });
+  const { recompensa } = useAuth();
 
   const idCasillero = watch("id_casillero");
   const idCategoria = watch("id_categoria");
@@ -232,6 +234,7 @@ export default function CalculatorPage() {
         formCasillero: selectedCasillero,
         formCategoria: selectedCategoria,
         formFactorConversion: selectedFactorConversion,
+        recompensaActual: recompensa,
       });
       setCotizacion(cotizacion);
       // setIsFormLocked(true);
@@ -711,7 +714,7 @@ export default function CalculatorPage() {
                       </div>
                       <div className="flex justify-between text-sm text-chart-4">
                         <span>
-                          Descuento VIP ({cotizacion.descuento_aplicado}%)
+                          Recompensa ({cotizacion.descuento_aplicado}%)
                         </span>
                         <span>-${cotizacion.descuento.toFixed(2)}</span>
                       </div>
@@ -729,23 +732,6 @@ export default function CalculatorPage() {
                     <Button className="w-full" size="lg">
                       Confirmar
                     </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-chart-4/50 bg-chart-4/5">
-                  <CardContent className="pt-6">
-                    <div className="flex gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-chart-4 flex-shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">
-                          Recompensa Aplicada{" "}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Ahorraste ${cotizacion.descuento.toFixed(2)} con tu
-                          membresía
-                        </p>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               </>

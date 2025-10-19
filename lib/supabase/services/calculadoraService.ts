@@ -8,6 +8,7 @@ export const CalculadoraService = {
       formCasillero,
       formCategoria,
       formFactorConversion,
+      recompensaActual,
     } = payload;
 
     const pesoReal = formDeclaracion.peso;
@@ -16,7 +17,6 @@ export const CalculadoraService = {
       formDeclaracion.largo * formDeclaracion.ancho * formDeclaracion.alto;
 
     const factor = formFactorConversion.divisor_vol;
-    console.log(formFactorConversion);
 
     const pesoVolumetrico = dimensiones / factor;
     const pesoFacturable = Math.max(pesoReal, pesoVolumetrico);
@@ -27,7 +27,9 @@ export const CalculadoraService = {
 
     const impuestos = tarifa * 0.3;
     const recargoCombustible = tarifa * 0.08;
-    const descuento = tarifa * 0.1;
+
+    const descuento_aplicado = recompensaActual?.porcentaje_descuento || 0;
+    const descuento = tarifa * descuento_aplicado;
     const total = tarifa + impuestos + recargoCombustible - descuento;
 
     return {
@@ -45,8 +47,8 @@ export const CalculadoraService = {
       largo: formDeclaracion.largo,
       ancho: formDeclaracion.ancho,
       alto: formDeclaracion.alto,
-      descuento_aplicado: 0,
-      descuento: 0,
+      descuento_aplicado,
+      descuento,
       recompensa_aplicado: 0,
       recompensa: 0,
       total,
