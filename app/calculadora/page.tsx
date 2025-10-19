@@ -137,14 +137,14 @@ export default function CalculatorPage() {
       setSelectedCasillero(casilleroFind || null);
 
       const factorConversionFind = factoresConversion.find(
-        (c) => c.id === idCasillero
+        (c) => c.id === idTipoTransporte
       );
 
       setSelectedFactorConversion(factorConversionFind || null);
     } else {
       setSelectedCasillero(null);
     }
-  }, [idCasillero, casilleros]);
+  }, [idCasillero, casilleros, idTipoTransporte]);
 
   useEffect(() => {
     if (

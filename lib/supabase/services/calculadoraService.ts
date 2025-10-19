@@ -10,14 +10,13 @@ export const CalculadoraService = {
       formFactorConversion,
     } = payload;
 
-    const pesoReal = Number.parseFloat(formDeclaracion.peso);
+    const pesoReal = formDeclaracion.peso;
 
     const dimensiones =
-      Number.parseFloat(formDeclaracion.largo) *
-      Number.parseFloat(formDeclaracion.ancho) *
-      Number.parseFloat(formDeclaracion.alto);
+      formDeclaracion.largo * formDeclaracion.ancho * formDeclaracion.alto;
 
     const factor = formFactorConversion.divisor_vol;
+    console.log(formFactorConversion);
 
     const pesoVolumetrico = dimensiones / factor;
     const pesoFacturable = Math.max(pesoReal, pesoVolumetrico);
