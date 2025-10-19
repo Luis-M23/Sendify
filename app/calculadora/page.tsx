@@ -727,7 +727,7 @@ export default function CalculatorPage() {
                     </div>
 
                     <Button className="w-full" size="lg">
-                      Confirmar Reserva
+                      Confirmar
                     </Button>
                   </CardContent>
                 </Card>
