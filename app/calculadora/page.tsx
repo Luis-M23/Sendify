@@ -30,7 +30,6 @@ import {
   Ship,
   Truck,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import { CalculadoraSchema, Calculadora } from "@/lib/validation/calculadora";
 import { FactorConversion } from "@/lib/validation/factorConversion";
@@ -42,6 +41,8 @@ import { CategoriaService } from "@/lib/supabase/services/categoriaService";
 import { Categoria } from "@/lib/validation/categoria";
 import { PermisoMap } from "@/lib/map";
 import { idTipoServicioEnum } from "@/lib/enum";
+import { CalculadoraService } from "@/lib/supabase/services/calculadoraService";
+import { Cotizacion } from "@/lib/validation/cotizacion";
 
 interface QuoteResult {
   pesoReal: number;
@@ -63,7 +64,7 @@ type MedioKey = "aereo" | "maritimo" | "terrestre";
 const defaultCalculadoraValues: Calculadora = {
   id_casillero: null,
   id_categoria: null,
-  servicio: undefined,
+  id_tipo_transporte: null,
   producto: "",
   peso: "",
   largo: "",
@@ -88,9 +89,7 @@ export default function CalculatorPage() {
   const idCategoria = watch("id_categoria");
   const idTipoTransporte = watch("id_tipo_transporte");
 
-  const servicio = watch("servicio");
-
-  const [factura, setFactura] = useState<QuoteResult | null>(null);
+  const [cotizacion, setCotizacion] = useState<Cotizacion | null>(null);
   const [isFormLocked, setIsFormLocked] = useState(false);
   const [formResetKey, setFormResetKey] = useState(0);
 
@@ -104,9 +103,13 @@ export default function CalculatorPage() {
   const [selectedCasillero, setSelectedCasillero] = useState<Casillero | null>(
     null
   );
+
   const [selectedCategoria, setSelectedCategoria] = useState<Categoria | null>(
     null
   );
+
+  const [selectedFactorConversion, setSelectedFactorConversion] =
+    useState<FactorConversion | null>(null);
 
   const loadData = async () => {
     try {
@@ -132,6 +135,12 @@ export default function CalculatorPage() {
     ) {
       const casilleroFind = casilleros.find((c) => c.id === idCasillero);
       setSelectedCasillero(casilleroFind || null);
+
+      const factorConversionFind = factoresConversion.find(
+        (c) => c.id === idCasillero
+      );
+
+      setSelectedFactorConversion(factorConversionFind || null);
     } else {
       setSelectedCasillero(null);
     }
@@ -200,60 +209,8 @@ export default function CalculatorPage() {
     loadData();
   }, []);
 
-  const calcularCotizacion = async (data: Calculadora) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1));
-
-      const pesoReal = Number.parseFloat(data.peso);
-      const dimensiones =
-        Number.parseFloat(data.largo) *
-        Number.parseFloat(data.ancho) *
-        Number.parseFloat(data.alto);
-      const factor = data.servicio === "aereo" ? 6000 : 4000;
-      const pesoVolumetrico = dimensiones / factor;
-      const pesoFacturable = Math.max(pesoReal, pesoVolumetrico);
-
-      const tarifaBase =
-        pesoFacturable *
-        (data.servicio === "aereo"
-          ? 25
-          : data.servicio === "maritimo"
-          ? 8
-          : 15);
-      const impuestos = tarifaBase * 0.15;
-      const recargoCombustible = tarifaBase * 0.08;
-      const descuento = tarifaBase * 0.1; // 10% VIP discount
-      const total = tarifaBase + impuestos + recargoCombustible - descuento;
-
-      setFactura({
-        pesoReal,
-        pesoVolumetrico,
-        pesoFacturable,
-        tarifaBase,
-        impuestos,
-        recargoCombustible,
-        descuento,
-        total,
-        tiempoEstimado:
-          data.servicio === "aereo"
-            ? "3-5 días"
-            : data.servicio === "maritimo"
-            ? "20-30 días"
-            : "7-10 días",
-        codigoCotizacion: `COT-${Date.now().toString().slice(-8)}`,
-      });
-
-      setIsFormLocked(true);
-
-      toast.success("Cotización calculada");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al calcular la cotización");
-    }
-  };
-
   const handleClearForm = () => {
-    setFactura(null);
+    setCotizacion(null);
     reset({ ...defaultCalculadoraValues });
     setValue("id_casillero", null, { shouldValidate: false });
     setValue("id_categoria", null, { shouldValidate: false });
@@ -268,7 +225,19 @@ export default function CalculatorPage() {
     if (isFormLocked) {
       return;
     }
-    calcularCotizacion(data);
+
+    if (selectedCasillero && selectedCategoria && selectedFactorConversion) {
+      const cotizacion = CalculadoraService.cotizar({
+        formDeclaracion: data,
+        formCasillero: selectedCasillero,
+        formCategoria: selectedCategoria,
+        formFactorConversion: selectedFactorConversion,
+      });
+      setCotizacion(cotizacion);
+      // setIsFormLocked(true);
+    } else {
+      toast.error("No se puede generar la cotización");
+    }
   };
 
   return (
@@ -547,7 +516,7 @@ export default function CalculatorPage() {
                   )}
                 </div>
 
-                <Separator/>
+                <Separator />
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -684,13 +653,13 @@ export default function CalculatorPage() {
 
           {/* Quote Result */}
           <div className="space-y-4">
-            {factura ? (
+            {cotizacion ? (
               <>
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Cotización</CardTitle>
                     <CardDescription className="font-mono text-xs">
-                      {factura.codigoCotizacion}
+                      {cotizacion.codigo}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -698,7 +667,7 @@ export default function CalculatorPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Peso Real</span>
                         <span className="font-medium">
-                          {factura.pesoReal.toFixed(2)} kg
+                          {cotizacion.peso.toFixed(2)} kg
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -706,7 +675,7 @@ export default function CalculatorPage() {
                           Peso Volumétrico
                         </span>
                         <span className="font-medium">
-                          {factura.pesoVolumetrico.toFixed(2)} kg
+                          {cotizacion.peso_volumetrico.toFixed(2)} kg
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -714,7 +683,7 @@ export default function CalculatorPage() {
                           Peso Facturable
                         </span>
                         <span className="font-semibold">
-                          {factura.pesoFacturable.toFixed(2)} kg
+                          {cotizacion.peso_facturable.toFixed(2)} kg
                         </span>
                       </div>
                     </div>
@@ -724,25 +693,27 @@ export default function CalculatorPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
-                          Tarifa Base
+                          Tarifa Aplicada (${cotizacion.tarifa_aplicada}/kg)
                         </span>
-                        <span>${factura.tarifaBase.toFixed(2)}</span>
+                        <span>${cotizacion.tarifa.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           Impuestos (15%)
                         </span>
-                        <span>${factura.impuestos.toFixed(2)}</span>
+                        <span>WIP</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           Recargo Combustible
                         </span>
-                        <span>${factura.recargoCombustible.toFixed(2)}</span>
+                        <span>WIP</span>
                       </div>
                       <div className="flex justify-between text-sm text-chart-4">
-                        <span>Descuento VIP (10%)</span>
-                        <span>-${factura.descuento.toFixed(2)}</span>
+                        <span>
+                          Descuento VIP ({cotizacion.descuento_aplicado}%)
+                        </span>
+                        <span>-${cotizacion.descuento.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -751,13 +722,8 @@ export default function CalculatorPage() {
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total</span>
                       <span className="text-2xl font-bold">
-                        ${factura.total.toFixed(2)}
+                        ${cotizacion.total.toFixed(2)}
                       </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Package className="h-4 w-4" />
-                      <span>Tiempo estimado: {factura.tiempoEstimado}</span>
                     </div>
 
                     <Button className="w-full" size="lg">
@@ -772,11 +738,11 @@ export default function CalculatorPage() {
                       <CheckCircle2 className="h-5 w-5 text-chart-4 flex-shrink-0 mt-0.5" />
                       <div className="space-y-1">
                         <p className="text-sm font-medium">
-                          Beneficio VIP Aplicado
+                          Recompensa Aplicada{" "}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Ahorraste ${factura.descuento.toFixed(2)} con tu
-                          membresía Oro
+                          Ahorraste ${cotizacion.descuento.toFixed(2)} con tu
+                          membresía
                         </p>
                       </div>
                     </div>

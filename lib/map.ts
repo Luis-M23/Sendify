@@ -19,6 +19,15 @@ export const RecompensaMap: Record<number, string> = {
   4: "Platino",
 };
 
+export const CasilleroCostoMap: Record<
+  number,
+  "costo_aereo" | "costo_maritimo" | "costo_terrestre"
+> = {
+  1: "costo_aereo",
+  2: "costo_maritimo",
+  3: "costo_terrestre",
+};
+
 export async function CategoriaMap(): Promise<Record<number, string>> {
   try {
     const categorias = await CategoriaService.getAll();

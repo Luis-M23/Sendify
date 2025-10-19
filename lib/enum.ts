@@ -12,6 +12,6 @@ export enum RolesSistema {
 
 export enum idTipoServicioEnum {
   AEREO = 1,
-  TERRESTRE = 2,
-  MARITIMO = 3,
+  MARITIMO = 2,
+  TERRESTRE = 3,
 }
