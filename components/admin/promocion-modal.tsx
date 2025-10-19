@@ -22,7 +22,7 @@ import {
   Promocion,
   ActualizarPromocion,
   CrearPromocion,
-} from "@/lib/validation";
+} from "@/lib/validation/promociones";
 
 export type PromotionAPIData = {
   id: number | null;
@@ -32,7 +32,6 @@ export type PromotionAPIData = {
   fecha_inicio: string;
   fecha_fin: string;
   activo: boolean;
-  uso_max: number;
   porcentaje_descuento: number;
   restricciones_categorias?: number[] | null;
 };
@@ -67,7 +66,6 @@ export function PromocionModal({
     resolver: zodResolver(PromocionSchema),
     defaultValues: {
       activo: true,
-      uso_max: 0,
       porcentaje_descuento: 0,
       restricciones_categorias: [],
       fecha_inicio: initialData?.fecha_inicio
@@ -92,7 +90,6 @@ export function PromocionModal({
     fecha_inicio: undefined,
     fecha_fin: undefined,
     activo: true,
-    uso_max: "",
     porcentaje_descuento: "",
     restricciones_categorias: [],
   };
@@ -111,7 +108,6 @@ export function PromocionModal({
           ? new Date(initialData.fecha_fin)
           : undefined,
         activo: initialData?.activo ?? true,
-        uso_max: initialData?.uso_max || "",
         porcentaje_descuento: initialData?.porcentaje_descuento || "",
         restricciones_categorias: initialData?.restricciones_categorias || [],
       };
@@ -130,7 +126,6 @@ export function PromocionModal({
       fecha_inicio: new Date(data.fecha_inicio),
       fecha_fin: new Date(data.fecha_fin),
       activo: data.activo,
-      uso_max: data.uso_max,
       porcentaje_descuento: data.porcentaje_descuento,
       restricciones_categorias:
         data.restricciones_categorias &&
@@ -242,19 +237,6 @@ export function PromocionModal({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="uso_max">Uso Máximo *</Label>
-              <Input
-                type="number"
-                {...register("uso_max", { valueAsNumber: true })}
-              />
-              {errors.uso_max && (
-                <p className="text-sm text-destructive">
-                  {errors.uso_max.message}
-                </p>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="porcentaje_descuento">Descuento % *</Label>
               <Input

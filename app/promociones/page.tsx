@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { PromocionService } from "@/lib/supabase/services/promocionService";
 import { useEffect, useState } from "react";
-import { Promocion } from "@/lib/validation";
+import { Promocion } from "@/lib/validation/promociones";
 import { PromocionCard } from "@/components/promociones/promocion-card";
 import { Loader2 } from "lucide-react";
 import { CategoriaMap } from "@/lib/map";

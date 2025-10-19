@@ -10,11 +10,6 @@ export const PromocionSchema = z.object({
   activo: z.boolean().default(true),
   envio_gratis: z.boolean().default(true),
   uso_actual: z.number().min(0).max(1000000).default(0),
-  uso_max: z
-    .number({ message: "Debe ser un digito" })
-    .min(1, "El uso máximo debe ser mayor a 1")
-    .max(1000000, "El uso máximo no debe superar 1000000")
-    .default(0),
   porcentaje_descuento: z
     .number({ message: "Debe ser un digito" })
     .min(1, "El porcentaje debe ser mayor a 1")

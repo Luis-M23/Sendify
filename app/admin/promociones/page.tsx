@@ -214,11 +214,6 @@ export default function PromotionsAdminPage() {
     return endDate < now;
   };
 
-  const getUsagePercentage = (promotion: Promocion) => {
-    if (!promotion.uso_max || promotion.uso_max === 0) return 0;
-    return (promotion.uso_actual / promotion.uso_max) * 100;
-  };
-
   function parseLocalDate(dateString: string) {
     const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
@@ -281,21 +276,7 @@ export default function PromotionsAdminPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Uso Total
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {promocionesMemo.reduce((sum, p) => sum + p.uso_actual, 0)}
-                  </div>
-                </CardContent>
-              </Card>
-
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -352,7 +333,6 @@ export default function PromotionsAdminPage() {
                     <TableHead className="text-left">Promoción</TableHead>
                     <TableHead className="text-center">Período</TableHead>
                     <TableHead className="text-left">Categorías</TableHead>
-                    <TableHead className="text-center">Uso</TableHead>
                     <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
@@ -396,27 +376,6 @@ export default function PromotionsAdminPage() {
                             )}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {promotion.uso_max && promotion.uso_max > 0 ? (
-                          <div className="text-sm">
-                            <div>
-                              {promotion.uso_actual}/{promotion.uso_max}
-                            </div>
-                            <div className="w-16 bg-muted rounded-full h-1.5 mt-1 mx-auto">
-                              <div
-                                className="bg-primary h-1.5 rounded-full"
-                                style={{
-                                  width: `${getUsagePercentage(promotion)}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="font-medium">
-                            {promotion.uso_actual}
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell className="text-center">
                         {!promotion.activo ? (
