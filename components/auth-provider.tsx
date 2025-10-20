@@ -6,6 +6,7 @@ import { RolesSistema } from "@/lib/enum";
 import { Recompensa } from "@/lib/validation/recompensa";
 import { RecompensaService } from "@/lib/supabase/services/recompensaService";
 import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
+import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 
 type AuthContextState = {
   user: User | null;
@@ -13,6 +14,7 @@ type AuthContextState = {
   isAuthenticated: boolean;
   loading: boolean;
   recompensa: Recompensa | null;
+  usuarioMetadata: UsuarioMetadata | null;
 };
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recompensa, setRecompensa] = useState<Recompensa | null>(null);
+  const [usuarioMetadata, setUsuarioMetadata] =
+    useState<UsuarioMetadata | null>(null);
 
   async function checkUsuarioMetadata() {
     const id = user?.id ?? null;
@@ -39,6 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           usuario.compras_realizadas
         );
         setRecompensa(recompensa);
+        console.log({usuario});
+        setUsuarioMetadata(usuario);
       } catch (error) {
         console.error(error);
       }
@@ -88,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated,
     loading,
     recompensa,
+    usuarioMetadata,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
