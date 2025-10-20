@@ -56,7 +56,7 @@ const parseBeneficios = (beneficios?: string | null) =>
 
 export default function RecompensasPage() {
   const { recompensa, usuarioMetadata } = useAuth();
-  const [currentLevel] = useState(recompensa?.id);
+  const currentLevel = recompensa?.id;
   const [recompensas, setRecompensas] = useState<Recompensa[]>([]);
   const [loadingLevels, setLoadingLevels] = useState(true);
 
