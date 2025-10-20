@@ -25,5 +25,11 @@ export async function registerService({
     throw new Error(translated);
   }
 
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    throw new Error("Error al cerrar sesión");
+  }
+
   return true;
 }

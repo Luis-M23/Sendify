@@ -38,12 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (id) {
       try {
-        const usuario = await UsuarioMetadataService.firstOrCreate(id);
+        const usuario = await UsuarioMetadataService.firstOrCreate(
+          id,
+          user?.user_metadata?.nombre
+        );
         const recompensa = await RecompensaService.getNivel(
           usuario.compras_realizadas
         );
         setRecompensa(recompensa);
-        console.log({usuario});
+        console.log({ usuario });
         setUsuarioMetadata(usuario);
       } catch (error) {
         console.error(error);

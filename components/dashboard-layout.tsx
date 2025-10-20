@@ -15,27 +15,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Package,
-  Calculator,
-  Shield,
-  MapPin,
-  FileText,
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  User,
-  Bell,
-  Globe,
-  Folder,
-  Gift,
-  Users,
-  Crown,
-  Navigation,
-} from "lucide-react";
+import { Package, Menu, X, LogOut, User, Bell } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { adminNavigation, navigation } from "@/lib/navigation";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/lib/supabase/services/authService";
 import { toast } from "react-toastify";
@@ -46,35 +29,6 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const navigation = [
-  { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
-  { name: "Restricciones", href: "/restricciones", icon: Shield },
-  { name: "Promociones", href: "/promociones", icon: Gift },
-  { name: "Recompensas", href: "/recompensas", icon: Crown },
-  { name: "Seguimiento", href: "/tracking", icon: Package },
-  { name: "Mis Paquetes", href: "/delivery", icon: Navigation },
-  { name: "Reportes", href: "/reports", icon: FileText },
-];
-
-const adminNavigation = [
-  { name: "Panel Admin", href: "/admin", icon: Settings },
-  {
-    name: "Factores de conversión",
-    href: "/admin/factores-conversion",
-    icon: Package,
-  },
-  { name: "Casilleros", href: "/admin/casilleros", icon: Globe },
-  { name: "Direcciones", href: "/admin/direcciones", icon: MapPin },
-  { name: "Categorías", href: "/admin/categorias", icon: Folder },
-  { name: "Promociones", href: "/admin/promociones", icon: Gift },
-  {
-    name: "Recompensas",
-    href: "/admin/recompensas",
-    icon: Crown,
-  },
-  { name: "Usuarios", href: "/admin/usuarios", icon: Users },
-];
-
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -83,13 +37,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleLogout = async () => {
     try {
+      router.push("/");
       await AuthService.logout();
       toast.success("Sesión cerrada correctamente");
-      router.push("/");
     } catch (err: any) {
       toast.error(err.message || "Ocurrió un error al cerrar sesión");
     }
   };
+
+  console.log(rol);
 
   const isAdmin = rol === RolesSistema.ADMINISTRADOR;
   const isVIP = true;

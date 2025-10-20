@@ -14,19 +14,22 @@ export const UsuarioMetadataService = {
       .from(TABLE_NAME)
       .select("*")
       .eq("id_usuario", id_usuario)
-      .single();
+      .limit(1);
 
-    if (error && error.code !== "PGRST116") {
+    if (error) {
       throw new Error(
         supabaseErrorMap[error.code] ||
           "Error al obtener los metadatos del usuario"
       );
     }
 
-    return (data as UsuarioMetadata) || null;
+    return data && data.length > 0 ? (data[0] as UsuarioMetadata) : null;
   },
 
-  async firstOrCreate(id_usuario: string): Promise<UsuarioMetadata> {
+  async firstOrCreate(
+    id_usuario: string,
+    nombre_completo: string = ""
+  ): Promise<UsuarioMetadata> {
     const existente = await this.getById(id_usuario);
     if (existente) {
       return existente;
@@ -34,7 +37,7 @@ export const UsuarioMetadataService = {
 
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .insert([{ id_usuario }])
+      .insert([{ id_usuario, nombre_completo }])
       .select()
       .single();
 

@@ -56,8 +56,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await registerService(formData);
-      toast.success("¡Usuario registrado correctamente!");
-      router.push("/dashboard");
+      toast.success("Usuario registrado, debes iniciar sesión");
+      router.push("/login");
     } catch (err: any) {
       toast.error(
         err.message || "Ocurrió un error inesperado. Intenta de nuevo."
