@@ -22,7 +22,7 @@ export const PaqueteService = {
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("id", { ascending: false });
 
     if (error) {
       throw new Error(

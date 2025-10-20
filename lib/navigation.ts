@@ -68,6 +68,11 @@ export const adminNavigation: NavigationItem[] = [
     icon: Crown,
   },
   {
+    name: "Paquetes",
+    href: "/admin/paquetes",
+    icon: Package,
+  },
+  {
     name: "Usuarios",
     href: "/admin/usuarios",
     icon: Users,

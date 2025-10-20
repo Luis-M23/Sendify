@@ -16,6 +16,7 @@ export const FacturaSchema = z.array(FacturaItemSchema);
 
 export const PaqueteSchema = z
   .object({
+    id: z.number().optional(),
     codigo: z.string(),
     total: z.number(),
     factura: FacturaSchema,
