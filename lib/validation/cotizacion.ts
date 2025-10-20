@@ -4,7 +4,7 @@ import { FactorConversionSchema } from "./factorConversion";
 import { CasilleroSchema } from "./casillero";
 import { CategoriaSchema } from "./categoria";
 import { RecompensaSchema } from "./recompensa";
-import { EstadoEnvioSchema, EstadosEnvio } from "./estadoEnvio";
+import { EstadoSeguimientoSchema } from "./estadoEnvio";
 
 export const FacturaItemSchema = z.object({
   clave: z.string().min(1, "La clave es obligatoria"),
@@ -27,10 +27,10 @@ const CotizacionBaseSchema = z.object({
   codigo: z.string(),
   total: z.number(),
   factura: FacturaSchema,
-  estado_seguimiento: z.array(EstadoEnvioSchema),
+  estado_seguimiento: z.array(EstadoSeguimientoSchema),
 });
 
-export const CotizacionCalculoSchema = CotizacionBaseSchema.pick({
+export const PaqueteSchema = CotizacionBaseSchema.pick({
   formDeclaracion: true,
   formFactorConversion: true,
   formCasillero: true,
@@ -46,7 +46,8 @@ export const CotizacionSchema = CotizacionBaseSchema.omit({
   recompensaActual: true,
 }).merge(CalculadoraSchema);
 
-export type Cotizacion = z.infer<typeof CotizacionSchema>;
 export type Factura = z.infer<typeof FacturaSchema>;
 export type FacturaItem = z.infer<typeof FacturaItemSchema>;
-export type CotizacionCalculo = z.infer<typeof CotizacionCalculoSchema>;
+
+export type Cotizacion = z.infer<typeof CotizacionSchema>;
+export type Paquetes = z.infer<typeof PaqueteSchema>;

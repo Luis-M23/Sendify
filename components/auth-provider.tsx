@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           usuario.compras_realizadas
         );
         setRecompensa(recompensa);
-        console.log({ usuario });
         setUsuarioMetadata(usuario);
       } catch (error) {
         console.error(error);

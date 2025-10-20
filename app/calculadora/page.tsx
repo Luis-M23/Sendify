@@ -42,8 +42,8 @@ import { Categoria } from "@/lib/validation/categoria";
 import { PermisoMap } from "@/lib/map";
 import { idTipoServicioEnum } from "@/lib/enum";
 import { CalculadoraService } from "@/lib/supabase/services/calculadoraService";
-import { Cotizacion } from "@/lib/validation/cotizacion";
 import { useAuth } from "@/components/auth-provider";
+import { Paquete } from "@/lib/validation/paquete";
 
 interface QuoteResult {
   pesoReal: number;
@@ -91,7 +91,7 @@ export default function CalculatorPage() {
   const idCategoria = watch("id_categoria");
   const idTipoTransporte = watch("id_tipo_transporte");
 
-  const [cotizacion, setCotizacion] = useState<Cotizacion | null>(null);
+  const [paquete, setPaquete] = useState<Paquete | null>(null);
   const [isFormLocked, setIsFormLocked] = useState(false);
   const [formResetKey, setFormResetKey] = useState(0);
 
@@ -212,7 +212,7 @@ export default function CalculatorPage() {
   }, []);
 
   const handleClearForm = () => {
-    setCotizacion(null);
+    setPaquete(null);
     reset({ ...defaultCalculadoraValues });
     setValue("id_casillero", null, { shouldValidate: false });
     setValue("id_categoria", null, { shouldValidate: false });
@@ -229,14 +229,16 @@ export default function CalculatorPage() {
     }
 
     if (selectedCasillero && selectedCategoria && selectedFactorConversion) {
-      const cotizacion = CalculadoraService.cotizar({
+      const paqueteCalculado = CalculadoraService.cotizar({
         formDeclaracion: data,
         formCasillero: selectedCasillero,
         formCategoria: selectedCategoria,
         formFactorConversion: selectedFactorConversion,
         recompensaActual: recompensa,
       });
-      setCotizacion(cotizacion);
+
+      console.log({ paqueteCalculado });
+      setPaquete(paqueteCalculado);
       // setIsFormLocked(true);
     } else {
       toast.error("No se puede generar la cotización");
@@ -656,19 +658,19 @@ export default function CalculatorPage() {
 
           {/* Quote Result */}
           <div className="space-y-4">
-            {cotizacion ? (
+            {paquete ? (
               <>
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Cotización</CardTitle>
                     <CardDescription className="font-mono text-xs">
-                      {cotizacion.codigo}
+                      {paquete.codigo}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      {cotizacion.factura.map((item, index) => {
-                        const isLast = index === cotizacion.factura.length - 1;
+                      {paquete.factura.map((item, index) => {
+                        const isLast = index === paquete.factura.length - 1;
 
                         return (
                           <React.Fragment key={index}>

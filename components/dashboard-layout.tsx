@@ -45,8 +45,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   };
 
-  console.log(rol);
-
   const isAdmin = rol === RolesSistema.ADMINISTRADOR;
   const isVIP = true;
 
