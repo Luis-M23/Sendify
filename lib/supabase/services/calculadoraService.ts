@@ -4,6 +4,7 @@ import {
   CotizacionCalculo,
   FacturaItem,
 } from "@/lib/validation/cotizacion";
+import { EstadoSeguimientoDefault } from "@/lib/validation/estadoEnvio";
 
 export const CalculadoraService = {
   cotizar(payload: CotizacionCalculo): Cotizacion {
@@ -85,6 +86,7 @@ export const CalculadoraService = {
       codigo: `${formCasillero.codigo}-${Date.now().toString().slice(-8)}`,
       total: +total.toFixed(2),
       factura,
+      estado_seguimiento: EstadoSeguimientoDefault
     };
   },
 };

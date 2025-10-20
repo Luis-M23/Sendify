@@ -4,6 +4,7 @@ import { FactorConversionSchema } from "./factorConversion";
 import { CasilleroSchema } from "./casillero";
 import { CategoriaSchema } from "./categoria";
 import { RecompensaSchema } from "./recompensa";
+import { EstadoEnvioSchema, EstadosEnvio } from "./estadoEnvio";
 
 export const FacturaItemSchema = z.object({
   clave: z.string().min(1, "La clave es obligatoria"),
@@ -26,6 +27,7 @@ const CotizacionBaseSchema = z.object({
   codigo: z.string(),
   total: z.number(),
   factura: FacturaSchema,
+  estado_seguimiento: z.array(EstadoEnvioSchema),
 });
 
 export const CotizacionCalculoSchema = CotizacionBaseSchema.pick({
