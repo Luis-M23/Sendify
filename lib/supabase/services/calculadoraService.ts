@@ -58,8 +58,8 @@ export const CalculadoraService = {
     });
 
     const impuestos = tarifa * 0.13;
-    const descuento_aplicado = recompensaActual?.porcentaje_descuento || 0;
-    const descuento = tarifa * descuento_aplicado;
+    const descuentoRecompensa = recompensaActual?.porcentaje_descuento || 0;
+    const descuento = tarifa * (descuentoRecompensa / 100);
 
     factura.push({
       prioridad: "default",
@@ -67,11 +67,19 @@ export const CalculadoraService = {
       valor: String(impuestos.toFixed(2)),
     });
 
-    factura.push({
-      prioridad: "promo",
-      clave: `Recompensa (${descuento_aplicado}%)`,
-      valor: String(descuento.toFixed(2)),
-    });
+    if (descuentoRecompensa) {
+      factura.push({
+        prioridad: "promo",
+        clave: `Recompensa (-${descuentoRecompensa}%)`,
+        valor: String(-descuento.toFixed(2)),
+      });
+    } else {
+      factura.push({
+        prioridad: "promo",
+        clave: `Sin Recompensa`,
+        valor: "0",
+      });
+    }
 
     const total = tarifa + impuestos - descuento;
 
@@ -86,7 +94,7 @@ export const CalculadoraService = {
       codigo: `${formCasillero.codigo}-${Date.now().toString().slice(-8)}`,
       total: +total.toFixed(2),
       factura,
-      estado_seguimiento: EstadoSeguimientoDefault
+      estado_seguimiento: EstadoSeguimientoDefault,
     };
   },
 };
