@@ -26,12 +26,9 @@ const perfilSchema = z.object({
   nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
 });
 
-const addressSchema = z.object({
-  street: z.string().min(5, "La dirección debe tener al menos 5 caracteres"),
-  city: z.string().min(2, "La ciudad es requerida"),
-  state: z.string().min(2, "El estado/provincia es requerido"),
-  zipCode: z.string().min(4, "El código postal es requerido"),
-  country: z.string().min(2, "El país es requerido"),
+const direccionSchema = z.object({
+  direccion: z.string().min(5, "La dirección debe tener al menos 5 caracteres"),
+  telefono: z.string().min(8, "El teléfono debe tener al menos 8 caracteres"),
 });
 
 const passwordSchema = z
@@ -50,7 +47,7 @@ const passwordSchema = z
   });
 
 type ProfileFormData = z.infer<typeof perfilSchema>;
-type AddressFormData = z.infer<typeof addressSchema>;
+type AddressFormData = z.infer<typeof direccionSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
@@ -64,13 +61,10 @@ export default function ProfilePage() {
   });
 
   const addressForm = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
+    resolver: zodResolver(direccionSchema),
     defaultValues: {
-      street: "Calle Principal 123",
-      city: "Ciudad",
-      state: "Estado",
-      zipCode: "12345",
-      country: "País",
+      direccion: "",
+      telefono: "",
     },
   });
 
@@ -192,7 +186,7 @@ export default function ProfilePage() {
           <TabsContent value="address" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Dirección Principal</CardTitle>
+                <CardTitle>Dirección de Entrega</CardTitle>
                 <CardDescription>
                   Actualiza tu dirección de envío predeterminada
                 </CardDescription>
@@ -203,65 +197,30 @@ export default function ProfilePage() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="street">Calle y Número</Label>
+                    <Label htmlFor="direccion">Dirección</Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="street"
-                        {...addressForm.register("street")}
+                        id="direccion"
+                        {...addressForm.register("direccion")}
                         className="pl-9"
+                        placeholder="San Salvador, San Salvador, Calle Principal Avenida Norte"
                       />
                     </div>
-                    {addressForm.formState.errors.street && (
+                    {addressForm.formState.errors.direccion && (
                       <p className="text-sm text-destructive">
-                        {addressForm.formState.errors.street.message}
+                        {addressForm.formState.errors.direccion.message}
                       </p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="city">Ciudad</Label>
-                      <Input id="city" {...addressForm.register("city")} />
-                      {addressForm.formState.errors.city && (
+                      <Label htmlFor="telefono">Teléfono</Label>
+                      <Input id="telefono" {...addressForm.register("telefono")} placeholder="+503 7060-8050"/>
+                      {addressForm.formState.errors.telefono && (
                         <p className="text-sm text-destructive">
-                          {addressForm.formState.errors.city.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="state">Estado/Provincia</Label>
-                      <Input id="state" {...addressForm.register("state")} />
-                      {addressForm.formState.errors.state && (
-                        <p className="text-sm text-destructive">
-                          {addressForm.formState.errors.state.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="zipCode">Código Postal</Label>
-                      <Input
-                        id="zipCode"
-                        {...addressForm.register("zipCode")}
-                      />
-                      {addressForm.formState.errors.zipCode && (
-                        <p className="text-sm text-destructive">
-                          {addressForm.formState.errors.zipCode.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="country">País</Label>
-                      <Input
-                        id="country"
-                        {...addressForm.register("country")}
-                      />
-                      {addressForm.formState.errors.country && (
-                        <p className="text-sm text-destructive">
-                          {addressForm.formState.errors.country.message}
+                          {addressForm.formState.errors.telefono.message}
                         </p>
                       )}
                     </div>
