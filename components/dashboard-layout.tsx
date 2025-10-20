@@ -50,7 +50,7 @@ const navigation = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Promociones", href: "/promociones", icon: Gift },
-  { name: "Recompensas", href: "/recompensas", icon: Crown },  
+  { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Mis Paquetes", href: "/delivery", icon: Navigation },
   { name: "Reportes", href: "/reports", icon: FileText },
@@ -79,7 +79,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const { rol, user } = useAuth();
+  const { rol, user, recompensa } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -231,7 +231,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>
                     <Badge className="w-full justify-center bg-chart-4/20 text-chart-4">
-                      Cliente VIP - Oro
+                      {recompensa?.nivel || "Miembro"}
                     </Badge>
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild>

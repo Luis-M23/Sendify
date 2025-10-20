@@ -54,7 +54,7 @@ type AddressFormData = z.infer<typeof addressSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, recompensa } = useAuth();
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(perfilSchema),
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                     </CardDescription>
                     <CardDescription>
                       <Badge className="bg-chart-4/20 text-chart-4">
-                        VIP - Oro
+                        {recompensa?.nivel || "Miembro"}
                       </Badge>
                     </CardDescription>
                   </div>
