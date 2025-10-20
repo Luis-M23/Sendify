@@ -182,7 +182,7 @@ export default function RecompensasPage() {
                             <CardTitle className="text-xl">
                               {level.nivel}
                             </CardTitle>
-                            <CardDescription className="text-md">
+                            <CardDescription className="text-md font-bold">
                               Requiere {level.requisito_compras} compras
                               registradas
                             </CardDescription>
