@@ -704,12 +704,11 @@ export default function CalculatorPage() {
 
                             {index === 2 && <Separator />}
                             {isLast && <Separator />}
-
                           </React.Fragment>
                         );
                       })}
                     </div>
-                    <Button className="w-full" size="lg">
+                    <Button className="w-full mt-5" size="lg">
                       Confirmar
                     </Button>
                   </CardContent>

@@ -158,7 +158,7 @@ export default function UsersAdminPage() {
                       <TableCell className="text-center">
                         <div className="flex justify-center">
                           <Select
-                            disabled={user.id === currentUserId}
+                            // disabled={user.id === currentUserId}
                             value={user.rol}
                             onValueChange={(val) =>
                               handleRoleChange(user, val as UserRow["rol"])
