@@ -1,13 +1,13 @@
 import { CasilleroCostoMap } from "@/lib/map";
 import {
   Cotizacion,
-  CotizacionCalculo,
   FacturaItem,
 } from "@/lib/validation/cotizacion";
 import { EstadoSeguimientoDefault } from "@/lib/validation/estadoEnvio";
+import { Paquete } from "@/lib/validation/paquete";
 
 export const CalculadoraService = {
-  cotizar(payload: CotizacionCalculo): Cotizacion {
+  cotizar(payload: Cotizacion): Paquete {
     const factura: FacturaItem[] = [];
 
     const {

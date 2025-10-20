@@ -44,6 +44,7 @@ import { idTipoServicioEnum } from "@/lib/enum";
 import { CalculadoraService } from "@/lib/supabase/services/calculadoraService";
 import { useAuth } from "@/components/auth-provider";
 import { Paquete } from "@/lib/validation/paquete";
+import { PaqueteService } from "@/lib/supabase/services/paqueteService";
 
 interface QuoteResult {
   pesoReal: number;
@@ -74,6 +75,8 @@ const defaultCalculadoraValues: Calculadora = {
 };
 
 export default function CalculatorPage() {
+  const { user, recompensa } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -85,7 +88,6 @@ export default function CalculatorPage() {
     resolver: zodResolver(CalculadoraSchema),
     defaultValues: defaultCalculadoraValues,
   });
-  const { recompensa } = useAuth();
 
   const idCasillero = watch("id_casillero");
   const idCategoria = watch("id_categoria");
@@ -221,6 +223,20 @@ export default function CalculatorPage() {
     setSelectedCategoria(null);
     setIsFormLocked(false);
     setFormResetKey((key) => key + 1);
+  };
+
+  const confirmarPaquete = async () => {
+    try {
+      if (user && paquete) {
+        await PaqueteService.create(user, paquete);
+        handleClearForm();
+        toast.success("Paquete registrado");
+      } else {
+        toast.error("No se puede generar la reserva");
+      }
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   const onSubmit = (data: Calculadora) => {
@@ -710,7 +726,11 @@ export default function CalculatorPage() {
                         );
                       })}
                     </div>
-                    <Button className="w-full mt-5" size="lg">
+                    <Button
+                      className="w-full mt-5"
+                      size="lg"
+                      onClick={confirmarPaquete}
+                    >
                       Confirmar
                     </Button>
                   </CardContent>

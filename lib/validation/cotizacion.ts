@@ -30,7 +30,7 @@ const CotizacionBaseSchema = z.object({
   estado_seguimiento: z.array(EstadoSeguimientoSchema),
 });
 
-export const PaqueteSchema = CotizacionBaseSchema.pick({
+export const CotizacionSchema = CotizacionBaseSchema.pick({
   formDeclaracion: true,
   formFactorConversion: true,
   formCasillero: true,
@@ -38,16 +38,16 @@ export const PaqueteSchema = CotizacionBaseSchema.pick({
   recompensaActual: true,
 });
 
-export const CotizacionSchema = CotizacionBaseSchema.omit({
-  formDeclaracion: true,
-  formFactorConversion: true,
-  formCasillero: true,
-  formCategoria: true,
-  recompensaActual: true,
-}).merge(CalculadoraSchema);
+// export const CotizacionSchema = CotizacionBaseSchema.omit({
+//   formDeclaracion: true,
+//   formFactorConversion: true,
+//   formCasillero: true,
+//   formCategoria: true,
+//   recompensaActual: true,
+// }).merge(CalculadoraSchema);
 
 export type Factura = z.infer<typeof FacturaSchema>;
 export type FacturaItem = z.infer<typeof FacturaItemSchema>;
 
 export type Cotizacion = z.infer<typeof CotizacionSchema>;
-export type Paquetes = z.infer<typeof PaqueteSchema>;
+// export type Paquetes = z.infer<typeof Coti>;
