@@ -19,6 +19,11 @@ export type Direccion = z.infer<typeof DireccionSchema>;
 export const CrearDireccionSchema = DireccionSchema.omit({
   id: true,
   created_at: true,
+}).extend({
+  id_distrito: z.number({
+    required_error: "Selecciona un distrito",
+    invalid_type_error: "Selecciona un distrito válido",
+  }),
 });
 
 export type CrearDireccion = z.infer<typeof CrearDireccionSchema>;

@@ -68,6 +68,8 @@ export function DireccionModal({
     formState: { errors },
     control,
     reset,
+    setError,
+    clearErrors,
   } = useForm<Direccion>({
     resolver: zodResolver(
       mode === "add" ? CrearDireccionSchema : DireccionSchema
@@ -76,6 +78,15 @@ export function DireccionModal({
   });
 
   const handleFormSubmit = (data: Direccion) => {
+    if (!data.id_distrito) {
+      setError("id_distrito", {
+        type: "manual",
+        message: "Selecciona un distrito",
+      });
+      toast.error("Debes seleccionar un distrito antes de continuar");
+      return;
+    }
+
     onSubmit(data);
     toast.success(
       mode === "add" ? "Direccion agregado" : "Direccion actualizado"
@@ -151,6 +162,7 @@ export function DireccionModal({
               <Controller
                 control={control}
                 name="id_distrito"
+                rules={{ required: "Selecciona un distrito" }}
                 render={({ field }) => {
                   const selectedDistrito = distritos.find(
                     (item) => item.id === field.value
@@ -193,6 +205,7 @@ export function DireccionModal({
                                   onSelect={() => {
                                     field.onChange(distrito.id);
                                     field.onBlur();
+                                    clearErrors("id_distrito");
                                     setDistritoPopoverOpen(false);
                                   }}
                                 >
@@ -250,7 +263,7 @@ export function DireccionModal({
               Cancelar
             </Button>
             <Button type="submit">
-              {mode === "add" ? "Agregar Direccion" : "Guardar Cambios"}
+              {mode === "add" ? "Agregar Dirección" : "Guardar Cambios"}
             </Button>
           </DialogFooter>
         </form>
