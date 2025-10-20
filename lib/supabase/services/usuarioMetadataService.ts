@@ -1,4 +1,7 @@
-import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
+import {
+  DireccionEntrega,
+  UsuarioMetadata,
+} from "@/lib/validation/usuarioMetadata";
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
 
@@ -72,6 +75,52 @@ export const UsuarioMetadataService = {
       throw new Error(
         supabaseErrorMap[updateError.code] ||
           "Error al incrementar compras_realizadas"
+      );
+    }
+
+    return data as UsuarioMetadata;
+  },
+
+  async updateNombreCompleto(
+    id_usuario: string,
+    nombre_completo: string
+  ): Promise<UsuarioMetadata> {
+    await this.firstOrCreate(id_usuario);
+
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .update({ nombre_completo })
+      .eq("id_usuario", id_usuario)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al actualizar el nombre completo del usuario"
+      );
+    }
+
+    return data as UsuarioMetadata;
+  },
+
+  async updateDireccionEntrega(
+    id_usuario: string,
+    direccion_entrega: DireccionEntrega
+  ): Promise<UsuarioMetadata> {
+    await this.firstOrCreate(id_usuario);
+
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .update({ direccion_entrega })
+      .eq("id_usuario", id_usuario)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al actualizar la dirección de entrega"
       );
     }
 

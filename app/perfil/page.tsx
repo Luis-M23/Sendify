@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -21,6 +21,7 @@ import * as z from "zod";
 import { User, Mail, MapPin, Shield } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { AuthService } from "@/lib/supabase/services/authService";
+import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
 
 const perfilSchema = z.object({
   nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
@@ -51,20 +52,20 @@ type AddressFormData = z.infer<typeof direccionSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
-  const { user, recompensa } = useAuth();
+  const { user, recompensa, usuarioMetadata } = useAuth();
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(perfilSchema),
     defaultValues: {
-      nombre: user?.user_metadata?.nombre,
+      nombre: usuarioMetadata?.nombre_completo ?? "",
     },
   });
 
   const addressForm = useForm<AddressFormData>({
     resolver: zodResolver(direccionSchema),
     defaultValues: {
-      direccion: "",
-      telefono: "",
+      direccion: usuarioMetadata?.direccion_entrega?.direccion ?? "",
+      telefono: usuarioMetadata?.direccion_entrega?.telefono ?? "",
     },
   });
 
@@ -72,18 +73,59 @@ export default function ProfilePage() {
     resolver: zodResolver(passwordSchema),
   });
 
+  useEffect(() => {
+    profileForm.reset({
+      nombre: usuarioMetadata?.nombre_completo ?? "",
+    });
+  }, [usuarioMetadata?.nombre_completo, profileForm]);
+
+  useEffect(() => {
+    addressForm.reset({
+      direccion: usuarioMetadata?.direccion_entrega?.direccion ?? "",
+      telefono: usuarioMetadata?.direccion_entrega?.telefono ?? "",
+    });
+  }, [usuarioMetadata?.direccion_entrega, addressForm]);
+
   const onProfileSubmit = async (data: ProfileFormData) => {
+    if (!user?.id) {
+      toast.error("No se encontró un usuario autenticado");
+      return;
+    }
+
     try {
+      await UsuarioMetadataService.updateNombreCompleto(user.id, data.nombre);
       await AuthService.updateProfile(data);
       toast.success("Perfil actualizado");
     } catch (error) {
-      toast.success("Error al actualizar el perfil");
-      console.error("Profile change error:", data);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al actualizar el perfil";
+      toast.error(message);
+      console.error("Profile change error:", error);
     }
   };
 
-  const onAddressSubmit = (data: AddressFormData) => {
-    toast.success("Dirección actualizada");
+  const onAddressSubmit = async (data: AddressFormData) => {
+    if (!user?.id) {
+      toast.error("No se encontró un usuario autenticado");
+      return;
+    }
+
+    try {
+      await UsuarioMetadataService.updateDireccionEntrega(user.id, {
+        direccion: data.direccion,
+        telefono: data.telefono,
+      });
+      toast.success("Dirección actualizada");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al actualizar la dirección";
+      toast.error(message);
+      console.error("Address change error:", error);
+    }
   };
 
   const onPasswordSubmit = async (data: PasswordFormData) => {
@@ -159,7 +201,7 @@ export default function ProfilePage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">Nombre de Contacto</Label>
+                      <Label htmlFor="firstName">Nombre Completo</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
