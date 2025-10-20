@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -667,68 +667,48 @@ export default function CalculatorPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Peso Real</span>
-                        <span className="font-medium">
-                          {cotizacion.peso.toFixed(2)} kg
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Peso Volumétrico
-                        </span>
-                        <span className="font-medium">
-                          {cotizacion.peso_volumetrico.toFixed(2)} kg
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Peso Facturable
-                        </span>
-                        <span className="font-semibold">
-                          {cotizacion.peso_facturable.toFixed(2)} kg
-                        </span>
-                      </div>
+                      {cotizacion.factura.map((item, index) => {
+                        const isLast = index === cotizacion.factura.length - 1;
+
+                        return (
+                          <React.Fragment key={index}>
+                            <div
+                              className={[
+                                "flex justify-between text-sm",
+                                item.prioridad === "promo"
+                                  ? "text-chart-4"
+                                  : "",
+                                item.prioridad === "default"
+                                  ? "text-muted-foreground"
+                                  : "",
+                              ].join(" ")}
+                            >
+                              <span
+                                className={
+                                  isLast
+                                    ? "text-lg font-semibold"
+                                    : "font-medium"
+                                }
+                              >
+                                {item.clave}
+                              </span>
+
+                              <span
+                                className={
+                                  isLast ? "text-2xl font-bold" : "font-medium"
+                                }
+                              >
+                                {item.valor}
+                              </span>
+                            </div>
+
+                            {index === 2 && <Separator />}
+                            {isLast && <Separator />}
+
+                          </React.Fragment>
+                        );
+                      })}
                     </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Tarifa Aplicada (${cotizacion.tarifa_aplicada}/kg)
-                        </span>
-                        <span>${cotizacion.tarifa.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Impuestos (15%)
-                        </span>
-                        <span>WIP</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Recargo Combustible
-                        </span>
-                        <span>WIP</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-chart-4">
-                        <span>
-                          Recompensa ({cotizacion.descuento_aplicado}%)
-                        </span>
-                        <span>-${cotizacion.descuento.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total</span>
-                      <span className="text-2xl font-bold">
-                        ${cotizacion.total.toFixed(2)}
-                      </span>
-                    </div>
-
                     <Button className="w-full" size="lg">
                       Confirmar
                     </Button>

@@ -5,6 +5,17 @@ import { CasilleroSchema } from "./casillero";
 import { CategoriaSchema } from "./categoria";
 import { RecompensaSchema } from "./recompensa";
 
+export const FacturaItemSchema = z.object({
+  clave: z.string().min(1, "La clave es obligatoria"),
+  valor: z.string().min(1, "El valor es obligatorio"),
+  prioridad: z.enum(["default", "important", "promo"], {
+    required_error: "La prioridad es obligatoria",
+    invalid_type_error: "Prioridad inválida",
+  }),
+});
+
+export const FacturaSchema = z.array(FacturaItemSchema);
+
 const CotizacionBaseSchema = z.object({
   formDeclaracion: CalculadoraSchema,
   formFactorConversion: FactorConversionSchema,
@@ -13,15 +24,8 @@ const CotizacionBaseSchema = z.object({
   recompensaActual: RecompensaSchema.nullable(),
 
   codigo: z.string(),
-  peso_volumetrico: z.number(),
-  peso_facturable: z.number(),
-  tarifa_aplicada: z.number(),
-  tarifa: z.number(),
-  descuento_aplicado: z.number(),
-  descuento: z.number(),
-  recompensa_aplicado: z.number(),
-  recompensa: z.number(),
   total: z.number(),
+  factura: FacturaSchema,
 });
 
 export const CotizacionCalculoSchema = CotizacionBaseSchema.pick({
@@ -41,4 +45,6 @@ export const CotizacionSchema = CotizacionBaseSchema.omit({
 }).merge(CalculadoraSchema);
 
 export type Cotizacion = z.infer<typeof CotizacionSchema>;
+export type Factura = z.infer<typeof FacturaSchema>;
+export type FacturaItem = z.infer<typeof FacturaItemSchema>;
 export type CotizacionCalculo = z.infer<typeof CotizacionCalculoSchema>;
