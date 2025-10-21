@@ -1,8 +1,5 @@
 import { CasilleroCostoMap } from "@/lib/map";
-import {
-  Cotizacion,
-  FacturaItem,
-} from "@/lib/validation/cotizacion";
+import { Cotizacion, FacturaItem } from "@/lib/validation/cotizacion";
 import { EstadoSeguimientoDefault } from "@/lib/validation/estadoEnvio";
 import { Paquete } from "@/lib/validation/paquete";
 
@@ -49,17 +46,16 @@ export const CalculadoraService = {
     const casilleroPrecio =
       formCasillero[CasilleroCostoMap[formFactorConversion.id]];
 
-    const tarifa = pesoFacturable * casilleroPrecio;
+    const tarifaAplicada = pesoFacturable * casilleroPrecio;
 
     factura.push({
       prioridad: "default",
       clave: `Tarifa Aplicada ($${casilleroPrecio}/kg)`,
-      valor: String(tarifa.toFixed(2)),
+      valor: String(tarifaAplicada.toFixed(2)),
     });
 
-    const impuestos = tarifa * 0.13;
-    const descuentoRecompensa = recompensaActual?.porcentaje_descuento || 0;
-    const descuento = tarifa * (descuentoRecompensa / 100);
+    const impuestos = tarifaAplicada * 0.13;
+    const subtotal = tarifaAplicada + impuestos;
 
     factura.push({
       prioridad: "default",
@@ -67,10 +63,19 @@ export const CalculadoraService = {
       valor: String(impuestos.toFixed(2)),
     });
 
-    if (descuentoRecompensa) {
+    factura.push({
+      prioridad: "default",
+      clave: `Subtotal ($)`,
+      valor: String(subtotal.toFixed(2)),
+    });
+
+    const recompensaPorcentaje = recompensaActual?.porcentaje_descuento || 0;
+    const descuento = subtotal * (recompensaPorcentaje / 100);
+
+    if (recompensaPorcentaje) {
       factura.push({
         prioridad: "promo",
-        clave: `Recompensa (-${descuentoRecompensa}%)`,
+        clave: `Recompensa (-${recompensaPorcentaje}%)`,
         valor: String(-descuento.toFixed(2)),
       });
     } else {
@@ -81,7 +86,7 @@ export const CalculadoraService = {
       });
     }
 
-    const total = tarifa + impuestos - descuento;
+    const total = tarifaAplicada + impuestos - descuento;
 
     factura.push({
       prioridad: "important",
