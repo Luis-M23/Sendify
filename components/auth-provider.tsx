@@ -10,14 +10,13 @@ import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 import { NotificacionService } from "@/lib/supabase/services/notificacionService";
 
 type AuthContextState = {
-  user: User | null;
-  rol: string | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  recompensa: Recompensa | null;
   usuarioMetadata: UsuarioMetadata | null;
-  hasUnread: boolean;
-  setHasUnread: (value: boolean) => void;
+  rol: RolesSistema;
+  recompensa: Recompensa | null;
+  notificacionesActivas: boolean;
+  cargando: boolean;
+  isAutenticado: boolean;
+  setNotificacionesActivas: (value: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -28,19 +27,16 @@ const supabase = createClient(
 );
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [rol, setRol] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [rol, setRol] = useState<RolesSistema>(RolesSistema.CLIENTE);
+  const [cargando, setCargando] = useState(true);
   const [recompensa, setRecompensa] = useState<Recompensa | null>(null);
-  const [hasUnread, setHasUnread] = useState<boolean>(false);
-
+  const [notificacionesActivas, setNotificacionesActivas] =
+    useState<boolean>(false);
+  const [isAutenticado, setIsAutenticado] = useState(true);
   const [usuarioMetadata, setUsuarioMetadata] =
     useState<UsuarioMetadata | null>(null);
 
-  async function checkUsuarioMetadata() {
-    const id = user?.id ?? null;
-
+  async function fetchUsuarioMetadata(id: string) {
     if (id) {
       try {
         const usuario = await UsuarioMetadataService.getById(id);
@@ -53,42 +49,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRecompensa(recompensa);
 
         const hasUnread = await NotificacionService.hasUnread(id);
-        setHasUnread(hasUnread);
+        setNotificacionesActivas(hasUnread);
+
+        setRol(usuario?.rol ?? RolesSistema.CLIENTE);
       } catch (error) {
         console.error(error);
       }
     }
   }
 
-  useEffect(() => {
-    checkUsuarioMetadata();
-  }, [user]);
+  const setAuthState = async (id: string | null) => {
+    setIsAutenticado(!!id);
 
-  const setAuthState = (currentUser: User | null) => {
-    setIsAuthenticated(!!currentUser);
-
-    if (currentUser) {
-      setUser(currentUser);
-      setRol(currentUser?.app_metadata?.rol ?? RolesSistema.CLIENTE);
+    if (id) {
+      fetchUsuarioMetadata(id);
     } else {
-      setUser(null);
-      setRol(null);
+      setUsuarioMetadata(null);
+      setRol(RolesSistema.CLIENTE);
     }
   };
 
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log({ event, session });
+        setCargando(true);
+
         if (event === "SIGNED_IN" && session) {
-          const currentUser = session?.user ?? null;
-          setAuthState(currentUser);
+          const id = session?.user?.id ?? null;
+          setAuthState(id);
         }
 
         if (event === "SIGNED_OUT") {
           setAuthState(null);
         }
 
-        setLoading(false);
+        setCargando(false);
       }
     );
 
@@ -98,14 +94,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value: AuthContextState = {
-    user,
-    rol,
-    isAuthenticated,
-    loading,
-    recompensa,
     usuarioMetadata,
-    hasUnread,
-    setHasUnread,
+    rol,
+    cargando,
+    recompensa,
+    notificacionesActivas,
+    isAutenticado,
+    setNotificacionesActivas,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
