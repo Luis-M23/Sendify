@@ -17,6 +17,7 @@ type AuthContextState = {
   recompensa: Recompensa | null;
   usuarioMetadata: UsuarioMetadata | null;
   hasUnread: boolean;
+  setHasUnread: (value: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -106,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     recompensa,
     usuarioMetadata,
     hasUnread,
+    setHasUnread,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

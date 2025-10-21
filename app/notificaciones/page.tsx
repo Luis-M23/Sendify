@@ -24,13 +24,15 @@ import { useAuth } from "@/components/auth-provider";
 
 export default function NotificationsPage() {
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
-  
+  const { user, loading: authLoading, setHasUnread } = useAuth();
+
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setHasUnread(false);
+
     const loadNotifications = async () => {
       if (authLoading) return;
       if (!user) {
@@ -57,7 +59,7 @@ export default function NotificationsPage() {
     };
 
     loadNotifications();
-  }, [authLoading, user]);
+  }, [authLoading, user, setHasUnread]);
 
   const unreadCount = notifications.filter((n) => !n.leido).length;
 
@@ -232,7 +234,9 @@ export default function NotificationsPage() {
               {loading
                 ? "Cargando tus notificaciones..."
                 : `Tienes ${unreadCount} ${
-                    unreadCount === 1 ? "notificación nueva" : "notificaciones nuevas"
+                    unreadCount === 1
+                      ? "notificación nueva"
+                      : "notificaciones nuevas"
                   }`}
             </p>
           </div>
