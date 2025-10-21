@@ -9,6 +9,7 @@ import { ThemedToastContainer } from "@/components/themed-toast-container";
 import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 import { AppLoader } from "@/components/app-loader";
+import { AppNotification } from "@/components/app-notification";
 
 export const metadata: Metadata = {
   title: "ShipGlobal - Sistema de Gestión de Envíos",
@@ -30,7 +31,9 @@ export default function RootLayout({
           <AuthProvider>
             <ThemedToastContainer />
             <AppLoader>
-              <Suspense fallback={null}>{children}</Suspense>
+              <AppNotification>
+                <Suspense fallback={null}>{children}</Suspense>
+              </AppNotification>
             </AppLoader>
           </AuthProvider>
         </ThemeProvider>
