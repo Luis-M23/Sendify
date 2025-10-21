@@ -33,7 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const { rol, user, recompensa } = useAuth();
+  const { rol, user, recompensa, hasUnread } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -170,7 +170,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Link href="/notificaciones">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+
+                  {hasUnread && (
+                    <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+                  )}
                 </Button>
               </Link>
 

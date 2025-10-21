@@ -25,6 +25,7 @@ import { useAuth } from "@/components/auth-provider";
 export default function NotificationsPage() {
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
+  
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

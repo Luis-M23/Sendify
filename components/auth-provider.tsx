@@ -7,6 +7,7 @@ import { Recompensa } from "@/lib/validation/recompensa";
 import { RecompensaService } from "@/lib/supabase/services/recompensaService";
 import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
 import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
+import { NotificacionService } from "@/lib/supabase/services/notificacionService";
 
 type AuthContextState = {
   user: User | null;
@@ -15,6 +16,7 @@ type AuthContextState = {
   loading: boolean;
   recompensa: Recompensa | null;
   usuarioMetadata: UsuarioMetadata | null;
+  hasUnread: boolean;
 };
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
@@ -30,6 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recompensa, setRecompensa] = useState<Recompensa | null>(null);
+  const [hasUnread, setHasUnread] = useState<boolean>(false);
+
   const [usuarioMetadata, setUsuarioMetadata] =
     useState<UsuarioMetadata | null>(null);
 
@@ -42,11 +46,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id,
           user?.user_metadata?.nombre
         );
+        setUsuarioMetadata(usuario);
+
         const recompensa = await RecompensaService.getNivel(
           usuario.compras_realizadas
         );
         setRecompensa(recompensa);
-        setUsuarioMetadata(usuario);
+
+        const hasUnread = await NotificacionService.hasUnread(id);
+        setHasUnread(hasUnread);
       } catch (error) {
         console.error(error);
       }
@@ -97,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     recompensa,
     usuarioMetadata,
+    hasUnread,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

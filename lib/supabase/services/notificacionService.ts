@@ -100,5 +100,26 @@ export const NotificacionService = {
       );
     }
   },
-};
 
+  async hasUnread(userId: string): Promise<boolean> {
+    const { data, error, count } = await supabase
+      .from(TABLE_NAME)
+      .select("id", { count: "exact", head: true })
+      .eq("id_usuario", userId)
+      .eq("leido", false)
+      .limit(1);
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al verificar notificaciones pendientes."
+      );
+    }
+
+    if (typeof count === "number") {
+      return count > 0;
+    }
+
+    return Boolean(data && data.length > 0);
+  },
+};
