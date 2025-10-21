@@ -1,5 +1,5 @@
 
--- ALERTA NOTIFICACION TRACKING
+-- NOTIFICACION TRACKING
 
 CREATE OR REPLACE FUNCTION public.fn_notificacion_tracking()
 RETURNS TRIGGER AS $$
@@ -34,7 +34,7 @@ AFTER INSERT OR UPDATE ON public.paquetes
 FOR EACH ROW
 EXECUTE FUNCTION public.fn_notificacion_tracking();
 
--- ALERTA PROMO
+-- NOTIFICACION PROMO
 
 CREATE OR REPLACE FUNCTION public.fn_notificacion_promo()
 RETURNS TRIGGER AS $$
@@ -93,7 +93,8 @@ AFTER INSERT OR UPDATE ON public.casilleros
 FOR EACH ROW
 EXECUTE FUNCTION public.fn_notificacion_casillero();
 
--- NOTIFICACION
+-- NOTIFICACION DIRECCION
+
 CREATE OR REPLACE FUNCTION public.fn_notificacion_direccion()
 RETURNS TRIGGER AS $$
 BEGIN
