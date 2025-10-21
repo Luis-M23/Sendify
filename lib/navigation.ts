@@ -23,10 +23,10 @@ export type NavigationItem = {
 
 export const navigation: NavigationItem[] = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
-  { name: "Restricciones", href: "/restricciones", icon: Shield },
-  { name: "Promociones", href: "/promociones", icon: Gift },
-  { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Seguimiento", href: "/tracking", icon: Package },
+  { name: "Recompensas", href: "/recompensas", icon: Crown },
+  { name: "Promociones", href: "/promociones", icon: Gift },
+  { name: "Restricciones", href: "/restricciones", icon: Shield },
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
 

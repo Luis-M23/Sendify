@@ -6,7 +6,7 @@ export const DireccionEntregaSchema = z.object({
 });
 
 export const UsuarioMetadataSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   id_usuario: z.string(),
   compras_realizadas: z.number(),
   nombre_completo: z.string().nullable(),

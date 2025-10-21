@@ -1,7 +1,10 @@
 import * as z from "zod";
 import { CalculadoraSchema } from "./calculadora";
-
 import { EstadoSeguimientoSchema } from "./estadoEnvio";
+import { CasilleroSchema } from "./casillero";
+import { CategoriaSchema } from "./categoria";
+import { TipoServicioSchema } from "./tipoServicio";
+import { UsuarioMetadataSchema } from "./usuarioMetadata";
 
 export const FacturaItemSchema = z.object({
   clave: z.string().min(1, "La clave es obligatoria"),
@@ -22,7 +25,17 @@ export const PaqueteSchema = z
     factura: FacturaSchema,
     estado_seguimiento: z.array(EstadoSeguimientoSchema),
     activo: z.boolean().default(true),
+    created_at: z.string().optional(),
   })
   .merge(CalculadoraSchema);
-  
+
 export type Paquete = z.infer<typeof PaqueteSchema>;
+
+export const PaqueteDetalleSchema = PaqueteSchema.extend({
+  casillero: CasilleroSchema.optional().nullable(),
+  categoria: CategoriaSchema.optional().nullable(),
+  tipo_servicio: TipoServicioSchema.optional().nullable(),
+  usuario_metadata: UsuarioMetadataSchema.optional().nullable(),
+});
+
+export type PaqueteDetalle = z.infer<typeof PaqueteDetalleSchema>;

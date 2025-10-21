@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PaqueteDetail } from "@/components/paquetes/paquete-detail";
 import { useAuth } from "@/components/auth-provider";
 import { Paquete } from "@/lib/validation/paquete";
 import { PaqueteService } from "@/lib/supabase/services/paqueteService";
@@ -172,117 +173,135 @@ export default function TrackingPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <CardTitle>Historial de Seguimiento</CardTitle>
-                  <CardDescription>
-                    Revisa las etapas registradas del paquete seleccionado.
-                  </CardDescription>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <CardTitle>Historial de Seguimiento</CardTitle>
+                    <CardDescription>
+                      Revisa las etapas registradas del paquete seleccionado.
+                    </CardDescription>
+                  </div>
+                  {selectedPaquete && (
+                    <Badge
+                      className={getPaqueteStatusBadgeClass(isPaqueteActivo)}
+                    >
+                      {getPaqueteStatusLabel(isPaqueteActivo)}
+                    </Badge>
+                  )}
                 </div>
-                {selectedPaquete && (
-                  <Badge
-                    className={getPaqueteStatusBadgeClass(isPaqueteActivo)}
-                  >
-                    {getPaqueteStatusLabel(isPaqueteActivo)}
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {selectedPaquete ? (
-                selectedPaquete.estado_seguimiento.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Este paquete no tiene etapas de seguimiento registradas.
-                  </p>
-                ) : (
-                  <div className="relative">
-                    <div className="absolute left-[14px] top-0 bottom-0 w-0.5 bg-border" />
-                    <div className="space-y-6">
-                      {selectedPaquete.estado_seguimiento.map(
-                        (estado, index) => {
-                          const isCurrent = estado.activo;
-                          const isCompleted =
-                            Boolean(estado.fecha_actualizado) && !estado.activo;
-                          const formattedDate = estado.fecha_actualizado
-                            ? (() => {
-                                const parsed = new Date(
-                                  estado.fecha_actualizado
-                                );
-                                return Number.isNaN(parsed.getTime())
-                                  ? null
-                                  : dateTimeFormatter.format(parsed);
-                              })()
-                            : null;
-                          const isLast =
-                            index ===
-                            selectedPaquete.estado_seguimiento.length - 1;
+              </CardHeader>
+              <CardContent>
+                {selectedPaquete ? (
+                  selectedPaquete.estado_seguimiento.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Este paquete no tiene etapas de seguimiento registradas.
+                    </p>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute left-[14px] top-0 bottom-0 w-0.5 bg-border" />
+                      <div className="space-y-6">
+                        {selectedPaquete.estado_seguimiento.map(
+                          (estado, index) => {
+                            const isCurrent = estado.activo;
+                            const isCompleted =
+                              Boolean(estado.fecha_actualizado) &&
+                              !estado.activo;
+                            const formattedDate = estado.fecha_actualizado
+                              ? (() => {
+                                  const parsed = new Date(
+                                    estado.fecha_actualizado
+                                  );
+                                  return Number.isNaN(parsed.getTime())
+                                    ? null
+                                    : dateTimeFormatter.format(parsed);
+                                })()
+                              : null;
+                            const isLast =
+                              index ===
+                              selectedPaquete.estado_seguimiento.length - 1;
 
-                          return (
-                            <div
-                              key={`${selectedPaquete.codigo}-${estado.nombre}-${index}`}
-                              className={`relative flex gap-4 ${
-                                isLast ? "" : "pb-6"
-                              }`}
-                            >
+                            return (
                               <div
-                                className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 ${
-                                  isCurrent
-                                    ? "border-blue-500 bg-blue-500 text-white"
-                                    : isCompleted
-                                    ? "border-emerald-500 bg-emerald-500 text-white"
-                                    : "border-border bg-background text-muted-foreground"
+                                key={`${selectedPaquete.codigo}-${estado.nombre}-${index}`}
+                                className={`relative flex gap-4 ${
+                                  isLast ? "" : "pb-6"
                                 }`}
                               >
-                                {isCompleted ? (
-                                  <CheckCircle2 className="h-3.5 w-3.5" />
-                                ) : isCurrent ? (
-                                  <Clock className="h-3.5 w-3.5 animate-pulse" />
-                                ) : (
-                                  <Circle className="h-2.5 w-2.5" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between gap-4">
-                                  <p className="font-medium">
-                                    {estado.nombre}
-                                  </p>
-                                  {formattedDate && (
-                                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                      {formattedDate}
+                                <div
+                                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 ${
+                                    isCurrent
+                                      ? "border-blue-500 bg-blue-500 text-white"
+                                      : isCompleted
+                                      ? "border-emerald-500 bg-emerald-500 text-white"
+                                      : "border-border bg-background text-muted-foreground"
+                                  }`}
+                                >
+                                  {isCompleted ? (
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                  ) : isCurrent ? (
+                                    <Clock className="h-3.5 w-3.5 animate-pulse" />
+                                  ) : (
+                                    <Circle className="h-2.5 w-2.5" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between gap-4">
+                                    <p className="font-medium">
+                                      {estado.nombre}
+                                    </p>
+                                    {formattedDate && (
+                                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                        {formattedDate}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {!formattedDate && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Sin actualizaciones registradas.
+                                    </p>
+                                  )}
+                                  {isCurrent && (
+                                    <span className="mt-2 inline-flex rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600">
+                                      En progreso
                                     </span>
                                   )}
                                 </div>
-                                {!formattedDate && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Sin actualizaciones registradas.
-                                  </p>
-                                )}
-                                {isCurrent && (
-                                  <span className="mt-2 inline-flex rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600">
-                                    En progreso
-                                  </span>
-                                )}
                               </div>
-                            </div>
-                          );
-                        }
-                      )}
+                            );
+                          }
+                        )}
+                      </div>
                     </div>
+                  )
+                ) : loading ? (
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
-                )
-              ) : loading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Selecciona un paquete de la lista para ver su historial.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Selecciona un paquete de la lista para ver su historial.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Factura del paquete</CardTitle>
+                <CardDescription>
+                  Información comercial del paquete seleccionado.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaqueteDetail
+                  codigo={selectedCodigo}
+                  emptyMessage="Selecciona un paquete para visualizar la factura."
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </DashboardLayout>
