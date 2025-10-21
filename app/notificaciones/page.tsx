@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import {
   Bell,
   Package,
@@ -21,9 +20,9 @@ import { cn } from "@/lib/utils";
 import { Notificacion, NotificacionTipo } from "@/lib/validation/notificacion";
 import { NotificacionService } from "@/lib/supabase/services/notificacionService";
 import { useAuth } from "@/components/auth-provider";
+import { toast } from "react-toastify";
 
 export default function NotificationsPage() {
-  const { toast } = useToast();
   const { user, loading: authLoading, setHasUnread } = useAuth();
 
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
@@ -81,14 +80,10 @@ export default function NotificationsPage() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, leido: true } : n))
       );
-      toast({ title: "Notificación marcada como leída" });
+      toast.success("Notificación marcada como leída");
     } catch (err: any) {
       console.error("Error marcando notificación como leída:", err);
-      toast({
-        title: "No se pudo marcar como leída",
-        description: err?.message,
-        variant: "destructive",
-      });
+      toast.error("No se pudo marcar como leída");
     }
   };
 
@@ -97,14 +92,10 @@ export default function NotificationsPage() {
     try {
       await NotificacionService.markAllAsRead(user.id);
       setNotifications((prev) => prev.map((n) => ({ ...n, leido: true })));
-      toast({ title: "Todas las notificaciones marcadas como leídas" });
+      toast.success("Todas las notificaciones marcadas como leídas");
     } catch (err: any) {
       console.error("Error marcando todas como leídas:", err);
-      toast({
-        title: "No se pudieron marcar como leídas",
-        description: err?.message,
-        variant: "destructive",
-      });
+      toast.error("No se pudieron marcar como leídas");
     }
   };
 
@@ -112,14 +103,10 @@ export default function NotificationsPage() {
     try {
       await NotificacionService.delete(id);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
-      toast({ title: "Notificación eliminada" });
+      toast.success("Notificación eliminada");
     } catch (err: any) {
       console.error("Error eliminando notificación:", err);
-      toast({
-        title: "No se pudo eliminar la notificación",
-        description: err?.message,
-        variant: "destructive",
-      });
+      toast.error("No se pudo eliminar la notificación");
     }
   };
 
@@ -128,14 +115,10 @@ export default function NotificationsPage() {
     try {
       await NotificacionService.deleteRead(user.id);
       setNotifications((prev) => prev.filter((n) => !n.leido));
-      toast({ title: "Notificaciones leídas eliminadas" });
+      toast.success("Notificaciones leídas eliminadas");
     } catch (err: any) {
       console.error("Error eliminando notificaciones leídas:", err);
-      toast({
-        title: "No se pudieron eliminar",
-        description: err?.message,
-        variant: "destructive",
-      });
+      toast.error("No se pudieron eliminar");
     }
   };
 
