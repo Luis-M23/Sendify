@@ -27,7 +27,6 @@ export const navigation: NavigationItem[] = [
   { name: "Promociones", href: "/promociones", icon: Gift },
   { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Seguimiento", href: "/tracking", icon: Package },
-  { name: "Mis Paquetes", href: "/delivery", icon: Navigation },
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
 

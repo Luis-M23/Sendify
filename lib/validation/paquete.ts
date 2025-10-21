@@ -21,6 +21,7 @@ export const PaqueteSchema = z
     total: z.number(),
     factura: FacturaSchema,
     estado_seguimiento: z.array(EstadoSeguimientoSchema),
+    activo: z.boolean().default(true),
   })
   .merge(CalculadoraSchema);
   

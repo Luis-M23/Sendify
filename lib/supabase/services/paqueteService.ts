@@ -73,6 +73,23 @@ export const PaqueteService = {
     return data ? parsePaquete(data) : null;
   },
 
+  async getByUserId(userId: string): Promise<Paquete[]> {
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .eq("id_usuario", userId)
+      .order("id", { ascending: false });
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al obtener los paquetes del usuario."
+      );
+    }
+
+    return (data ?? []).map(parsePaquete);
+  },
+
   async create(user: User, payload: Paquete): Promise<Paquete> {
     const paquete = parsePaquete(payload);
 

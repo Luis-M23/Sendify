@@ -19,13 +19,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Eye, EyeOff, FileText, Search } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Paquete } from "@/lib/validation/paquete";
 import { PaqueteService } from "@/lib/supabase/services/paqueteService";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-SV", {
@@ -44,6 +50,7 @@ export default function PaquetesAdminPage() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const loadPaquetes = async () => {
     try {
@@ -203,11 +210,10 @@ export default function PaquetesAdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-
                     <TableHead className="w-2">Código</TableHead>
                     <TableHead>Producto</TableHead>
                     <TableHead className="text-center">Total</TableHead>
-                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -245,13 +251,15 @@ export default function PaquetesAdminPage() {
                       }
                       return -1;
                     })();
+                    const isProgressVisible =
+                      expandedRows[paquete.codigo] ?? false;
 
                     return (
                       <TableRow key={paquete.codigo}>
-                        <TableCell className="font-medium">
+                        <TableCell>
                           {paquete.id}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell>
                           {paquete.codigo}
                         </TableCell>
                         <TableCell>{paquete.producto}</TableCell>
@@ -268,7 +276,7 @@ export default function PaquetesAdminPage() {
                                 </span>
                               </div>
                               <Progress value={progresoPorcentaje} />
-                              {false && (
+                              {isProgressVisible && (
                                 <div className="space-y-2">
                                   {paquete.estado_seguimiento.map(
                                     (estado, idx) => {
@@ -276,11 +284,13 @@ export default function PaquetesAdminPage() {
                                         idx === ultimaEtapaActualizada;
                                       const isCompleted =
                                         idx < ultimaEtapaActualizada;
-                                      const stateClass = isCurrent
-                                        ? "text-sm font-semibold text-primary"
-                                        : isCompleted
-                                        ? "text-sm text-foreground"
-                                        : "text-sm text-muted-foreground";
+                                      const stateClass = `text-sm rounded-md px-3 py-2 transition-colors hover:bg-muted/60 ${
+                                        isCurrent
+                                          ? "font-semibold text-primary"
+                                          : isCompleted
+                                          ? "text-foreground"
+                                          : "text-muted-foreground"
+                                      }`;
 
                                       return (
                                         <div
@@ -298,28 +308,92 @@ export default function PaquetesAdminPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-col gap-2">
-                            <Button
-                              onClick={() => {
-                                if (nextEstado) {
-                                  updateSeguimiento(paquete, nextEstado.index);
-                                }
-                              }}
-                              disabled={!nextEstado}
-                              className="w-full"
-                            >
-                              Avanzar
-                            </Button>
-                            <Button
-                              asChild
-                              variant="outline"
-                              className="w-full"
-                            >
-                              <Link href={`/factura/${paquete.codigo}`}>
-                                Ver factura
-                              </Link>
-                            </Button>
-                          </div>
+                          <TooltipProvider delayDuration={150}>
+                            <div className="flex items-center justify-center gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    onClick={() => {
+                                      if (nextEstado) {
+                                        updateSeguimiento(
+                                          paquete,
+                                          nextEstado.index
+                                        );
+                                      }
+                                    }}
+                                    disabled={!nextEstado}
+                                    size="sm"
+                                    className="w-fit px-3 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400"
+                                  >
+                                    Avanzar
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  <p>
+                                    {nextEstado
+                                      ? `Cambiar estado a "${nextEstado.nombre}"`
+                                      : "Paquete completado"}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8 bg-muted text-muted-foreground hover:bg-muted/80"
+                                    onClick={() =>
+                                      setExpandedRows((prev) => ({
+                                        ...prev,
+                                        [paquete.codigo]: !prev[paquete.codigo],
+                                      }))
+                                    }
+                                  >
+                                    {isProgressVisible ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                    <span className="sr-only">
+                                      {isProgressVisible
+                                        ? "Ocultar progreso"
+                                        : "Ver progreso"}
+                                    </span>
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  <p>
+                                    {isProgressVisible
+                                      ? "Ocultar detalle de progreso"
+                                      : "Ver detalle de progreso"}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    asChild
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8 bg-muted text-muted-foreground hover:bg-muted/80"
+                                  >
+                                    <Link
+                                      href={`/factura/${paquete.codigo}`}
+                                      className="flex h-8 w-8 items-center justify-center"
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Ver factura
+                                      </span>
+                                    </Link>
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  <p>Ver factura</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </TooltipProvider>
                         </TableCell>
                       </TableRow>
                     );

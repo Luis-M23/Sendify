@@ -95,6 +95,7 @@ export const CalculadoraService = {
       total: +total.toFixed(2),
       factura,
       estado_seguimiento: EstadoSeguimientoDefault,
+      activo: true,
     };
   },
 };
