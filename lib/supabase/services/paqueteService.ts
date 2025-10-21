@@ -33,6 +33,26 @@ export const PaqueteService = {
     return (data ?? []).map(parsePaquete);
   },
 
+  async getById(id: number): Promise<Paquete | null> {
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return null;
+      }
+
+      throw new Error(
+        supabaseErrorMap[error.code] || "Error al obtener el paquete."
+      );
+    }
+
+    return data ? parsePaquete(data) : null;
+  },
+
   async getByCodigo(codigo: string): Promise<Paquete | null> {
     const { data, error } = await supabase
       .from(TABLE_NAME)

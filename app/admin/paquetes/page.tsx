@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -207,7 +208,7 @@ export default function PaquetesAdminPage() {
                     <TableHead>Producto</TableHead>
                     <TableHead className="text-center">Total</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead className="text-center">Acción</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -267,30 +268,32 @@ export default function PaquetesAdminPage() {
                                 </span>
                               </div>
                               <Progress value={progresoPorcentaje} />
-                              <div className="space-y-2">
-                                {paquete.estado_seguimiento.map(
-                                  (estado, idx) => {
-                                    const isCurrent =
-                                      idx === ultimaEtapaActualizada;
-                                    const isCompleted =
-                                      idx < ultimaEtapaActualizada;
-                                    const stateClass = isCurrent
-                                      ? "text-sm font-semibold text-primary"
-                                      : isCompleted
-                                      ? "text-sm text-foreground"
-                                      : "text-sm text-muted-foreground";
+                              {false && (
+                                <div className="space-y-2">
+                                  {paquete.estado_seguimiento.map(
+                                    (estado, idx) => {
+                                      const isCurrent =
+                                        idx === ultimaEtapaActualizada;
+                                      const isCompleted =
+                                        idx < ultimaEtapaActualizada;
+                                      const stateClass = isCurrent
+                                        ? "text-sm font-semibold text-primary"
+                                        : isCompleted
+                                        ? "text-sm text-foreground"
+                                        : "text-sm text-muted-foreground";
 
-                                    return (
-                                      <div
-                                        key={`${paquete.codigo}-${idx}`}
-                                        className={stateClass}
-                                      >
-                                        {estado.nombre}
-                                      </div>
-                                    );
-                                  }
-                                )}
-                              </div>
+                                      return (
+                                        <div
+                                          key={`${paquete.codigo}-${idx}`}
+                                          className={stateClass}
+                                        >
+                                          {estado.nombre}
+                                        </div>
+                                      );
+                                    }
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -306,6 +309,15 @@ export default function PaquetesAdminPage() {
                               className="w-full"
                             >
                               Avanzar
+                            </Button>
+                            <Button
+                              asChild
+                              variant="outline"
+                              className="w-full"
+                            >
+                              <Link href={`/factura/${paquete.codigo}`}>
+                                Ver factura
+                              </Link>
                             </Button>
                           </div>
                         </TableCell>
