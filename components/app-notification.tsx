@@ -26,6 +26,12 @@ export function AppNotification({ children }: { children: React.ReactNode }) {
           const audio = new Audio("/sounds/beep.mp3");
           audio
             .play()
+            .then(() => {
+              setTimeout(() => {
+                audio.pause();
+                audio.currentTime = 0;
+              }, 6000); 
+            })
             .catch((err) => console.error("Error al reproducir sonido:", err));
         }
       }
