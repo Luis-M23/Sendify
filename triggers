@@ -147,3 +147,24 @@ CREATE TRIGGER incrementar_compras_realizadas
 AFTER INSERT ON public.paquetes
 FOR EACH ROW
 EXECUTE FUNCTION public.fn_incrementar_compras_realizadas();
+
+-- AUTH USER A USUARIO METADATA
+
+CREATE OR REPLACE FUNCTION public.fn_sync_user_metadata()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.usuario_metadata (id_usuario, nombre_completo)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'nombre', '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_sync_user_metadata ON auth.users;
+
+CREATE TRIGGER trg_sync_user_metadata
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_sync_user_metadata();

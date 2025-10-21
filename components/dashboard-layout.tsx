@@ -33,7 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const { rol, user, recompensa, hasUnread } = useAuth();
+  const { usuarioMetadata, user, recompensa, hasUnread } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -45,7 +45,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   };
 
-  const isAdmin = rol === RolesSistema.ADMINISTRADOR;
+  const isAdmin = usuarioMetadata?.rol === RolesSistema.CLIENTE;
+  console.log({usuarioMetadata});
   const isVIP = true;
 
   return (

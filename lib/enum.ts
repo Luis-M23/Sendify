@@ -6,7 +6,7 @@ export enum Transporte {
 
 export enum RolesSistema {
   ADMINISTRADOR = "administrador",
-  VENTAS = "ventas",
+  OPERADOR = "operador",
   CLIENTE = "cliente",
 }
 

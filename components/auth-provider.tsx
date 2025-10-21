@@ -43,14 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (id) {
       try {
-        const usuario = await UsuarioMetadataService.firstOrCreate(
-          id,
-          user?.user_metadata?.nombre
-        );
+        const usuario = await UsuarioMetadataService.getById(id);
+        console.log({ id, usuario });
         setUsuarioMetadata(usuario);
 
         const recompensa = await RecompensaService.getNivel(
-          usuario.compras_realizadas
+          usuario?.compras_realizadas || 0
         );
         setRecompensa(recompensa);
 
