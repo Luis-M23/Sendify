@@ -112,7 +112,7 @@ export default function DashboardPage() {
                   Nuevo Envío
                 </Button>
               </Link>
-              <Link href="/tracking">
+              <Link href="/notificaciones">
                 <Button
                   className="w-full justify-start bg-transparent"
                   variant="outline"

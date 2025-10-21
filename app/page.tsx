@@ -84,7 +84,7 @@ export default function HomePage() {
               Calcular Envío
             </Button>
           </Link>
-          <Link href="/tracking">
+          <Link href="/notificaciones">
             <Button
               size="lg"
               variant="outline"
@@ -163,7 +163,7 @@ export default function HomePage() {
             </Card>
           </Link>
 
-          <Link href="/tracking">
+          <Link href="/notificaciones">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="h-12 w-12 rounded-lg bg-chart-3/10 flex items-center justify-center mb-4">

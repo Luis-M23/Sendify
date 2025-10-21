@@ -1,33 +1,49 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
-import { Bell, Package, TrendingUp, AlertCircle, CheckCircle2, Clock, Trash2, Check, Filter } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Bell,
+  Package,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Trash2,
+  Check,
+  Filter,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface Notification {
-  id: string
-  type: "order" | "promotion" | "alert" | "success"
-  title: string
-  message: string
-  time: string
-  read: boolean
+  id: string;
+  type: "order" | "promotion" | "alert" | "success" | "tracking" | "promo";
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
 }
 
 export default function NotificationsPage() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
-      type: "order",
+      type: "tracking",
       title: "Paquete en tránsito",
-      message: "Tu envío ENV-2025-001234 está en camino. Llegada estimada: 2 días.",
+      message:
+        "Tu envío ENV-2025-001234 está en camino. Llegada estimada: 2 días.",
       time: "Hace 5 minutos",
       read: false,
     },
@@ -41,7 +57,7 @@ export default function NotificationsPage() {
     },
     {
       id: "3",
-      type: "promotion",
+      type: "promo",
       title: "Promoción especial",
       message: "20% de descuento en envíos aéreos este fin de semana.",
       time: "Hace 5 horas",
@@ -51,7 +67,8 @@ export default function NotificationsPage() {
       id: "4",
       type: "alert",
       title: "Documentación requerida",
-      message: "Se necesita documentación adicional para tu envío ENV-2025-001235.",
+      message:
+        "Se necesita documentación adicional para tu envío ENV-2025-001235.",
       time: "Hace 1 día",
       read: false,
     },
@@ -71,57 +88,55 @@ export default function NotificationsPage() {
       time: "Hace 3 días",
       read: true,
     },
-  ])
+  ]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
     toast({
       title: "Notificación marcada como leída",
-    })
-  }
+    });
+  };
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     toast({
       title: "Todas las notificaciones marcadas como leídas",
-    })
-  }
+    });
+  };
 
   const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
     toast({
       title: "Notificación eliminada",
-    })
-  }
+    });
+  };
 
   const deleteAllRead = () => {
-    setNotifications((prev) => prev.filter((n) => !n.read))
+    setNotifications((prev) => prev.filter((n) => !n.read));
     toast({
       title: "Notificaciones leídas eliminadas",
-    })
-  }
+    });
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
-      case "order":
-        return <Package className="h-5 w-5 text-primary" />
-      case "promotion":
-        return <TrendingUp className="h-5 w-5 text-chart-4" />
-      case "alert":
-        return <AlertCircle className="h-5 w-5 text-destructive" />
-      case "success":
-        return <CheckCircle2 className="h-5 w-5 text-chart-2" />
+      case "tracking":
+        return <Package className="h-5 w-5 text-primary" />;
+      case "promo":
+        return <TrendingUp className="h-5 w-5 text-chart-2" />;
       default:
-        return <Bell className="h-5 w-5" />
+        return <Bell className="h-5 w-5 h-5 w-5 text-chart-4" />;
     }
-  }
+  };
 
   const filterByType = (type: string) => {
-    if (type === "all") return notifications
-    return notifications.filter((n) => n.type === type)
-  }
+    if (type === "all") return notifications;
+    return notifications.filter((n) => n.type === type);
+  };
 
   return (
     <DashboardLayout>
@@ -130,11 +145,19 @@ export default function NotificationsPage() {
           <div>
             <h1 className="text-3xl font-bold">Notificaciones</h1>
             <p className="text-muted-foreground">
-              Tienes {unreadCount} {unreadCount === 1 ? "notificación nueva" : "notificaciones nuevas"}
+              Tienes {unreadCount}{" "}
+              {unreadCount === 1
+                ? "notificación nueva"
+                : "notificaciones nuevas"}
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={markAllAsRead}
+              disabled={unreadCount === 0}
+            >
               <Check className="mr-2 h-4 w-4" />
               Marcar todas como leídas
             </Button>
@@ -167,20 +190,6 @@ export default function NotificationsPage() {
               <TabsTrigger value="order">Pedidos</TabsTrigger>
               <TabsTrigger value="promotion">Promociones</TabsTrigger>
             </TabsList>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Filtrar
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Más recientes</DropdownMenuItem>
-                <DropdownMenuItem>Más antiguas</DropdownMenuItem>
-                <DropdownMenuItem>Solo alertas</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
 
           <TabsContent value="all" className="space-y-4">
@@ -188,25 +197,35 @@ export default function NotificationsPage() {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium">No tienes notificaciones</p>
-                  <p className="text-sm text-muted-foreground">Te notificaremos cuando haya novedades</p>
+                  <p className="text-lg font-medium">
+                    No tienes notificaciones
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Te notificaremos cuando haya novedades
+                  </p>
                 </CardContent>
               </Card>
             ) : (
               notifications.map((notification) => (
                 <Card
                   key={notification.id}
-                  className={cn("transition-colors", !notification.read && "bg-primary/5 border-primary/20")}
+                  className={cn(
+                    "transition-colors",
+                    !notification.read && "bg-primary/5 border-primary/20"
+                  )}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <div className="mt-1">{getIcon(notification.type)}</div>
                       <div className="flex-1 space-y-1">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold">{notification.title}</h3>
-                          {!notification.read && <Badge variant="secondary">Nueva</Badge>}
+                          <h3 className="font-semibold">
+                            {notification.title}
+                          </h3>
                         </div>
-                        <p className="text-sm text-muted-foreground">{notification.message}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {notification.message}
+                        </p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
                           {notification.time}
@@ -214,7 +233,11 @@ export default function NotificationsPage() {
                       </div>
                       <div className="flex gap-1">
                         {!notification.read && (
-                          <Button variant="ghost" size="icon" onClick={() => markAsRead(notification.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => markAsRead(notification.id)}
+                          >
                             <Check className="h-4 w-4" />
                           </Button>
                         )}
@@ -240,30 +263,42 @@ export default function NotificationsPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <CheckCircle2 className="h-12 w-12 text-chart-2 mb-4" />
                   <p className="text-lg font-medium">Todo al día</p>
-                  <p className="text-sm text-muted-foreground">No tienes notificaciones sin leer</p>
+                  <p className="text-sm text-muted-foreground">
+                    No tienes notificaciones sin leer
+                  </p>
                 </CardContent>
               </Card>
             ) : (
               notifications
                 .filter((n) => !n.read)
                 .map((notification) => (
-                  <Card key={notification.id} className="bg-primary/5 border-primary/20">
+                  <Card
+                    key={notification.id}
+                    className="bg-primary/5 border-primary/20"
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
                         <div className="mt-1">{getIcon(notification.type)}</div>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold">{notification.title}</h3>
-                            <Badge variant="secondary">Nueva</Badge>
+                            <h3 className="font-semibold">
+                              {notification.title}
+                            </h3>
                           </div>
-                          <p className="text-sm text-muted-foreground">{notification.message}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {notification.message}
+                          </p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             {notification.time}
                           </div>
                         </div>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => markAsRead(notification.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => markAsRead(notification.id)}
+                          >
                             <Check className="h-4 w-4" />
                           </Button>
                           <Button
@@ -286,7 +321,10 @@ export default function NotificationsPage() {
             {filterByType("order").map((notification) => (
               <Card
                 key={notification.id}
-                className={cn("transition-colors", !notification.read && "bg-primary/5 border-primary/20")}
+                className={cn(
+                  "transition-colors",
+                  !notification.read && "bg-primary/5 border-primary/20"
+                )}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
@@ -294,9 +332,13 @@ export default function NotificationsPage() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold">{notification.title}</h3>
-                        {!notification.read && <Badge variant="secondary">Nueva</Badge>}
+                        {!notification.read && (
+                          <Badge variant="secondary">Nueva</Badge>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{notification.message}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {notification.message}
+                      </p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         {notification.time}
@@ -304,7 +346,11 @@ export default function NotificationsPage() {
                     </div>
                     <div className="flex gap-1">
                       {!notification.read && (
-                        <Button variant="ghost" size="icon" onClick={() => markAsRead(notification.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => markAsRead(notification.id)}
+                        >
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
@@ -327,7 +373,10 @@ export default function NotificationsPage() {
             {filterByType("promotion").map((notification) => (
               <Card
                 key={notification.id}
-                className={cn("transition-colors", !notification.read && "bg-primary/5 border-primary/20")}
+                className={cn(
+                  "transition-colors",
+                  !notification.read && "bg-primary/5 border-primary/20"
+                )}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
@@ -335,9 +384,13 @@ export default function NotificationsPage() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold">{notification.title}</h3>
-                        {!notification.read && <Badge variant="secondary">Nueva</Badge>}
+                        {!notification.read && (
+                          <Badge variant="secondary">Nueva</Badge>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{notification.message}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {notification.message}
+                      </p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         {notification.time}
@@ -345,7 +398,11 @@ export default function NotificationsPage() {
                     </div>
                     <div className="flex gap-1">
                       {!notification.read && (
-                        <Button variant="ghost" size="icon" onClick={() => markAsRead(notification.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => markAsRead(notification.id)}
+                        >
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
@@ -366,5 +423,5 @@ export default function NotificationsPage() {
         </Tabs>
       </div>
     </DashboardLayout>
-  )
+  );
 }

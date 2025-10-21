@@ -23,7 +23,7 @@ export type NavigationItem = {
 
 export const navigation: NavigationItem[] = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
-  { name: "Seguimiento", href: "/tracking", icon: Package },
+  { name: "Seguimiento", href: "/notificaciones", icon: Package },
   { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Promociones", href: "/promociones", icon: Gift },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
