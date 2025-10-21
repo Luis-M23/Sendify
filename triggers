@@ -1,0 +1,132 @@
+
+-- ALERTA NOTIFICACION TRACKING
+
+CREATE OR REPLACE FUNCTION public.fn_notificacion_tracking()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    VALUES (
+      NEW.id_usuario,
+      'tracking',
+      CONCAT('Nuevo tracking ', NEW.codigo, ' disponible'),
+      FALSE
+    );
+
+  ELSIF TG_OP = 'UPDATE' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    VALUES (
+      NEW.id_usuario,
+      'tracking',
+      CONCAT('Nuevo estado del paquete ', NEW.codigo, ' disponible'),
+      FALSE
+    );
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS notificacion_tracking ON public.paquetes;
+
+CREATE TRIGGER notificacion_tracking
+AFTER INSERT OR UPDATE ON public.paquetes
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_notificacion_tracking();
+
+-- ALERTA PROMO
+
+CREATE OR REPLACE FUNCTION public.fn_notificacion_promo()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+  SELECT
+    u.id,                  
+    'promo',
+    CONCAT('Nueva promoción disponible: ', NEW.codigo),
+    FALSE                          
+  FROM auth.users u;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS notificacion_promo ON public.promociones;
+
+CREATE TRIGGER notificacion_promo
+AFTER INSERT ON public.promociones
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_notificacion_promo();
+
+-- NOTIFICACION CASILLERO
+
+CREATE OR REPLACE FUNCTION public.fn_notificacion_casillero()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    SELECT
+      u.id,
+      'info',
+      CONCAT('Contamos con un nuevo casillero: ', NEW.codigo),
+      FALSE
+    FROM auth.users u;
+
+  ELSIF TG_OP = 'UPDATE' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    SELECT
+      u.id,
+      'info',
+      CONCAT('Se ha actualizado el casillero ', NEW.codigo),
+      FALSE
+    FROM auth.users u;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS notificacion_casillero ON public.casilleros;
+
+CREATE TRIGGER notificacion_casillero
+AFTER INSERT OR UPDATE ON public.casilleros
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_notificacion_casillero();
+
+-- NOTIFICACION
+CREATE OR REPLACE FUNCTION public.fn_notificacion_direccion()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    SELECT
+      u.id,
+      'info',
+      'Se ha creado una nueva dirección disponible',
+      FALSE
+    FROM auth.users u;
+
+  ELSIF TG_OP = 'UPDATE' THEN
+    INSERT INTO public.notificaciones (id_usuario, tipo, comentario, leido)
+    SELECT
+      u.id,
+      'info',
+      'Se ha actualizado una dirección existente',
+      FALSE
+    FROM auth.users u;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS notificacion_direccion ON public.direcciones;
+
+CREATE TRIGGER notificacion_direccion
+AFTER INSERT OR UPDATE ON public.direcciones
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_notificacion_direccion();
+
+
+
+
