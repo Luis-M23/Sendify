@@ -127,6 +127,22 @@ AFTER INSERT OR UPDATE ON public.direcciones
 FOR EACH ROW
 EXECUTE FUNCTION public.fn_notificacion_direccion();
 
+-- AUTOINCREMENT COMPRAS
 
+CREATE OR REPLACE FUNCTION public.fn_incrementar_compras_realizadas()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.usuario_metadata
+  SET compras_realizadas = COALESCE(compras_realizadas, 0) + 1
+  WHERE id_usuario = NEW.id_usuario;
 
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS incrementar_compras_realizadas ON public.paquetes;
+
+CREATE TRIGGER incrementar_compras_realizadas
+AFTER INSERT ON public.paquetes
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_incrementar_compras_realizadas();
