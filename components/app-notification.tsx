@@ -23,7 +23,7 @@ export function AppNotification({ children }: { children: React.ReactNode }) {
           payload.new?.id_usuario === usuarioMetadata.id_usuario
         ) {
           setNotificacionesActivas(true);
-          const audio = new Audio("/sounds/beep.mp3");
+          const audio = new Audio("/sounds/beepy.mp3");
           audio
             .play()
             .then(() => {

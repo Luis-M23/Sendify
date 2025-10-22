@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, FileText, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
 import { toast } from "react-toastify";
 
 import { Paquete } from "@/lib/validation/paquete";
@@ -212,6 +214,7 @@ export default function PaquetesAdminPage() {
                     <TableHead>ID</TableHead>
                     <TableHead className="w-2">Código</TableHead>
                     <TableHead>Producto</TableHead>
+                    <TableHead className="text-center">Entrega</TableHead>
                     <TableHead className="text-center">Total</TableHead>
                     <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
@@ -256,13 +259,20 @@ export default function PaquetesAdminPage() {
 
                     return (
                       <TableRow key={paquete.codigo}>
-                        <TableCell>
-                          {paquete.id}
-                        </TableCell>
-                        <TableCell>
-                          {paquete.codigo}
-                        </TableCell>
+                        <TableCell>{paquete.id}</TableCell>
+                        <TableCell>{paquete.codigo}</TableCell>
                         <TableCell>{paquete.producto}</TableCell>
+                        <TableCell className="text-center">
+                          {paquete.id_direccion ? (
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                              Retiro en local
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                              Envío a domicilio
+                            </Badge>
+                          )}
+                        </TableCell>
                         <TableCell className="text-center">
                           {formatCurrency(paquete.total)}
                         </TableCell>
