@@ -32,17 +32,17 @@ const getPaqueteStatusLabel = (activo: boolean) =>
   activo ? "Activo" : "Inactivo";
 
 export default function TrackingPage() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { usuarioMetadata, cargando, isAutenticado } = useAuth();
   const [loading, setLoading] = useState(true);
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
   const [selectedCodigo, setSelectedCodigo] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+    // if (cargando) {
+    //   return;
+    // }
 
-    if (!user) {
+    if (!usuarioMetadata) {
       setPaquetes([]);
       setSelectedCodigo(null);
       setLoading(false);
@@ -52,20 +52,20 @@ export default function TrackingPage() {
     const fetchPaquetes = async () => {
       try {
         setLoading(true);
-        const data = await PaqueteService.getByUserId(user.id);
+        const data = await PaqueteService.getByUserId(
+          usuarioMetadata?.id_usuario || ""
+        );
         setPaquetes(data);
       } catch (error: any) {
         console.error("Error al cargar paquetes del usuario:", error);
-        toast.error(
-          error?.message || "No se pudieron cargar tus paquetes."
-        );
+        toast.error(error?.message || "No se pudieron cargar tus paquetes.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchPaquetes();
-  }, [authLoading, user]);
+  }, [cargando, usuarioMetadata]);
 
   useEffect(() => {
     if (paquetes.length === 0) {
@@ -86,7 +86,7 @@ export default function TrackingPage() {
     paquetes.find((paquete) => paquete.codigo === selectedCodigo) ?? null;
   const isPaqueteActivo = selectedPaquete?.activo ?? false;
 
-  if (authLoading) {
+  if (cargando) {
     return (
       <DashboardLayout>
         <div className="flex h-full min-h-[60vh] items-center justify-center">
@@ -96,19 +96,21 @@ export default function TrackingPage() {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAutenticado || !usuarioMetadata) {
     return (
       <DashboardLayout>
-        <div className="flex h-full min-h-[60vh] items-center justify-center">
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle>Inicia sesión para rastrear tus envíos</CardTitle>
-              <CardDescription>
-                Debes iniciar sesión para ver los paquetes asociados a tu
-                cuenta.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        <div className="space-y-6">
+          <div className="items-center justify-center">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">Inicia sesión para rastrear tus envíos</CardTitle>
+                <CardDescription className="text-center">
+                  Debes iniciar sesión para ver los paquetes asociados a tu
+                  cuenta.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -161,7 +163,9 @@ export default function TrackingPage() {
                               {paquete.codigo}
                             </span>
                           </div>
-                          <Badge className={getPaqueteStatusBadgeClass(isActive)}>
+                          <Badge
+                            className={getPaqueteStatusBadgeClass(isActive)}
+                          >
                             {getPaqueteStatusLabel(isActive)}
                           </Badge>
                         </div>

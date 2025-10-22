@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
+  const { isAutenticado } = useAuth();
 
   const router = useRouter();
 
@@ -50,7 +50,7 @@ export default function HomePage() {
           </div>
           <nav className="flex items-center gap-4">
             <ThemeToggle />
-            {isAuthenticated ? (
+            {isAutenticado ? (
               <Button variant="secondary" onClick={handleLogout}>
                 Cerrar sesión
               </Button>

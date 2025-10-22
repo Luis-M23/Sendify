@@ -153,10 +153,11 @@ EXECUTE FUNCTION public.fn_incrementar_compras_realizadas();
 CREATE OR REPLACE FUNCTION public.fn_sync_user_metadata()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.usuario_metadata (id_usuario, nombre_completo)
+  INSERT INTO public.usuario_metadata (id_usuario, nombre_completo, correo)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'nombre', '')
+    COALESCE(NEW.raw_user_meta_data->>'nombre', ''),
+    NEW.email
   );
   RETURN NEW;
 END;

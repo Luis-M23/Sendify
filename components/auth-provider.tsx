@@ -1,13 +1,15 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { createClient, User } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
+
 import { RolesSistema } from "@/lib/enum";
 import { Recompensa } from "@/lib/validation/recompensa";
 import { RecompensaService } from "@/lib/supabase/services/recompensaService";
 import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
 import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 import { NotificacionService } from "@/lib/supabase/services/notificacionService";
+import { createClient } from "@/lib/supabase/client";
 
 type AuthContextState = {
   usuarioMetadata: UsuarioMetadata | null;
@@ -21,18 +23,15 @@ type AuthContextState = {
 
 const AuthContext = createContext<AuthContextState | undefined>(undefined);
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-);
+const supabase = createClient();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [rol, setRol] = useState<RolesSistema>(RolesSistema.CLIENTE);
   const [cargando, setCargando] = useState(true);
+  const [isAutenticado, setIsAutenticado] = useState(false);
   const [recompensa, setRecompensa] = useState<Recompensa | null>(null);
   const [notificacionesActivas, setNotificacionesActivas] =
     useState<boolean>(false);
-  const [isAutenticado, setIsAutenticado] = useState(true);
   const [usuarioMetadata, setUsuarioMetadata] =
     useState<UsuarioMetadata | null>(null);
 
@@ -40,7 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (id) {
       try {
         const usuario = await UsuarioMetadataService.getById(id);
-        console.log({ id, usuario });
+
+        setIsAutenticado(!!usuario);
         setUsuarioMetadata(usuario);
 
         const recompensa = await RecompensaService.getNivel(
@@ -56,25 +56,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error(error);
       }
     }
+
+    setCargando(false);
   }
 
-  const setAuthState = async (id: string | null) => {
-    setIsAutenticado(!!id);
-
+  async function setAuthState(id: string | null) {
     if (id) {
       fetchUsuarioMetadata(id);
     } else {
       setUsuarioMetadata(null);
       setRol(RolesSistema.CLIENTE);
     }
-  };
+  }
+
+  async function retrieveSession() {
+    const { data, error } = await supabase.auth.getUser();
+    const user: User | null = data?.user || null;
+    setAuthState(user?.id || null);
+  }
 
   useEffect(() => {
+    retrieveSession();
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log({ event, session });
-        setCargando(true);
-
         if (event === "SIGNED_IN" && session) {
           const id = session?.user?.id ?? null;
           setAuthState(id);
@@ -83,10 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === "SIGNED_OUT") {
           setAuthState(null);
         }
-
-        setCargando(false);
       }
     );
+
+    setCargando(false);
 
     return () => {
       listener.subscription.unsubscribe();

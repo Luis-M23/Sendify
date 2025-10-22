@@ -4,9 +4,9 @@ import { useAuth } from "@/components/auth-provider";
 import React from "react";
 
 export function AppLoader({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuth();
+  const { cargando } = useAuth();
   
-  if (loading) {
+  if (cargando) {
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>

@@ -33,7 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const { usuarioMetadata, user, recompensa, hasUnread } = useAuth();
+  const { usuarioMetadata, recompensa, notificacionesActivas } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -46,12 +46,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   const isAdmin = usuarioMetadata?.rol === RolesSistema.CLIENTE;
-  console.log({usuarioMetadata});
-  const isVIP = true;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
@@ -59,7 +56,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border transition-transform duration-300 lg:translate-x-0",
@@ -67,7 +63,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Package className="h-8 w-8 text-primary" />
@@ -83,7 +78,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </Button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
@@ -133,15 +127,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
           </nav>
 
-          {/* User info */}
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <Avatar>
-                <AvatarFallback>JC</AvatarFallback>
-              </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground truncate">
-                  {user?.email}
+                  {usuarioMetadata?.correo}
                 </p>
               </div>
             </div>
@@ -149,9 +139,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 bg-card border-b border-border">
           <div className="flex items-center justify-between px-4 py-3">
             <Button
@@ -172,7 +160,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
 
-                  {hasUnread && (
+                  {notificacionesActivas && (
                     <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
                   )}
                 </Button>
@@ -198,12 +186,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       Perfil
                     </Link>
                   </DropdownMenuItem>
-                  {/* <DropdownMenuItem asChild>
-                    <Link href="/settings" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Configuración
-                    </Link>
-                  </DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-destructive"
@@ -217,8 +199,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </div>
         </header>
-
-        {/* Page content */}
         <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
