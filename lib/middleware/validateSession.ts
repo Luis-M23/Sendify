@@ -50,20 +50,25 @@ export async function validateSession(request: NextRequest) {
     }
 
     try {
-      const usuarioMetadata = await UsuarioMetadataService.getById(
-        user.id,
-      );
-      
-      if (usuarioMetadata?.rol !== RolesSistema.ADMINISTRADOR) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/";
-        return NextResponse.redirect(url);
+      const usuarioMetadata = await UsuarioMetadataService.getById(user.id);
+
+      const rol = usuarioMetadata?.rol;
+
+      if (rol === RolesSistema.ADMINISTRADOR) {
+        return supabaseResponse;
       }
-    } catch {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
-    }
+
+      if (rol === RolesSistema.OPERADOR) {
+        const operatorAllowed = ["/admin/paquetes", "/admin/promociones"];
+        if (operatorAllowed.includes(pathname)) {
+          return supabaseResponse;
+        }
+      }
+    } catch {}
+
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;

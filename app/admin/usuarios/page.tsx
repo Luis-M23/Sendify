@@ -116,7 +116,7 @@ export default function UsersAdminPage() {
           <div>
             <CardTitle>Gestión de Usuarios</CardTitle>
             <CardDescription>
-              Administra los roles y visualiza la última conexión
+              Administra los roles de los usuarios
             </CardDescription>
           </div>
 
