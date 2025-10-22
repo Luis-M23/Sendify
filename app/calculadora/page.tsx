@@ -75,7 +75,7 @@ const defaultCalculadoraValues: Calculadora = {
 };
 
 export default function CalculatorPage() {
-  const { usuarioMetadata: user, recompensa } = useAuth();
+  const { usuarioMetadata: user, recompensa, isAutenticado } = useAuth();
 
   const {
     register,
@@ -730,8 +730,9 @@ export default function CalculatorPage() {
                       className="w-full mt-5"
                       size="lg"
                       onClick={confirmarPaquete}
+                      disabled={!isAutenticado}
                     >
-                      Confirmar
+                      {!isAutenticado ? "Debe iniciar sesión" : "Confirmar"}
                     </Button>
                   </CardContent>
                 </Card>

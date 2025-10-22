@@ -179,7 +179,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-2">
               <ThemeToggle />
 
-              {isAutenticado && (
+              {isAutenticado ? (
                 <>
                   <Link href="/notificaciones">
                     <Button variant="ghost" size="icon" className="relative">
@@ -220,6 +220,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="icon" className="relative">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </Link>
                 </>
               )}
             </div>
