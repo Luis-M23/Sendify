@@ -72,7 +72,9 @@ export default function NotificationsPage() {
     }
   }, [notificacionesActivas]);
 
-  setNotificacionesActivas(false);
+  useEffect(() => {
+    setNotificacionesActivas(false);
+  }, []);
 
   const unreadCount = notifications.filter((n) => !n.leido).length;
 
