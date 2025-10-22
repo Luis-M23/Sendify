@@ -52,7 +52,7 @@ type AddressFormData = z.infer<typeof direccionSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
-  const { user, recompensa, usuarioMetadata } = useAuth();
+  const { usuarioMetadata, recompensa, isAutenticado } = useAuth();
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(perfilSchema),
@@ -87,13 +87,16 @@ export default function ProfilePage() {
   }, [usuarioMetadata?.direccion_entrega, addressForm]);
 
   const onProfileSubmit = async (data: ProfileFormData) => {
-    if (!user?.id) {
+    if (!usuarioMetadata?.id_usuario) {
       toast.error("No se encontró un usuario autenticado");
       return;
     }
 
     try {
-      await UsuarioMetadataService.updateNombreCompleto(user.id, data.nombre);
+      await UsuarioMetadataService.updateNombreCompleto(
+        usuarioMetadata.id_usuario,
+        data.nombre
+      );
       await AuthService.updateProfile(data);
       toast.success("Perfil actualizado");
     } catch (error) {
@@ -107,16 +110,19 @@ export default function ProfilePage() {
   };
 
   const onAddressSubmit = async (data: AddressFormData) => {
-    if (!user?.id) {
+    if (!usuarioMetadata?.id_usuario) {
       toast.error("No se encontró un usuario autenticado");
       return;
     }
 
     try {
-      await UsuarioMetadataService.updateDireccionEntrega(user.id, {
-        direccion: data.direccion,
-        telefono: data.telefono,
-      });
+      await UsuarioMetadataService.updateDireccionEntrega(
+        usuarioMetadata.id_usuario,
+        {
+          direccion: data.direccion,
+          telefono: data.telefono,
+        }
+      );
       toast.success("Dirección actualizada");
     } catch (error) {
       const message =
@@ -145,6 +151,14 @@ export default function ProfilePage() {
       console.error("Password change error:", error);
     }
   };
+
+  if (!isAutenticado) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-5xl mx-auto space-y-6">Cargando</div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -192,7 +206,7 @@ export default function ProfilePage() {
                       <Input
                         id="email"
                         type="email"
-                        value={user?.email}
+                        value={usuarioMetadata?.correo}
                         disabled={true}
                         className="pl-9"
                       />
@@ -241,7 +255,7 @@ export default function ProfilePage() {
                   <div className="space-y-2">
                     <Label htmlFor="direccion">Dirección</Label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <MapPin className="absolute left-3 top-2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="direccion"
                         {...addressForm.register("direccion")}
@@ -259,7 +273,11 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <Input id="telefono" {...addressForm.register("telefono")} placeholder="+503 7060-8050"/>
+                      <Input
+                        id="telefono"
+                        {...addressForm.register("telefono")}
+                        placeholder="+503 7060-8050"
+                      />
                       {addressForm.formState.errors.telefono && (
                         <p className="text-sm text-destructive">
                           {addressForm.formState.errors.telefono.message}
