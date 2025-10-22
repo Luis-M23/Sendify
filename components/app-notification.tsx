@@ -9,20 +9,20 @@ import {
 import { Notificacion } from "@/lib/validation/notificacion";
 
 export function AppNotification({ children }: { children: React.ReactNode }) {
-  const { user, setHasUnread } = useAuth();
+  const { usuarioMetadata, setNotificacionesActivas } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (!usuarioMetadata) return;
 
     const channel = Realtime.subscribe(
       "notificaciones",
-      `id_usuario=eq.${user.id}`,
+      `id_usuario=eq.${usuarioMetadata.id_usuario}`,
       (payload: SupabaseRealtimePayload<Notificacion>) => {
         if (
           payload.eventType === "INSERT" &&
-          payload.new?.id_usuario === user.id
+          payload.new?.id_usuario === usuarioMetadata.id_usuario
         ) {
-          setHasUnread(true);
+          setNotificacionesActivas(true);
           const audio = new Audio("/sounds/beep.mp3");
           audio
             .play()
@@ -40,7 +40,7 @@ export function AppNotification({ children }: { children: React.ReactNode }) {
     return () => {
       if (channel) Realtime.unsubscribe(channel);
     };
-  }, [user, setHasUnread]);
+  }, [usuarioMetadata, setNotificacionesActivas]);
 
   return <>{children}</>;
 }

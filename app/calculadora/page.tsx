@@ -75,7 +75,7 @@ const defaultCalculadoraValues: Calculadora = {
 };
 
 export default function CalculatorPage() {
-  const { user, recompensa } = useAuth();
+  const { usuarioMetadata: user, recompensa } = useAuth();
 
   const {
     register,

@@ -1,3 +1,4 @@
+import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
 import { Paquete, PaqueteSchema } from "@/lib/validation/paquete";
@@ -90,12 +91,12 @@ export const PaqueteService = {
     return (data ?? []).map(parsePaquete);
   },
 
-  async create(user: User, payload: Paquete): Promise<Paquete> {
+  async create(user: UsuarioMetadata, payload: Paquete): Promise<Paquete> {
     const paquete = parsePaquete(payload);
 
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .insert({ id_usuario: user.id, ...paquete })
+      .insert({ id_usuario: user.id_usuario, ...paquete })
       .select()
       .single();
 
