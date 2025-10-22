@@ -30,7 +30,9 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
 // Server Actions
-import { getAllUsers, updateUserRole } from "@/app/admin/usuarios/actions";
+import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
+import { RolesSistema } from "@/lib/enum";
+import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 
 type UserRow = {
   id: string;
@@ -42,7 +44,7 @@ type UserRow = {
 export default function UsersAdminPage() {
   const supabase = createClient();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [users, setUsers] = useState<UserRow[]>([]);
+  const [users, setUsers] = useState<UsuarioMetadata[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -61,7 +63,7 @@ export default function UsersAdminPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const data = await getAllUsers();
+      const data = await UsuarioMetadataService.getAll();
       setUsers(data);
     } catch (error: any) {
       console.error("Error loading users:", error);
@@ -75,11 +77,11 @@ export default function UsersAdminPage() {
     loadUsers();
   }, []);
 
-  const handleRoleChange = (user: UserRow, role: UserRow["rol"]) => {
+  const handleRoleChange = (user: UsuarioMetadata, role: RolesSistema) => {
     toast.info(
       <div>
         <p>
-          Actualizar rol de: <strong>{user.email}</strong>
+          Actualizar rol de: <strong>{user.correo}</strong>
         </p>
         <p>
           Nuevo rol: <strong>{role}</strong>
@@ -87,8 +89,8 @@ export default function UsersAdminPage() {
         <button
           onClick={async () => {
             try {
-              await updateUserRole(user.id, role);
-              toast.success(`Rol de ${user.email} actualizado a ${role}`);
+              await UsuarioMetadataService.updateRol(user.id_usuario, role);
+              toast.success(`Rol de ${user.correo} actualizado a ${role}`);
               await loadUsers();
             } catch (error: any) {
               toast.error(error.message || "Error actualizando rol");
@@ -104,7 +106,7 @@ export default function UsersAdminPage() {
   };
 
   const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    u.correo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -145,23 +147,21 @@ export default function UsersAdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Email</TableHead>
+                    <TableHead>Nombre</TableHead>
                     <TableHead className="text-center">Rol</TableHead>
-                    <TableHead className="text-center">
-                      Última conexión
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.email}</TableCell>
+                    <TableRow key={user.id_usuario}>
+                      <TableCell>{user.correo}</TableCell>
+                      <TableCell>{user.nombre_completo}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex justify-center">
                           <Select
-                            // disabled={user.id === currentUserId}
                             value={user.rol}
                             onValueChange={(val) =>
-                              handleRoleChange(user, val as UserRow["rol"])
+                              handleRoleChange(user, val as RolesSistema)
                             }
                           >
                             <SelectTrigger className="w-48">
@@ -171,27 +171,11 @@ export default function UsersAdminPage() {
                               <SelectItem value="administrador">
                                 Administrador
                               </SelectItem>
-                              <SelectItem value="ventas">Ventas</SelectItem>
+                              <SelectItem value="operador">Operador</SelectItem>
                               <SelectItem value="cliente">Cliente</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {user.last_sign_in_at
-                          ? new Date(user.last_sign_in_at).toLocaleString(
-                              "es-SV",
-                              {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                                hour12: true,
-                              }
-                            )
-                          : "Nunca"}
                       </TableCell>
                     </TableRow>
                   ))}
