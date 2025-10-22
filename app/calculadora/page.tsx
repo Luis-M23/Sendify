@@ -38,6 +38,8 @@ import { CasilleroService } from "@/lib/supabase/services/casilleroService";
 import { FactorConversionService } from "@/lib/supabase/services/factorConversionService";
 import { toast } from "react-toastify";
 import { CategoriaService } from "@/lib/supabase/services/categoriaService";
+import { DireccionService } from "@/lib/supabase/services/direccionService";
+import { DireccionDistrito } from "@/lib/validation/direccion";
 import { Categoria } from "@/lib/validation/categoria";
 import { PermisoMap } from "@/lib/map";
 import { idTipoServicioEnum } from "@/lib/enum";
@@ -63,7 +65,8 @@ type CostoKey = "costo_aereo" | "costo_maritimo" | "costo_terrestre";
 
 type MedioKey = "aereo" | "maritimo" | "terrestre";
 
-const defaultCalculadoraValues: Calculadora = {
+const defaultCalculadoraValues = {
+  id_direccion: null,
   id_casillero: null,
   id_categoria: null,
   id_tipo_transporte: null,
@@ -72,7 +75,7 @@ const defaultCalculadoraValues: Calculadora = {
   largo: "",
   ancho: "",
   alto: "",
-};
+} as unknown as Calculadora;
 
 export default function CalculatorPage() {
   const { usuarioMetadata: user, recompensa, isAutenticado } = useAuth();
@@ -83,12 +86,14 @@ export default function CalculatorPage() {
     watch,
     setValue,
     reset,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<Calculadora>({
     resolver: zodResolver(CalculadoraSchema),
     defaultValues: defaultCalculadoraValues,
   });
 
+  const idDireccion = watch("id_direccion");
   const idCasillero = watch("id_casillero");
   const idCategoria = watch("id_categoria");
   const idTipoTransporte = watch("id_tipo_transporte");
@@ -99,6 +104,7 @@ export default function CalculatorPage() {
 
   const [casilleros, setCasilleros] = useState<Casillero[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [direcciones, setDirecciones] = useState<DireccionDistrito[]>([]);
 
   const [factoresConversion, setFactoresConversion] = useState<
     FactorConversion[]
@@ -114,6 +120,8 @@ export default function CalculatorPage() {
 
   const [selectedFactorConversion, setSelectedFactorConversion] =
     useState<FactorConversion | null>(null);
+  const [selectedDireccion, setSelectedDireccion] =
+    useState<DireccionDistrito | null>(null);
 
   const loadData = async () => {
     try {
@@ -125,6 +133,10 @@ export default function CalculatorPage() {
 
       const categorias = await CategoriaService.getAll();
       setCategorias(categorias);
+      const direccionesLocales = await DireccionService.getAll();
+      setDirecciones(
+        direccionesLocales.filter((direccion) => direccion.activo !== false)
+      );
     } catch (error: any) {
       toast.error(error.message || "Ocurrió un error al cargar los datos");
     } finally {
@@ -166,6 +178,19 @@ export default function CalculatorPage() {
   useEffect(() => {
     setValue("id_tipo_transporte", null, { shouldValidate: false });
   }, [idCasillero, idCategoria, setValue]);
+
+  useEffect(() => {
+    if (
+      typeof idDireccion === "number" &&
+      !Number.isNaN(idDireccion) &&
+      direcciones.length > 0
+    ) {
+      const direccionFind = direcciones.find((d) => d.id === idDireccion);
+      setSelectedDireccion(direccionFind || null);
+    } else {
+      setSelectedDireccion(null);
+    }
+  }, [idDireccion, direcciones]);
 
   const mapCostToMedio = (costKey: CostoKey): MedioKey => {
     return costKey.slice(6) as MedioKey;
@@ -216,11 +241,13 @@ export default function CalculatorPage() {
   const handleClearForm = () => {
     setPaquete(null);
     reset({ ...defaultCalculadoraValues });
+    setValue("id_direccion", null, { shouldValidate: false });
     setValue("id_casillero", null, { shouldValidate: false });
     setValue("id_categoria", null, { shouldValidate: false });
     setValue("id_tipo_transporte", null, { shouldValidate: false });
     setSelectedCasillero(null);
     setSelectedCategoria(null);
+    setSelectedDireccion(null);
     setIsFormLocked(false);
     setFormResetKey((key) => key + 1);
   };
@@ -646,6 +673,56 @@ export default function CalculatorPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label htmlFor="id_direccion">Tipo de entrega</Label>
+                  <Select
+                    key={`direccion-${formResetKey}`}
+                    value={
+                      idDireccion !== null && idDireccion !== undefined
+                        ? String(idDireccion)
+                        : "domicilio"
+                    }
+                    onValueChange={(value) => {
+                      if (value === "domicilio") {
+                        setValue("id_direccion", null, {
+                          shouldValidate: true,
+                        });
+                      } else {
+                        setValue("id_direccion", Number(value), {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                    disabled={isFormLocked}
+                  >
+                    <SelectTrigger
+                      id="id_direccion"
+                      className={
+                        errors.id_direccion ? "border-destructive" : ""
+                      }
+                    >
+                      <SelectValue placeholder="Selecciona cómo recibir el paquete" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="domicilio">
+                        Envío a domicilio
+                      </SelectItem>
+                      {direcciones.map((direccion) => (
+                        <SelectItem key={direccion.id} value={String(direccion.id)}>
+                          {direccion.direccion}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.id_direccion && (
+                    <p className="text-sm text-destructive flex items-center gap-1">
+                      {errors.id_direccion.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row">

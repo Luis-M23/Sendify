@@ -55,13 +55,25 @@ export const CalculadoraService = {
     });
 
     const impuestos = tarifaAplicada * 0.13;
-    const subtotal = tarifaAplicada + impuestos;
 
     factura.push({
       prioridad: "default",
       clave: `Impuestos (13%)`,
       valor: String(impuestos.toFixed(2)),
     });
+
+    let subtotal = tarifaAplicada + impuestos;
+
+    const envioDomicilio = 2.5;
+
+    if (!formDeclaracion.id_direccion) {
+      subtotal += envioDomicilio;
+      factura.push({
+        prioridad: "default",
+        clave: `Envío a domicilio ($)`,
+        valor: String(envioDomicilio.toFixed(2)),
+      });
+    }
 
     factura.push({
       prioridad: "default",
@@ -86,7 +98,7 @@ export const CalculadoraService = {
       });
     }
 
-    const total = tarifaAplicada + impuestos - descuento;
+    const total = subtotal - descuento;
 
     factura.push({
       prioridad: "important",

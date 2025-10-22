@@ -1,6 +1,13 @@
 import * as z from "zod";
 
 export const CalculadoraSchema = z.object({
+  id_direccion: z.nullable(
+    z
+      .number({
+        invalid_type_error: "Selecciona una dirección válida",
+      })
+      .positive("Selecciona una dirección válida")
+  ),
   id_casillero: z
     .nullable(z.number())
     .refine((val) => val !== null && val !== 0, {
