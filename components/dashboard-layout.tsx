@@ -33,7 +33,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const { usuarioMetadata, recompensa, notificacionesActivas } = useAuth();
+  const { usuarioMetadata, recompensa, notificacionesActivas, isAutenticado } =
+    useAuth();
 
   const handleLogout = async () => {
     try {
@@ -64,7 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <Package className="h-8 w-8 text-primary" />
               <span className="text-xl font-bold">ShipGlobal</span>
             </Link>
@@ -156,46 +157,49 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-2">
               <ThemeToggle />
 
-              <Link href="/notificaciones">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
+              {isAutenticado && (
+                <>
+                  <Link href="/notificaciones">
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Bell className="h-5 w-5" />
 
-                  {notificacionesActivas && (
-                    <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
-                  )}
-                </Button>
-              </Link>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>{" "}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>
-                    <Badge className="w-full justify-center bg-chart-4/20 text-chart-4">
-                      {recompensa?.nivel || "Miembro"}
-                    </Badge>
-                  </DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link href="/perfil" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      Perfil
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Cerrar Sesión
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      {notificacionesActivas && (
+                        <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+                      )}
+                    </Button>
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>{" "}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>
+                        <Badge className="w-full justify-center bg-chart-4/20 text-chart-4">
+                          {recompensa?.nivel || "Miembro"}
+                        </Badge>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href="/perfil" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          Perfil
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Cerrar Sesión
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
             </div>
           </div>
         </header>

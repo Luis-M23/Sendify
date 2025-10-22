@@ -111,7 +111,6 @@ export default function RecompensasPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Separator />
-
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-4/20">
@@ -119,7 +118,7 @@ export default function RecompensasPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {usuarioMetadata?.compras_realizadas}
+                    {usuarioMetadata?.compras_realizadas || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Envíos realizados

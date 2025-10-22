@@ -41,7 +41,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -68,8 +67,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
+      <section className="container mx-auto px-4 py-10 text-center">
         <h2 className="text-5xl font-bold mb-6 text-balance">
           Gestión Profesional de Envíos Internacionales
         </h2>
@@ -84,7 +82,7 @@ export default function HomePage() {
               Calcular Envío
             </Button>
           </Link>
-          <Link href="/notificaciones">
+          <Link href="/tracking">
             <Button
               size="lg"
               variant="outline"
@@ -97,9 +95,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="container mx-auto px-4 py-16">
-        <h3 className="text-3xl font-bold text-center mb-12">
+      <section className="container mx-auto px-4">
+        <h3 className="text-3xl font-bold text-center mb-4">
           Módulos del Sistema
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -195,30 +192,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Admin Section */}
-      <section className="container mx-auto px-4 py-16">
-        <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-          <CardHeader className="text-center">
-            <div className="h-16 w-16 rounded-lg bg-primary/20 flex items-center justify-center mx-auto mb-4">
-              <Settings className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Panel Administrativo</CardTitle>
-            <CardDescription className="text-base">
-              Gestiona tarifas, usuarios, impuestos y genera reportes
-              gerenciales completos.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Link href="/admin">
-              <Button size="lg" variant="outline">
-                Acceder al Panel
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Footer */}
       <footer className="border-t border-border mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
           <p>

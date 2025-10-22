@@ -23,18 +23,19 @@ import { useAuth } from "@/components/auth-provider";
 import { toast } from "react-toastify";
 
 export default function NotificationsPage() {
-  const { user, loading: authLoading, setHasUnread } = useAuth();
+  const { usuarioMetadata, cargando: authLoading, setNotificacionesActivas } = useAuth();
 
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cargando, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setHasUnread(false);
+    setNotificacionesActivas(false);
 
     const loadNotifications = async () => {
       if (authLoading) return;
-      if (!user) {
+      
+      if (!usuarioMetadata) {
         setNotifications([]);
         setLoading(false);
         return;
@@ -44,7 +45,7 @@ export default function NotificationsPage() {
         setLoading(true);
         setError(null);
 
-        const data = await NotificacionService.getByUserId(user.id);
+        const data = await NotificacionService.getByUserId(usuarioMetadata.id_usuario);
         setNotifications(data);
       } catch (err: any) {
         console.error("Error cargando notificaciones:", err);
@@ -58,7 +59,7 @@ export default function NotificationsPage() {
     };
 
     loadNotifications();
-  }, [authLoading, user, setHasUnread]);
+  }, [authLoading, usuarioMetadata, setNotificacionesActivas]);
 
   const unreadCount = notifications.filter((n) => !n.leido).length;
 
@@ -88,9 +89,9 @@ export default function NotificationsPage() {
   };
 
   const markAllAsRead = async () => {
-    if (!user) return;
+    if (!usuarioMetadata) return;
     try {
-      await NotificacionService.markAllAsRead(user.id);
+      await NotificacionService.markAllAsRead(usuarioMetadata.id_usuario);
       setNotifications((prev) => prev.map((n) => ({ ...n, leido: true })));
       toast.success("Todas las notificaciones marcadas como leídas");
     } catch (err: any) {
@@ -111,9 +112,9 @@ export default function NotificationsPage() {
   };
 
   const deleteAllRead = async () => {
-    if (!user) return;
+    if (!usuarioMetadata) return;
     try {
-      await NotificacionService.deleteRead(user.id);
+      await NotificacionService.deleteRead(usuarioMetadata.id_usuario);
       setNotifications((prev) => prev.filter((n) => !n.leido));
       toast.success("Notificaciones leídas eliminadas");
     } catch (err: any) {
@@ -214,7 +215,7 @@ export default function NotificationsPage() {
           <div>
             <h1 className="text-3xl font-bold">Notificaciones</h1>
             <p className="text-muted-foreground">
-              {loading
+              {cargando
                 ? "Cargando tus notificaciones..."
                 : `Tienes ${unreadCount} ${
                     unreadCount === 1
@@ -228,7 +229,7 @@ export default function NotificationsPage() {
               variant="outline"
               size="sm"
               onClick={markAllAsRead}
-              disabled={!user || unreadCount === 0 || loading}
+              disabled={!usuarioMetadata || unreadCount === 0 || cargando}
             >
               <Check className="mr-2 h-4 w-4" />
               Marcar todas como leídas
@@ -237,7 +238,7 @@ export default function NotificationsPage() {
               variant="outline"
               size="sm"
               onClick={deleteAllRead}
-              disabled={!user || notifications.every((n) => !n.leido)}
+              disabled={!usuarioMetadata || notifications.every((n) => !n.leido)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Eliminar leídas
@@ -253,7 +254,7 @@ export default function NotificationsPage() {
           </Card>
         )}
 
-        {!user && !authLoading ? (
+        {!usuarioMetadata && !authLoading ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               Inicia sesión para ver tus notificaciones.
@@ -261,7 +262,7 @@ export default function NotificationsPage() {
           </Card>
         ) : null}
 
-        {user ? (
+        {usuarioMetadata ? (
           <Tabs defaultValue="all" className="space-y-6">
             <div className="flex items-center justify-between">
               <TabsList>
@@ -288,7 +289,7 @@ export default function NotificationsPage() {
             </div>
 
             <TabsContent value="all" className="space-y-4">
-              {loading ? (
+              {cargando ? (
                 <Card>
                   <CardContent className="py-12 text-center text-muted-foreground">
                     Cargando notificaciones...
@@ -300,7 +301,7 @@ export default function NotificationsPage() {
             </TabsContent>
 
             <TabsContent value="unread" className="space-y-4">
-              {loading ? (
+              {cargando ? (
                 <Card>
                   <CardContent className="py-12 text-center text-muted-foreground">
                     Cargando notificaciones...
