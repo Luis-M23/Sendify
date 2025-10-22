@@ -263,7 +263,7 @@ export default function TrackingPage() {
                                   </div>
                                   {!formattedDate && (
                                     <p className="text-xs text-muted-foreground">
-                                      Sin actualizaciones registradas.
+                                      Pendiente
                                     </p>
                                   )}
                                   {isCurrent && (

@@ -6,11 +6,11 @@ export const EstadoSeguimientoSchema = z.object({
   fecha_actualizado: z.string().nullable(),
 });
 
-
 export type EstadoSeguimiento = z.infer<typeof EstadoSeguimientoSchema>;
 
 export const EstadoSeguimientoDefault: EstadoSeguimiento[] = [
-  { nombre: "Recibido en casillero", activo: false, fecha_actualizado: null },
+  { nombre: "Pendiente de Recepción", activo: false, fecha_actualizado: null },
+  { nombre: "Recibido en Casillero", activo: false, fecha_actualizado: null },
   { nombre: "Asignando Vuelo", activo: false, fecha_actualizado: null },
   { nombre: "Recibido en Aduana", activo: false, fecha_actualizado: null },
   {
