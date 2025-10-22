@@ -32,17 +32,6 @@ export async function validateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   if (
-    !user &&
-    !pathname.startsWith("/") &&
-    !pathname.startsWith("/login") &&
-    !pathname.startsWith("/registro")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  if (
     user &&
     (pathname.startsWith("/login") || pathname.startsWith("/registro"))
   ) {
