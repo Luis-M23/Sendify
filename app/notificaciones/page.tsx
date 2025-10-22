@@ -23,43 +23,56 @@ import { useAuth } from "@/components/auth-provider";
 import { toast } from "react-toastify";
 
 export default function NotificationsPage() {
-  const { usuarioMetadata, cargando: authLoading, setNotificacionesActivas } = useAuth();
+  const {
+    usuarioMetadata,
+    cargando: authLoading,
+    setNotificacionesActivas,
+    notificacionesActivas,
+  } = useAuth();
 
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
   const [cargando, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadNotifications = async () => {
+    if (authLoading) return;
+
+    if (!usuarioMetadata) {
+      setNotifications([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await NotificacionService.getByUserId(
+        usuarioMetadata.id_usuario
+      );
+      setNotifications(data);
+    } catch (err: any) {
+      console.error("Error cargando notificaciones:", err);
+      setError(
+        err?.message ||
+          "No se pudieron cargar tus notificaciones. Intenta más tarde."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setNotificacionesActivas(false);
-
-    const loadNotifications = async () => {
-      if (authLoading) return;
-      
-      if (!usuarioMetadata) {
-        setNotifications([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const data = await NotificacionService.getByUserId(usuarioMetadata.id_usuario);
-        setNotifications(data);
-      } catch (err: any) {
-        console.error("Error cargando notificaciones:", err);
-        setError(
-          err?.message ||
-            "No se pudieron cargar tus notificaciones. Intenta más tarde."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadNotifications();
-  }, [authLoading, usuarioMetadata, setNotificacionesActivas]);
+  }, [authLoading, usuarioMetadata]);
+
+  useEffect(() => {
+    if (notificacionesActivas) {
+      loadNotifications();
+    }
+  }, [notificacionesActivas]);
+
+  setNotificacionesActivas(false);
 
   const unreadCount = notifications.filter((n) => !n.leido).length;
 
@@ -238,7 +251,9 @@ export default function NotificationsPage() {
               variant="outline"
               size="sm"
               onClick={deleteAllRead}
-              disabled={!usuarioMetadata || notifications.every((n) => !n.leido)}
+              disabled={
+                !usuarioMetadata || notifications.every((n) => !n.leido)
+              }
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Eliminar leídas
