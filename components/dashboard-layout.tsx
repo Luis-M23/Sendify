@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,12 @@ import {
 import { Package, Menu, X, LogOut, User, Bell } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { adminNavigation, navigation } from "@/lib/navigation";
+import {
+  adminNavigation,
+  clienteNavigation,
+  NavigationItem,
+  operadorNavigation,
+} from "@/lib/navigation";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/lib/supabase/services/authService";
 import { toast } from "react-toastify";
@@ -32,6 +37,11 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAdministrativo, setIsAdministrativo] = useState(false);
+  const [rutasAdministrativas, setRutasAdministrativas] = useState<
+    NavigationItem[]
+  >([]);
+
   const router = useRouter();
   const { usuarioMetadata, recompensa, notificacionesActivas, isAutenticado } =
     useAuth();
@@ -46,7 +56,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   };
 
-  const isAdmin = usuarioMetadata?.rol === RolesSistema.CLIENTE;
+  useEffect(() => {
+    const admin =
+      usuarioMetadata?.rol === RolesSistema.ADMINISTRADOR ||
+      usuarioMetadata?.rol === RolesSistema.OPERADOR;
+
+    setIsAdministrativo(admin);
+
+    setRutasAdministrativas([...operadorNavigation]);
+
+    if (usuarioMetadata?.rol === RolesSistema.ADMINISTRADOR) {
+      setRutasAdministrativas([...operadorNavigation, ...adminNavigation]);
+    }
+  }, [usuarioMetadata]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,7 +102,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-            {navigation.map((item) => {
+            {clienteNavigation.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link key={item.name} href={item.href}>
@@ -99,14 +121,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               );
             })}
 
-            {isAdmin && (
+            {isAdministrativo && (
               <>
                 <div className="pt-4 pb-2">
                   <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Administración
                   </p>
                 </div>
-                {adminNavigation.map((item) => {
+                {rutasAdministrativas.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link key={item.name} href={item.href}>

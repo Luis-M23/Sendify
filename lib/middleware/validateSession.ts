@@ -1,4 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
+import { RolesSistema } from "@/lib/enum";
+import { UsuarioMetadataService } from "@/lib/supabase/services/usuarioMetadataService";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function validateSession(request: NextRequest) {
@@ -40,9 +42,24 @@ export async function validateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname.startsWith("/admin")) {
-    const rol = user.app_metadata?.rol;
-    if (rol !== "administrador") {
+  if (pathname.startsWith("/admin")) {
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    try {
+      const usuarioMetadata = await UsuarioMetadataService.getById(
+        user.id,
+      );
+      
+      if (usuarioMetadata?.rol !== RolesSistema.ADMINISTRADOR) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+      }
+    } catch {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);

@@ -21,7 +21,7 @@ export type NavigationItem = {
   description?: string;
 };
 
-export const navigation: NavigationItem[] = [
+export const clienteNavigation: NavigationItem[] = [
   { name: "Calcular Envío", href: "/calculadora", icon: Calculator },
   { name: "Seguimiento", href: "/tracking", icon: Package },
   { name: "Recompensas", href: "/recompensas", icon: Crown },
@@ -30,14 +30,27 @@ export const navigation: NavigationItem[] = [
   { name: "Reportes", href: "/reports", icon: FileText },
 ];
 
+export const operadorNavigation: NavigationItem[] = [
+  {
+    name: "Promociones",
+    href: "/admin/promociones",
+    icon: Gift,
+  },
+  {
+    name: "Paquetes",
+    href: "/admin/paquetes",
+    icon: Package,
+  },
+];
+
 export const adminNavigation: NavigationItem[] = [
   {
-    name: "Panel de Control",
+    name: "Panel Administrativo",
     href: "/admin",
     icon: Settings,
   },
   {
-    name: "Factores de conversión",
+    name: "Factores de Conversión",
     href: "/admin/factores-conversion",
     icon: Package,
   },
@@ -57,20 +70,11 @@ export const adminNavigation: NavigationItem[] = [
     icon: Folder,
   },
   {
-    name: "Promociones",
-    href: "/admin/promociones",
-    icon: Gift,
-  },
-  {
     name: "Recompensas",
     href: "/admin/recompensas",
     icon: Crown,
   },
-  {
-    name: "Paquetes",
-    href: "/admin/paquetes",
-    icon: Package,
-  },
+
   {
     name: "Usuarios",
     href: "/admin/usuarios",
