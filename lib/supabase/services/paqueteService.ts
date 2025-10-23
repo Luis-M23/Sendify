@@ -2,7 +2,6 @@ import { UsuarioMetadata } from "@/lib/validation/usuarioMetadata";
 import { createClient } from "../client";
 import { supabaseErrorMap } from "../errorMap";
 import { Paquete, PaqueteSchema } from "@/lib/validation/paquete";
-import { User } from "@supabase/supabase-js";
 
 const supabase = createClient();
 const TABLE_NAME = "paquetes";
@@ -113,7 +112,7 @@ export const PaqueteService = {
     codigo: string,
     estadoSeguimiento: Paquete["estado_seguimiento"]
   ): Promise<Paquete> {
-    const activo = !estadoSeguimiento.every(({activo}) => !activo)
+    const activo = estadoSeguimiento.some((estado) => estado.activo);
 
     const { data, error } = await supabase
       .from(TABLE_NAME)
@@ -130,5 +129,20 @@ export const PaqueteService = {
     }
 
     return parsePaquete(data);
+  },
+
+  async getTotalCount(): Promise<number> {
+    const { count, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*", { count: "exact", head: true });
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al obtener el total de paquetes procesados."
+      );
+    }
+
+    return count ?? 0;
   },
 };

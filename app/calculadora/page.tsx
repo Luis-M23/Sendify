@@ -744,6 +744,7 @@ export default function CalculatorPage() {
                           shouldValidate: true,
                         });
                       }
+                      clearErrors("id_direccion");
                     }}
                     disabled={isFormLocked}
                   >

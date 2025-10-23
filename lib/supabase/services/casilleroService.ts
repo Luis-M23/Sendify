@@ -106,4 +106,20 @@ export const CasilleroService = {
 
     return true;
   },
+
+  async countActivos(): Promise<number> {
+    const { count, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*", { count: "exact", head: true })
+      .eq("activo", true);
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al contar los casilleros activos"
+      );
+    }
+
+    return count ?? 0;
+  },
 };

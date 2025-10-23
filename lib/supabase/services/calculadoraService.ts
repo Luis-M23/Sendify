@@ -82,7 +82,6 @@ export const CalculadoraService = {
       (promocionAplicada?.porcentaje_descuento || 0) / 100;
 
     if (promocionPorcentaje) {
-      console.log({promocionAplicada});
       const descuento = costoBase * promocionPorcentaje;
       costoBase = costoBase - descuento;
 

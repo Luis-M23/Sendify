@@ -19,7 +19,6 @@ const DETAIL_SELECT = `
 const parseDetalle = (payload: unknown): PaqueteDetalle => {
   const result = PaqueteDetalleSchema.safeParse(payload);
 
-  console.log(result);
   if (!result.success) {
     console.error(
       "Respuesta de detalle de paquete inválida:",

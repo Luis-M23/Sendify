@@ -107,4 +107,20 @@ export const DireccionService = {
 
     return true;
   },
+
+  async countActivas(): Promise<number> {
+    const { count, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*", { count: "exact", head: true })
+      .eq("activo", true);
+
+    if (error) {
+      throw new Error(
+        supabaseErrorMap[error.code] ||
+          "Error al contar las direcciones activas"
+      );
+    }
+
+    return count ?? 0;
+  },
 };
