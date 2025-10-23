@@ -55,7 +55,7 @@ export default function PromocionesPage() {
         <header>
           <h1 className="text-3xl font-bold">Promociones</h1>
           <p className="text-muted-foreground">
-            Descubre las ofertas activas y las que están próximas a lanzarse.
+            Descubre las ofertas activas y las que están próximas a lanzarse
           </p>
         </header>
 

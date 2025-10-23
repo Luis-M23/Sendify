@@ -108,28 +108,43 @@ export default function CalculatorPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [direcciones, setDirecciones] = useState<DireccionDistrito[]>([]);
   const [promocionInput, setPromocionInput] = useState("");
-  const [promocionSeleccionada, setPromocionSeleccionada] = useState<Promocion | null>(null);
+  const [promocionSeleccionada, setPromocionSeleccionada] =
+    useState<Promocion | null>(null);
   const [showPromoError, setShowPromoError] = useState(false);
   const [isPromoCodeDisabled, setIsPromoCodeDisabled] = useState(false);
-
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const promoValida = await PromocionService.findValidPromotionByCode(promocionInput);
+      const promoValida = await PromocionService.findValidPromotionByCode(
+        promocionInput
+      );
       setShowPromoError(!promoValida);
 
       if (!promoValida) {
-        toast.error(`Promoción inválida`)
-        return
+        toast.error(`Promoción inválida`);
+        return;
       }
 
-      if (Array.isArray(promoValida.restricciones_categorias) && promoValida.restricciones_categorias.map(Number).includes(idCategoria || 0)) {
+      if (
+        Array.isArray(promoValida.restricciones_categorias) &&
+        promoValida.restricciones_categorias
+          .map(Number)
+          .includes(idCategoria || 0)
+      ) {
         setIsPromoCodeDisabled(true);
         setPromocionSeleccionada(promoValida);
-        toast.success(`Descuento disponible de ${promoValida.porcentaje_descuento}%`)
+        toast.success(
+          `Descuento disponible de ${promoValida.porcentaje_descuento}%`
+        );
+      } else if (promoValida.restricciones_categorias === null) {
+        setIsPromoCodeDisabled(true);
+        setPromocionSeleccionada(promoValida);
+        toast.success(
+          `Descuento disponible de ${promoValida.porcentaje_descuento}%`
+        );
       } else {
-        toast.error('La promoción no se puede aplicar en la categoria');
+        toast.error("La promoción no se puede aplicar en la categoria");
       }
     }
   };
@@ -278,6 +293,10 @@ export default function CalculatorPage() {
     setSelectedDireccion(null);
     setIsFormLocked(false);
     setFormResetKey((key) => key + 1);
+
+    setPromocionInput("");
+    setIsPromoCodeDisabled(false);
+    setPromocionSeleccionada(null);
   };
 
   const confirmarPaquete = async () => {
@@ -300,13 +319,16 @@ export default function CalculatorPage() {
     }
 
     if (selectedCasillero && selectedCategoria && selectedFactorConversion) {
-      const paqueteCalculado = CalculadoraService.cotizar({
-        formDeclaracion: data,
-        formCasillero: selectedCasillero,
-        formCategoria: selectedCategoria,
-        formFactorConversion: selectedFactorConversion,
-        recompensaActual: recompensa,
-      }, promocionSeleccionada);
+      const paqueteCalculado = CalculadoraService.cotizar(
+        {
+          formDeclaracion: data,
+          formCasillero: selectedCasillero,
+          formCategoria: selectedCategoria,
+          formFactorConversion: selectedFactorConversion,
+          recompensaActual: recompensa,
+        },
+        promocionSeleccionada
+      );
 
       setPaquete(paqueteCalculado);
       setIsFormLocked(true);
@@ -738,7 +760,10 @@ export default function CalculatorPage() {
                         Envío a domicilio
                       </SelectItem>
                       {direcciones.map((direccion) => (
-                        <SelectItem key={direccion.id} value={String(direccion.id)}>
+                        <SelectItem
+                          key={direccion.id}
+                          value={String(direccion.id)}
+                        >
                           {direccion.direccion}
                         </SelectItem>
                       ))}
@@ -752,7 +777,10 @@ export default function CalculatorPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="promocionInput" className="text-xs text-muted-foreground">
+                  <Label
+                    htmlFor="promocionInput"
+                    className="text-xs text-muted-foreground"
+                  >
                     Código de Promoción (Presiona ENTER para comprobar validez)
                   </Label>
                   <Input

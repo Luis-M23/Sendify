@@ -5,7 +5,10 @@ import { Paquete } from "@/lib/validation/paquete";
 import { Promocion } from "@/lib/validation/promociones";
 
 export const CalculadoraService = {
-  cotizar(payload: Cotizacion, promocionAplicada: Promocion | null = null): Paquete {
+  cotizar(
+    payload: Cotizacion,
+    promocionAplicada: Promocion | null = null
+  ): Paquete {
     const factura: FacturaItem[] = [];
 
     const {
@@ -47,48 +50,24 @@ export const CalculadoraService = {
     const casilleroPrecio =
       formCasillero[CasilleroCostoMap[formFactorConversion.id]];
 
-    const tarifaAplicada = pesoFacturable * casilleroPrecio;
+    let costoBase = pesoFacturable * casilleroPrecio;
 
     factura.push({
       prioridad: "default",
       clave: `Tarifa Aplicada ($${casilleroPrecio}/kg)`,
-      valor: String(tarifaAplicada.toFixed(2)),
+      valor: String(costoBase.toFixed(2)),
     });
 
-    const impuestos = tarifaAplicada * 0.13;
-
-    factura.push({
-      prioridad: "default",
-      clave: `Impuestos (13%)`,
-      valor: String(impuestos.toFixed(2)),
-    });
-
-    let subtotal = tarifaAplicada + impuestos;
-
-    const envioDomicilio = 2.5;
-
-    if (!formDeclaracion.id_direccion) {
-      subtotal += envioDomicilio;
-      factura.push({
-        prioridad: "default",
-        clave: `Envío a domicilio ($)`,
-        valor: String(envioDomicilio.toFixed(2)),
-      });
-    }
-
-    factura.push({
-      prioridad: "default",
-      clave: `Subtotal ($)`,
-      valor: String(subtotal.toFixed(2)),
-    });
-
-    const recompensaPorcentaje = recompensaActual?.porcentaje_descuento || 0;
-    const descuento = subtotal * (recompensaPorcentaje / 100);
+    const recompensaPorcentaje =
+      (recompensaActual?.porcentaje_descuento || 0) / 100;
 
     if (recompensaPorcentaje) {
+      const descuento = costoBase * recompensaPorcentaje;
+      costoBase = costoBase - descuento;
+
       factura.push({
         prioridad: "promo",
-        clave: `Recompensa (-${recompensaPorcentaje}%)`,
+        clave: `Recompensa (-${recompensaPorcentaje * 100}%)`,
         valor: String(-descuento.toFixed(2)),
       });
     } else {
@@ -99,33 +78,51 @@ export const CalculadoraService = {
       });
     }
 
-    const descuentoPromocionPorcentaje = (recompensaActual?.porcentaje_descuento || 0) / 100;
+    const promocionPorcentaje =
+      (promocionAplicada?.porcentaje_descuento || 0) / 100;
 
-    const totalSinPromo = subtotal - descuento
-    let descuentoPromo = totalSinPromo
+    if (promocionPorcentaje) {
+      console.log({promocionAplicada});
+      const descuento = costoBase * promocionPorcentaje;
+      costoBase = costoBase - descuento;
 
-    if (promocionAplicada) {
-      const totaldescuentoPromo = totalSinPromo * descuentoPromocionPorcentaje
-      descuentoPromo -= totaldescuentoPromo
       factura.push({
         prioridad: "promo",
-        clave: `Promoción aplicada (-${descuentoPromocionPorcentaje}%)`,
-        valor: String(-totaldescuentoPromo.toFixed(2)),
+        clave: `Promoción aplicada (-${promocionPorcentaje * 100}%)`,
+        valor: String(-descuento.toFixed(2)),
       });
     }
 
-    const total = totalSinPromo - descuentoPromo;
+    const impuestos = costoBase * 0.13;
+    costoBase += impuestos;
+
+    factura.push({
+      prioridad: "default",
+      clave: `Impuestos (13%)`,
+      valor: String(impuestos.toFixed(2)),
+    });
+
+    if (!formDeclaracion.id_direccion) {
+      const envioDomicilio = 2.5;
+      costoBase += envioDomicilio;
+
+      factura.push({
+        prioridad: "default",
+        clave: `Envío a domicilio ($)`,
+        valor: String(envioDomicilio.toFixed(2)),
+      });
+    }
 
     factura.push({
       prioridad: "important",
       clave: `Total ($)`,
-      valor: String(total.toFixed(2)),
+      valor: String(costoBase.toFixed(2)),
     });
 
     return {
       ...formDeclaracion,
       codigo: `${formCasillero.codigo}-${Date.now().toString().slice(-8)}`,
-      total: +total.toFixed(2),
+      total: +costoBase.toFixed(2),
       factura,
       estado_seguimiento: EstadoSeguimientoDefault,
       activo: true,

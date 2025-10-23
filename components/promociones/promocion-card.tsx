@@ -41,8 +41,13 @@ export function PromocionCard({
             <CardDescription>{promocion.descripcion}</CardDescription>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-primary">{promocion.codigo}</p>
-            <p className="text-xl font-bold text-muted-foreground">Código</p>
+            <p className="text-3xl font-bold text-primary">
+              {promocion.codigo}{" "}
+            </p>
+            <p className="text-3xl font-bold text-primary">
+              {promocion.porcentaje_descuento}%
+            </p>
+            <p className="text-sm font-bold text-muted-foreground">Código</p>
           </div>
         </div>
       </CardHeader>
