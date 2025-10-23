@@ -5,7 +5,7 @@ import {
   Gift,
   Crown,
   Package,
-  Navigation,
+  Wrench,
   FileText,
   Settings,
   Globe,
@@ -32,6 +32,11 @@ export const clienteNavigation: NavigationItem[] = [
 
 export const operadorNavigation: NavigationItem[] = [
   {
+    name: "Dashboard Administrativo",
+    href: "/admin",
+    icon: Settings,
+  },
+  {
     name: "Promociones",
     href: "/admin/promociones",
     icon: Gift,
@@ -45,14 +50,9 @@ export const operadorNavigation: NavigationItem[] = [
 
 export const adminNavigation: NavigationItem[] = [
   {
-    name: "Panel Administrativo",
-    href: "/admin",
-    icon: Settings,
-  },
-  {
     name: "Factores de Conversión",
     href: "/admin/factores-conversion",
-    icon: Package,
+    icon: Wrench,
   },
   {
     name: "Casilleros",

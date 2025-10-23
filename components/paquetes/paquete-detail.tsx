@@ -197,7 +197,7 @@ export function PaqueteDetail({
                       activo ? "bg-emerald-500" : "bg-slate-400"
                     )}
                   />
-                  {activo ? "Activo" : "Inactivo"}
+                  {activo ? "Pendiente" : "Entregado"}
                 </span>
               }
             />

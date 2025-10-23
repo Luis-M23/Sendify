@@ -113,9 +113,11 @@ export const PaqueteService = {
     codigo: string,
     estadoSeguimiento: Paquete["estado_seguimiento"]
   ): Promise<Paquete> {
+    const activo = !estadoSeguimiento.every(({activo}) => !activo)
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .update({ estado_seguimiento: estadoSeguimiento })
+      .update({ estado_seguimiento: estadoSeguimiento, activo })
       .eq("codigo", codigo)
       .select()
       .single();
