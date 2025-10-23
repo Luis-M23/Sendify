@@ -47,6 +47,8 @@ import { CalculadoraService } from "@/lib/supabase/services/calculadoraService";
 import { useAuth } from "@/components/auth-provider";
 import { Paquete } from "@/lib/validation/paquete";
 import { PaqueteService } from "@/lib/supabase/services/paqueteService";
+import { PromocionService } from "@/lib/supabase/services/promocionService";
+import { Promocion } from "@/lib/validation/promociones";
 
 interface QuoteResult {
   pesoReal: number;
@@ -105,6 +107,32 @@ export default function CalculatorPage() {
   const [casilleros, setCasilleros] = useState<Casillero[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [direcciones, setDirecciones] = useState<DireccionDistrito[]>([]);
+  const [promocionInput, setPromocionInput] = useState("");
+  const [promocionSeleccionada, setPromocionSeleccionada] = useState<Promocion | null>(null);
+  const [showPromoError, setShowPromoError] = useState(false);
+  const [isPromoCodeDisabled, setIsPromoCodeDisabled] = useState(false);
+
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const promoValida = await PromocionService.findValidPromotionByCode(promocionInput);
+      setShowPromoError(!promoValida);
+
+      if (!promoValida) {
+        toast.error(`Promoción inválida`)
+        return
+      }
+
+      if (Array.isArray(promoValida.restricciones_categorias) && promoValida.restricciones_categorias.map(Number).includes(idCategoria || 0)) {
+        setIsPromoCodeDisabled(true);
+        setPromocionSeleccionada(promoValida);
+        toast.success(`Descuento disponible de ${promoValida.porcentaje_descuento}%`)
+      } else {
+        toast.error('La promoción no se puede aplicar en la categoria');
+      }
+    }
+  };
 
   const [factoresConversion, setFactoresConversion] = useState<
     FactorConversion[]
@@ -278,11 +306,10 @@ export default function CalculatorPage() {
         formCategoria: selectedCategoria,
         formFactorConversion: selectedFactorConversion,
         recompensaActual: recompensa,
-      });
+      }, promocionSeleccionada);
 
-      console.log({ paqueteCalculado });
       setPaquete(paqueteCalculado);
-      // setIsFormLocked(true);
+      setIsFormLocked(true);
     } else {
       toast.error("No se puede generar la cotización");
     }
@@ -461,7 +488,6 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                {/* Service Type */}
                 <div className="space-y-2">
                   <Label>Tipo de Servicio</Label>
 
@@ -721,6 +747,25 @@ export default function CalculatorPage() {
                   {errors.id_direccion && (
                     <p className="text-sm text-destructive flex items-center gap-1">
                       {errors.id_direccion.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="promocionInput" className="text-xs text-muted-foreground">
+                    Código de Promoción (Presiona ENTER para comprobar validez)
+                  </Label>
+                  <Input
+                    id="promocionInput"
+                    type="text"
+                    value={promocionInput}
+                    onChange={(e) => setPromocionInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isPromoCodeDisabled}
+                  />
+                  {showPromoError && (
+                    <p className="text-xs text-destructive flex items-center gap-1">
+                      Código inválido
                     </p>
                   )}
                 </div>

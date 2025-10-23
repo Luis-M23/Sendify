@@ -50,6 +50,17 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "react-toastify";
 
+const isActiveOrFuture = (promotion: Promocion) => {
+  const now = new Date();
+  const startDate = new Date(promotion.fecha_inicio);
+  const endDate = new Date(promotion.fecha_fin);
+
+  const isActive = startDate <= now && endDate >= now;
+  const isFuture = startDate > now;
+
+  return isActive || isFuture;
+};
+
 export default function PromotionsAdminPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [promociones, setPromociones] = useState<Promocion[]>([]);
@@ -75,7 +86,7 @@ export default function PromotionsAdminPage() {
       filtradas = [...promociones];
     } else {
       filtradas = [
-        ...promociones.filter((promotion) => promotion.activo === true),
+        ...promociones.filter(isActiveOrFuture),
       ];
     }
 
@@ -201,12 +212,7 @@ export default function PromotionsAdminPage() {
     setPromotionToRestore(null);
   };
 
-  const isActive = (promotion: Promocion) => {
-    const now = new Date();
-    const startDate = new Date(promotion.fecha_inicio);
-    const endDate = new Date(promotion.fecha_fin);
-    return promotion.activo && startDate <= now && endDate >= now;
-  };
+
 
   const isExpired = (promotion: Promocion) => {
     const now = new Date();
@@ -256,7 +262,7 @@ export default function PromotionsAdminPage() {
                     className="rounded"
                   />
                   <label htmlFor="mostrarInactivos" className="text-sm">
-                    Mostrar inactivas
+                    Mostrar todas
                   </label>
                 </div>
                 <div className="relative">
@@ -286,7 +292,7 @@ export default function PromotionsAdminPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {promocionesMemo.length}
+                    {promocionesMemo.filter(isActiveOrFuture).length}
                   </div>
                 </CardContent>
               </Card>
@@ -333,7 +339,6 @@ export default function PromotionsAdminPage() {
                     <TableHead className="text-left">Promoción</TableHead>
                     <TableHead className="text-center">Período</TableHead>
                     <TableHead className="text-left">Categorías</TableHead>
-                    <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -377,52 +382,21 @@ export default function PromotionsAdminPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
-                        {!promotion.activo ? (
-                          <Badge className="bg-red-100 text-red-800 border-red-200">
-                            Inactiva
-                          </Badge>
-                        ) : isExpired(promotion) ? (
-                          <Badge className="bg-destructive/20 text-destructive border-destructive/30">
-                            Expirada
-                          </Badge>
-                        ) : isActive(promotion) ? (
-                          <Badge className="bg-green-100 text-green-800 border-green-200">
-                            Activa
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-chart-4/20 text-chart-4 border-chart-4/30">
-                            Próxima
-                          </Badge>
-                        )}
-                      </TableCell>
                       <TableCell className="text-right flex gap-2 justify-center">
-                        {!promotion.activo ? (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRestorePromotion(promotion)}
-                          >
-                            <RotateCcw className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditPromotion(promotion)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeletePromotion(promotion)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditPromotion(promotion)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeletePromotion(promotion)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>       
                       </TableCell>
                     </TableRow>
                   ))}

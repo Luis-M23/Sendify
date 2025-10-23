@@ -21,9 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, FileText, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
 import { toast } from "react-toastify";
-
 import { Paquete } from "@/lib/validation/paquete";
 import { PaqueteService } from "@/lib/supabase/services/paqueteService";
 import { Progress } from "@/components/ui/progress";
@@ -216,6 +214,7 @@ export default function PaquetesAdminPage() {
                     <TableHead>Producto</TableHead>
                     <TableHead className="text-center">Entrega</TableHead>
                     <TableHead className="text-center">Total</TableHead>
+                    <TableHead className="text-center">Entregado</TableHead>
                     <TableHead className="text-center">Estado</TableHead>
                     <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
@@ -275,6 +274,17 @@ export default function PaquetesAdminPage() {
                         </TableCell>
                         <TableCell className="text-center">
                           {formatCurrency(paquete.total)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {paquete.activo ? (
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                              Pendiente Entrega
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                              Entregado
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col gap-3 m">

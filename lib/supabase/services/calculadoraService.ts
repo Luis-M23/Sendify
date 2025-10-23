@@ -2,9 +2,10 @@ import { CasilleroCostoMap } from "@/lib/map";
 import { Cotizacion, FacturaItem } from "@/lib/validation/cotizacion";
 import { EstadoSeguimientoDefault } from "@/lib/validation/estadoEnvio";
 import { Paquete } from "@/lib/validation/paquete";
+import { Promocion } from "@/lib/validation/promociones";
 
 export const CalculadoraService = {
-  cotizar(payload: Cotizacion): Paquete {
+  cotizar(payload: Cotizacion, promocionAplicada: Promocion | null = null): Paquete {
     const factura: FacturaItem[] = [];
 
     const {
@@ -98,7 +99,22 @@ export const CalculadoraService = {
       });
     }
 
-    const total = subtotal - descuento;
+    const descuentoPromocionPorcentaje = (recompensaActual?.porcentaje_descuento || 0) / 100;
+
+    const totalSinPromo = subtotal - descuento
+    let descuentoPromo = totalSinPromo
+
+    if (promocionAplicada) {
+      const totaldescuentoPromo = totalSinPromo * descuentoPromocionPorcentaje
+      descuentoPromo -= totaldescuentoPromo
+      factura.push({
+        prioridad: "promo",
+        clave: `Promoción aplicada (-${descuentoPromocionPorcentaje}%)`,
+        valor: String(-totaldescuentoPromo.toFixed(2)),
+      });
+    }
+
+    const total = totalSinPromo - descuentoPromo;
 
     factura.push({
       prioridad: "important",

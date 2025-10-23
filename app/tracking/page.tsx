@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Package, CheckCircle2, Clock, Circle } from "lucide-react";
+import { Loader2, Package, CheckCircle2, Clock, Circle, FileText } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -17,6 +17,7 @@ import { useAuth } from "@/components/auth-provider";
 import { Paquete } from "@/lib/validation/paquete";
 import { PaqueteService } from "@/lib/supabase/services/paqueteService";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("es-SV", {
   dateStyle: "medium",
@@ -29,7 +30,7 @@ const getPaqueteStatusBadgeClass = (activo: boolean) =>
     : "border border-slate-300 bg-slate-100 text-slate-600";
 
 const getPaqueteStatusLabel = (activo: boolean) =>
-  activo ? "Activo" : "Inactivo";
+  activo ? "Pendiente" : "Entregado";
 
 export default function TrackingPage() {
   const { usuarioMetadata, cargando, isAutenticado } = useAuth();
@@ -126,7 +127,7 @@ export default function TrackingPage() {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[345px_1fr]">
           <Card>
             <CardHeader>
               <CardTitle>Mis paquetes</CardTitle>
@@ -168,6 +169,21 @@ export default function TrackingPage() {
                           >
                             {getPaqueteStatusLabel(isActive)}
                           </Badge>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="h-8 w-8 bg-muted text-muted-foreground hover:bg-muted/80"
+                          >
+                            <Link
+                              href={`/factura/${paquete.codigo}`}
+                              className="flex h-8 w-8 items-center justify-center"
+                            >
+                              <FileText className="h-4 w-4" />
+                              <span className="sr-only">
+                                Ver factura
+                              </span>
+                            </Link>
+                          </Button>
                         </div>
                       </Button>
                     );

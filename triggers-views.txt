@@ -169,3 +169,32 @@ CREATE TRIGGER trg_sync_user_metadata
 AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION public.fn_sync_user_metadata();
+
+-- CONTEO POR CASILLEROS
+CREATE OR REPLACE VIEW conteo_paquetes_por_casillero AS
+SELECT 
+  p.id_casillero,
+  c.codigo AS codigo_casillero,
+  COUNT(*) FILTER (WHERE p.activo = true) AS activos,
+  COUNT(*) FILTER (WHERE p.activo = false) AS inactivos
+FROM public.paquetes p
+JOIN public.casilleros c ON p.id_casillero = c.id
+GROUP BY p.id_casillero, c.codigo;
+
+
+-- CANTIDAD DE ACTIVOS E INACTIVOS
+CREATE OR REPLACE VIEW total_paquetes_activos_inactivos AS
+SELECT 
+  COUNT(*) FILTER (WHERE activo = true) AS activos,
+  COUNT(*) FILTER (WHERE activo = false) AS inactivos
+FROM public.paquetes;
+
+-- PAQUETES POR MES
+CREATE OR REPLACE VIEW paquetes_por_mes AS
+SELECT
+  DATE_TRUNC('month', created_at) AS mes,
+  COUNT(*) AS cantidad
+FROM public.paquetes
+GROUP BY mes
+ORDER BY mes;
+
