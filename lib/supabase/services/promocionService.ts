@@ -8,6 +8,7 @@ import { supabaseErrorMap } from "../errorMap";
 
 const supabase = createClient();
 const DEFAULT_TIMEZONE = "America/El_Salvador";
+const TABLE_NAME = "promociones"
 
 const getTodayDateString = (timeZone = DEFAULT_TIMEZONE) => {
   const now = new Date();
@@ -18,7 +19,7 @@ const getTodayDateString = (timeZone = DEFAULT_TIMEZONE) => {
 export const PromocionService = {
   async getAll(): Promise<Promocion[]> {
     const { data, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .select("*")
       .order("id", { ascending: false });
     if (error)
@@ -30,7 +31,7 @@ export const PromocionService = {
 
   async getById(id: number): Promise<Promocion | null> {
     const { data, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .select("*")
       .eq("id", id)
       .single();
@@ -46,7 +47,7 @@ export const PromocionService = {
   async create(data: CrearPromocion): Promise<Promocion> {
     const { ...payload } = data;
     const { data: created, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .insert(payload)
       .select()
       .single();
@@ -64,7 +65,7 @@ export const PromocionService = {
       restricciones_categorias: data.restricciones_categorias || null,
     };
     const { data: updatedData, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .update(updateData)
       .eq("id", id)
       .select()
@@ -78,7 +79,7 @@ export const PromocionService = {
 
   async delete(id: number): Promise<boolean> {
     const { error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .delete()
       .eq("id", id);
 
@@ -91,7 +92,7 @@ export const PromocionService = {
 
   async restore(id: number): Promise<boolean> {
     const { error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .update({ activo: true })
       .eq("id", id);
     if (error)
@@ -116,7 +117,7 @@ export const PromocionService = {
     const today = getTodayDateString();
 
     const { data, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .select("*")
       .lte("fecha_inicio", today)
       .gte("fecha_fin", today)
@@ -134,7 +135,7 @@ export const PromocionService = {
     const today = getTodayDateString();
 
     const { data, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .select("*")
       .gt("fecha_inicio", today)
       .order("fecha_inicio", { ascending: true });
@@ -148,7 +149,7 @@ export const PromocionService = {
 
   async search(query: string): Promise<Promocion[]> {
     const { data, error } = await supabase
-      .from("promociones")
+      .from(TABLE_NAME)
       .select("*")
       .or(`titulo.ilike.%${query}%,descripcion.ilike.%${query}%`)
       .order("created_at", { ascending: false });
@@ -158,4 +159,26 @@ export const PromocionService = {
       );
     return data as Promocion[];
   },
+
+  async findValidPromotionByCode(codigo: string): Promise<Promocion | null> {
+    const today = new Date().toISOString().split("T")[0];
+
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .eq("codigo", codigo)
+      .lte("fecha_inicio", today)
+      .gte("fecha_fin", today)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw new Error(
+        supabaseErrorMap[error.code] || "Error al buscar promoción válida"
+      );
+    }
+
+    return data as Promocion | null;
+  },
+
 };
