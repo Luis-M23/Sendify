@@ -32,7 +32,7 @@ export const clienteNavigation: NavigationItem[] = [
 
 export const operadorNavigation: NavigationItem[] = [
   {
-    name: "Dashboard Administrativo",
+    name: "Estadísticas",
     href: "/admin",
     icon: Settings,
   },
