@@ -7,7 +7,6 @@ export const PromocionSchema = z.object({
   descripcion: z.string().optional().nullable(),
   fecha_inicio: z.date({ message: "La fecha de inicio es requerida" }),
   fecha_fin: z.date({ message: "La fecha de fin es requerida" }),
-  activo: z.boolean().default(true),
   envio_gratis: z.boolean().default(true),
   uso_actual: z.number().min(0).max(1000000).default(0),
   porcentaje_descuento: z

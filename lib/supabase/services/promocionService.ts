@@ -79,8 +79,9 @@ export const PromocionService = {
   async delete(id: number): Promise<boolean> {
     const { error } = await supabase
       .from("promociones")
-      .update({ activo: false })
+      .delete()
       .eq("id", id);
+
     if (error)
       throw new Error(
         supabaseErrorMap[error.code] || "Error al eliminar promoción"
@@ -117,7 +118,6 @@ export const PromocionService = {
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
-      .eq("activo", true)
       .lte("fecha_inicio", today)
       .gte("fecha_fin", today)
       .order("fecha_inicio", { ascending: true });
@@ -136,7 +136,6 @@ export const PromocionService = {
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
-      .eq("activo", true)
       .gt("fecha_inicio", today)
       .order("fecha_inicio", { ascending: true });
 
@@ -151,7 +150,6 @@ export const PromocionService = {
     const { data, error } = await supabase
       .from("promociones")
       .select("*")
-      .eq("activo", true)
       .or(`titulo.ilike.%${query}%,descripcion.ilike.%${query}%`)
       .order("created_at", { ascending: false });
     if (error)
