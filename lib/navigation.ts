@@ -31,11 +31,6 @@ export const clienteNavigation: NavigationItem[] = [
 
 export const operadorNavigation: NavigationItem[] = [
   {
-    name: "Estadísticas",
-    href: "/admin",
-    icon: Settings,
-  },
-  {
     name: "Promociones",
     href: "/admin/promociones",
     icon: Gift,
@@ -48,6 +43,11 @@ export const operadorNavigation: NavigationItem[] = [
 ];
 
 export const adminNavigation: NavigationItem[] = [
+  {
+    name: "Estadísticas",
+    href: "/admin",
+    icon: Settings,
+  },
   {
     name: "Factores de Conversión",
     href: "/admin/factores-conversion",
