@@ -164,12 +164,11 @@ export default function TrackingPage() {
                               {paquete.codigo}
                             </span>
                           </div>
-                          <Badge
-                            className={getPaqueteStatusBadgeClass(isActive)}
-                          >
+                          <Badge className={getPaqueteStatusBadgeClass(isActive)}>
                             {getPaqueteStatusLabel(isActive)}
                           </Badge>
                           <Button
+                            asChild
                             variant="secondary"
                             size="icon"
                             className="h-8 w-8 bg-muted text-muted-foreground hover:bg-muted/80"
@@ -179,9 +178,7 @@ export default function TrackingPage() {
                               className="flex h-8 w-8 items-center justify-center"
                             >
                               <FileText className="h-4 w-4" />
-                              <span className="sr-only">
-                                Ver factura
-                              </span>
+                              <span className="sr-only">Ver factura</span>
                             </Link>
                           </Button>
                         </div>

@@ -165,12 +165,12 @@ function SiteHeader({ isAutenticado, onLogout }: SiteHeaderProps) {
             </Button>
           ) : (
             <>
-              <Link href="/login">
-                <Button variant="ghost">Iniciar Sesión</Button>
-              </Link>
-              <Link href="/registro">
-                <Button>Registrarse</Button>
-              </Link>
+              <Button asChild variant="ghost">
+                <Link href="/login">Iniciar Sesión</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/registro">Registrarse</Link>
+              </Button>
             </>
           )}
         </nav>
@@ -233,25 +233,27 @@ function HeroSection({
             </li>
           </ul>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/calculadora" className="sm:w-auto">
-              <Button
-                size="lg"
-                className="h-14 gap-3 rounded-2xl bg-gradient-to-r from-primary via-primary/90 to-primary/70 px-8 text-base shadow-xl transition-transform hover:-translate-y-0.5"
-              >
+            <Button
+              asChild
+              size="lg"
+              className="h-14 gap-3 rounded-2xl bg-gradient-to-r from-primary via-primary/90 to-primary/70 px-8 text-base shadow-xl transition-transform hover:-translate-y-0.5"
+            >
+              <Link href="/calculadora">
                 <Calculator className="h-5 w-5" />
-                Cotizar Envío Ahora
-              </Button>
-            </Link>
-            <Link href="/dashboard" className="sm:w-auto">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-14 gap-3 rounded-2xl border-primary/40 px-8 text-base shadow-sm hover:border-primary/60"
-              >
+                Cotizar envío ahora
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-14 gap-3 rounded-2xl border-primary/40 px-8 text-base shadow-sm hover:border-primary/60"
+            >
+              <Link href="/dashboard">
                 <TrendingUp className="h-5 w-5" />
-                Visitar Sitio
-              </Button>
-            </Link>
+                Visitar panel operativo
+              </Link>
+            </Button>
           </div>
         </div>
 
