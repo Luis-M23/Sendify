@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { PaqueteDetalle } from "@/lib/validation/paquete";
 import { PaqueteDetalleService } from "@/lib/supabase/services/paqueteDetalleService";
+import { Badge } from "@/components/ui/badge";
 
 type PaqueteDetailProps = {
   codigo: string | null;
@@ -97,9 +98,11 @@ export function PaqueteDetail({
 
   const clienteNombre = useMemo(() => {
     if (!paquete) return "Nombre no disponible";
-    return paquete.usuario_metadata?.nombre_completo?.trim() ||
+    return (
+      paquete.usuario_metadata?.nombre_completo?.trim() ||
       paquete.usuario_metadata?.id_usuario ||
-      "Nombre no disponible";
+      "Nombre no disponible"
+    );
   }, [paquete]);
 
   if (!codigo) {
@@ -257,6 +260,17 @@ export function PaqueteDetail({
         </h3>
         <div className="mt-3 space-y-2">
           <InfoRow label="Nombre" value={clienteNombre} />
+        </div>
+        <div className="mt-3 space-y-2">
+                          {paquete.id_direccion ? (
+                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                              Retiro en local
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                              Envío a domicilio
+                            </Badge>
+                          )}
         </div>
       </section>
 

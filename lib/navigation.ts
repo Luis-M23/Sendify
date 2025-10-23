@@ -27,7 +27,6 @@ export const clienteNavigation: NavigationItem[] = [
   { name: "Recompensas", href: "/recompensas", icon: Crown },
   { name: "Promociones", href: "/promociones", icon: Gift },
   { name: "Restricciones", href: "/restricciones", icon: Shield },
-  { name: "Reportes", href: "/reports", icon: FileText },
 ];
 
 export const operadorNavigation: NavigationItem[] = [

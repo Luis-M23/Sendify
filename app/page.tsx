@@ -175,7 +175,7 @@ export default function HomePage() {
             </Card>
           </Link>
 
-          <Link href="/reports">
+          {/* <Link href="/reports">
             <Card className="hover:border-primary transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="h-12 w-12 rounded-lg bg-chart-5/10 flex items-center justify-center mb-4">
@@ -188,7 +188,7 @@ export default function HomePage() {
                 </CardDescription>
               </CardHeader>
             </Card>
-          </Link>
+          </Link> */}
         </div>
       </section>
 

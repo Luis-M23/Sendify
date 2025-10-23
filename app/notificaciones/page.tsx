@@ -167,7 +167,7 @@ export default function NotificationsPage() {
             <Bell className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium">Sin notificaciones</p>
             <p className="text-sm text-muted-foreground">
-              Te notificaremos cuando haya novedades.
+              Te notificaremos cuando haya novedades
             </p>
           </CardContent>
         </Card>
