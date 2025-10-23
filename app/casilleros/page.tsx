@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, MapPin, Warehouse, PackageSearch } from "lucide-react";
+import { Loader2, PackageSearch } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CasilleroService } from "@/lib/supabase/services/casilleroService";
 import type { Casillero } from "@/lib/validation/casillero";
@@ -95,17 +94,6 @@ export default function PublicCasillerosPage() {
         )}
       </section>
     </DashboardLayout>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: number | string }) {
-  return (
-    <Card className="border border-primary/20 bg-background/80">
-      <CardContent className="space-y-1 px-4 py-5">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-2xl font-semibold text-primary">{value}</p>
-      </CardContent>
-    </Card>
   );
 }
 

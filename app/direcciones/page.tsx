@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MapPinned, Clock3, Phone, PackageSearch, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Clock3, PackageSearch, Loader2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { DireccionService } from "@/lib/supabase/services/direccionService";
 import type { DireccionDistrito } from "@/lib/validation/direccion";
 import { toast } from "react-toastify";
